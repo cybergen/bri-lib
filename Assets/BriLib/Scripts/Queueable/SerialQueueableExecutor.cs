@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 public class SerialQueueableExecutor : IQueueable
@@ -31,13 +31,54 @@ public class SerialQueueableExecutor : IQueueable
         _queue.Enqueue(queueable);
     }
 
+    private IQueueable _current;
+
     public void Begin()
     {
-        throw new NotImplementedException();
+        if (_queue.Count > 0)
+        {
+            _current = _queue.Dequeue();
+            _current.OnEnded += OnCurrentEnded;
+            _current.OnKilled += OnCurrentKilled;
+            _current.Begin();
+        }
+        OnBegan.Execute(this);
     }
 
     public void Kill()
     {
-        throw new NotImplementedException();
+        if (_current != null)
+        {
+            _current.OnEnded -= OnCurrentEnded;
+            _current.OnKilled -= OnCurrentKilled;
+            _current.Kill();
+            _current = null;
+        }
+        OnKilled.Execute(this);
+    }
+
+    private void OnCurrentEnded(IQueueable obj)
+    {
+        _current.OnKilled -= OnCurrentKilled;
+        _current.OnEnded -= OnCurrentEnded;
+
+        if (_queue.Count > 0)
+        {
+            _current = _queue.Dequeue();
+            _current.OnEnded += OnCurrentEnded;
+            _current.OnKilled += OnCurrentKilled;
+            _current.Begin();
+        }
+        else
+        {
+            OnEnded.Execute(this);
+        }
+    }
+
+    private void OnCurrentKilled(IQueueable obj)
+    {
+        _current.OnKilled -= OnCurrentKilled;
+        _current.OnEnded -= OnCurrentEnded;
+        OnKilled.Execute(this);
     }
 }

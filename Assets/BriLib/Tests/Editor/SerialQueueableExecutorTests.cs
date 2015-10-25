@@ -96,7 +96,7 @@ public class SerialQueueableExecutorTests
         _executor.Queue(_queueableTwo);
         Assert.AreEqual(0, _queueTwoBeginCallCount, "Begin callback on queueable 2 not yet triggered");
         _executor.Begin();
-        Assert.AreEqual(1, _queueTwoBeginCallCount, "Begin callback on queueable 2 should have triggered once");
+        Assert.AreEqual(0, _queueTwoBeginCallCount, "Begin callback on queueable 2 should still not trigger");
     }
 
     [Test]
@@ -108,7 +108,7 @@ public class SerialQueueableExecutorTests
         _executor.Begin();
         Assert.AreEqual(0, _queueTwoKillCallCount, "Kill callback on queueable 2 not yet triggered");
         _executor.Kill();
-        Assert.AreEqual(1, _queueTwoKillCallCount, "Kill callback on queueable 2 should have triggered once");
+        Assert.AreEqual(0, _queueTwoKillCallCount, "Kill callback on queueable 2 should not trigger");
     }
 
     [Test]
@@ -121,7 +121,7 @@ public class SerialQueueableExecutorTests
         _executor.Begin();
         Assert.AreEqual(0, _queueTwoBeginCallCount, "Begin callback on queueable 2 not yet triggered");
         _queueableOne.ForceEnd();
-        Assert.AreEqual(1, _queueTwoKillCallCount, "Begin callback on queueable 2 should have triggered once when queueable 1 finished");
+        Assert.AreEqual(1, _queueTwoBeginCallCount, "Begin callback on queueable 2 should have triggered once when queueable 1 finished");
     }
 
     [Test]
@@ -137,5 +137,16 @@ public class SerialQueueableExecutorTests
         Assert.AreEqual(0, _executorEndCallCount, "Executor should not yet have triggered end callback");
         _queueableTwo.ForceEnd();
         Assert.AreEqual(1, _executorEndCallCount, "Executor should have triggered end callback");
+    }
+
+    [Test]
+    public void KillCurrentPlaying()
+    {
+        Assert.AreEqual(0, _executorKillCallCount, "Executor kill should not yet have triggered");
+        _executor.Queue(_queueableOne);
+        _executor.Begin();
+        Assert.AreEqual(0, _executorKillCallCount, "Executor kill should not yet have triggered");
+        _queueableOne.Kill();
+        Assert.AreEqual(1, _executorKillCallCount, "Executor kill should have triggered");
     }
 }
