@@ -1,32 +1,35 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public static class StaticExtensions
+namespace BriLib
 {
-    public static void ForEach(this IEnumerable list, Action<object> action)
+    public static class StaticExtensions
     {
-        for (var enumerator = list.GetEnumerator(); enumerator.MoveNext();)
+        public static void ForEach(this IEnumerable list, Action<object> action)
         {
-            action.Execute(enumerator.Current);
+            for (var enumerator = list.GetEnumerator(); enumerator.MoveNext();)
+            {
+                action.Execute(enumerator.Current);
+            }
         }
-    }
 
-    public static void ForEach<T>(this IEnumerable<T> list, Action<T> action)
-    {
-        for (var enumerator = list.GetEnumerator(); enumerator.MoveNext();)
+        public static void ForEach<T>(this IEnumerable<T> list, Action<T> action)
         {
-            action.Execute(enumerator.Current);
+            for (var enumerator = list.GetEnumerator(); enumerator.MoveNext();)
+            {
+                action.Execute(enumerator.Current);
+            }
         }
-    }
 
-    public static void Execute(this Action action)
-    {
-        if (action != null) { action(); }
-    }
+        public static void Execute(this Action action)
+        {
+            if (action != null) { action(); }
+        }
 
-    public static void Execute<T>(this Action<T> action, T obj)
-    {
-        if (action != null) { action(obj); }
+        public static void Execute<T>(this Action<T> action, T obj)
+        {
+            if (action != null) { action(obj); }
+        }
     }
 }

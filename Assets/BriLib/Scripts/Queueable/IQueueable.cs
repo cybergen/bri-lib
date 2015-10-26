@@ -1,11 +1,14 @@
-﻿using System;
+using System;
 
-public interface IQueueable
+namespace BriLib
 {
-    Action<IQueueable> OnBegan { get; set; }
-    Action<IQueueable> OnEnded { get; set; }
-    Action<IQueueable> OnKilled { get; set; }
+    public interface IQueueable
+    {
+        Action<IQueueable> OnBegan { get; set; }
+        Action<IQueueable> OnEnded { get; set; }
+        Action<IQueueable> OnKilled { get; set; }
 
-    void Begin();
-    void Kill();
+        void Begin();
+        void Kill();
+    }
 }
