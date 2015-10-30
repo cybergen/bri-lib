@@ -34,15 +34,15 @@ namespace BriLib
             return new MappedCollection<L, T>(this, mapper);
         }
 
-        public T1 Reduce<T1>(T1 seed, Action<object, T1> reducer)
+        public T1 ReduceNonGeneric<T1>(T1 seed, Func<object, T1, T1> reducer)
         {
-            this.ForEach((entry) => { reducer(entry, seed); });
+            this.ForEach((entry) => { seed = reducer(entry, seed); });
             return seed;
         }
 
-        public K Reduce<K>(K seed, Action<T, K> reducer)
+        public K Reduce<K>(K seed, Func<T, K, K> reducer)
         {
-            this.ForEach((entry) => { reducer(entry, seed); });
+            this.ForEach((entry) => { seed = reducer(entry, seed); });
             return seed;
         }
 

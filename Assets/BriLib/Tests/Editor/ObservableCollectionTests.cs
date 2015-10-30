@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using BriLib;
 
@@ -12,6 +9,9 @@ public class ObservableCollectionTests
     private TestObject _objOne;
     private TestObject _objTwo;
     private TestObject _objThree;
+
+    private object _addedObj;
+    private int _addedObjIndex;
 
     [SetUp]
     public void Setup()
@@ -25,73 +25,205 @@ public class ObservableCollectionTests
     [Test]
     public void AddItem()
     {
-
+        TestObject addedItem = null;
+        int index = -1;
+        _list.OnAdded += (ind, obj) => { index = ind; addedItem = obj; };
+        _list.Add(_objOne);
+        Assert.AreEqual(0, index, "Item added to index 0");
+        Assert.AreEqual(_objOne, addedItem, "Added item was item one");
     }
 
     [Test]
     public void MembersPresent()
     {
-
+        Assert.AreEqual(0, _list.Count, "Count should still be 0");
+        _list.Add(_objOne);
+        Assert.AreEqual(1, _list.Count, "Count should be 1");
+        Assert.True(_list.Contains(_objOne), "Object one should be in list");
+        _list.Add(_objTwo);
+        Assert.AreEqual(2, _list.Count, "Count should become 2");
+        Assert.True(_list.Contains(_objTwo), "Object two should be in list");
+        Assert.True(_list.Contains(_objOne), "Object one should be in list");
     }
 
     [Test]
     public void RemoveItem()
     {
-
+        TestObject removedItem = null;
+        int index = -1;
+        _list.Add(_objTwo);
+        _list.Add(_objOne);
+        _list.Add(_objThree);
+        _list.OnRemoved += (ind, obj) => { index = ind; removedItem = obj; };
+        Assert.True(_list.Contains(_objOne), "Object one still in list");
+        Assert.AreEqual(3, _list.Count, "Count should be three");
+        _list.Remove(_objOne);
+        Assert.AreEqual(1, index, "Object should be removed from index 1");
+        Assert.AreEqual(removedItem, _objOne, "Object one should be removed");
     }
 
     [Test]
     public void UpdateItem()
     {
-
+        var index = -1;
+        TestObject obj = null;
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _list.OnReplaced += (ind, old, newObj) => { index = ind; obj = newObj; };
+        _list[1] = _objThree;
+        Assert.AreEqual(1, index, "Index replaced should be 1");
+        Assert.AreEqual(obj, _objThree, "Object two should be replaced with obj three");
     }
 
     [Test]
     public void ClearItem()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _list.Add(_objThree);
+        Assert.AreEqual(3, _list.Count, "Count should be three");
+        _list.Clear();
+        Assert.AreEqual(0, _list.Count, "Count should be 0");
+        Assert.False(_list.Contains(_objTwo), "Object two should be removed");
+        Assert.False(_list.Contains(_objThree), "Object three should be removed");
+        Assert.False(_list.Contains(_objOne), "Object one should be removed");
     }
 
     [Test]
     public void GetMappedCollection()
     {
+        Func<TestObject, WrappedTestObject> map = (entry) => { return new WrappedTestObject { Object = entry }; };
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _list.Add(_objThree);
+        var mappedList = _list.Map(map) as ObservableCollection<WrappedTestObject>;
+        Assert.AreEqual(3, mappedList.Count, "Mapped list should have 3 entries");
+        bool hadOne = false;
+        bool hadTwo = false;
+        bool hadThree = false;
+        mappedList.ForEach(entry =>
+        {
+            hadOne |= entry.Object == _objOne;
+            hadTwo |= entry.Object == _objTwo;
+            hadThree |= entry.Object == _objThree;
+        });
 
-    }
-
-    [Test]
-    public void MappedCollectionMembersPresent()
-    {
-
+        Assert.True(hadOne, "Mapped list should have contained item one");
+        Assert.True(hadTwo, "Mapped list should have contained item two");
+        Assert.True(hadThree, "Mapped list should have contained item three");
     }
 
     [Test]
     public void MappedCollectionUnderlyingAdd()
     {
-
+        Func<TestObject, WrappedTestObject> map = (entry) => { return new WrappedTestObject { Object = entry }; };
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        var mappedList = _list.Map(map) as ObservableCollection<WrappedTestObject>;
+        Assert.AreEqual(2, mappedList.Count, "Mapped list should have 2 entries");
+        WrappedTestObject test = null;
+        int testIndex = -1;
+        mappedList.OnAdded += (ind, item) => { testIndex = ind; test = item; };
+        _list.Add(_objThree);
+        Assert.AreEqual(3, mappedList.Count, "Mapped list should have 3 entries");
+        Assert.AreEqual(2, testIndex, "New entry should be at index 2");
+        Assert.AreEqual(_objThree, test.Object, "Object three should have been added");
     }
 
     [Test]
     public void MappedCollectionUnderlyingRemove()
     {
-
+        Func<TestObject, WrappedTestObject> map = (entry) => { return new WrappedTestObject { Object = entry }; };
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _list.Add(_objThree);
+        var mappedList = _list.Map(map) as ObservableCollection<WrappedTestObject>;
+        Assert.AreEqual(3, mappedList.Count, "Mapped list should have 3 entries");
+        WrappedTestObject test = null;
+        int testIndex = -1;
+        mappedList.OnRemoved += (ind, item) => { testIndex = ind; test = item; };
+        _list.Remove(_objTwo);
+        Assert.AreEqual(1, testIndex, "Removed entry should be at index 1");
+        Assert.AreEqual(_objTwo, test.Object, "Object two should have been removeed");
+        Assert.AreEqual(2, mappedList.Count, "Mapped list should have 2 entries");
     }
 
     [Test]
     public void MappedCollUnderlyingReplace()
     {
-
+        Func<TestObject, WrappedTestObject> map = (entry) => { return new WrappedTestObject { Object = entry }; };
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        var mappedList = _list.Map(map) as ObservableCollection<WrappedTestObject>;
+        Assert.AreEqual(2, mappedList.Count, "Mapped list should have 2 entries");
+        WrappedTestObject newObj = null;
+        WrappedTestObject oldObj = null;
+        int testIndex = -1;
+        mappedList.OnReplaced += (ind, item, itemTwo) => { testIndex = ind; oldObj = item; newObj = itemTwo; };
+        _list[1] = _objThree;
+        Assert.AreEqual(2, mappedList.Count, "Mapped list should have 2 entries");
+        Assert.AreEqual(1, testIndex, "New entry should be at index 1");
+        Assert.AreEqual(_objThree, newObj.Object, "Object three should have been added");
+        Assert.AreEqual(_objTwo, oldObj.Object, "Object two should have been swapped out");
     }
 
     [Test]
     public void MappedCollUnderlyingClear()
     {
+        Func<TestObject, WrappedTestObject> map = (entry) => { return new WrappedTestObject { Object = entry }; };
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        var mappedList = _list.Map(map) as ObservableCollection<WrappedTestObject>;
+        Assert.AreEqual(2, mappedList.Count, "Mapped list should have 2 entries");
+        bool clearCalled = true;
+        mappedList.OnCleared += () => { clearCalled = true; };
+        _list.Clear();
+        Assert.AreEqual(0, mappedList.Count, "Mapped list should have 0 entries");
+        Assert.True(clearCalled, "Clear should have been called");
+    }
 
+    [Test]
+    public void GetMappedNonGeneric()
+    {
+        Func<object, object> map = (entry) => { return new WrappedTestObject { Object = (TestObject)entry }; };
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _list.Add(_objThree);
+        var mappedList = _list.Map(map);
+        Assert.AreEqual(3, mappedList.Count, "Mapped list should have 3 entries");
+        bool hadOne = false;
+        bool hadTwo = false;
+        bool hadThree = false;
+        mappedList.ForEach(entry =>
+        {
+            hadOne |= (entry as WrappedTestObject).Object == _objOne;
+            hadTwo |= (entry as WrappedTestObject).Object == _objTwo;
+            hadThree |= (entry as WrappedTestObject).Object == _objThree;
+        });
+
+        Assert.True(hadOne, "Mapped list should have contained item one");
+        Assert.True(hadTwo, "Mapped list should have contained item two");
+        Assert.True(hadThree, "Mapped list should have contained item three");
     }
 
     [Test]
     public void ReduceExecute()
     {
+        Func<TestObject, int, int> add = (obj, index) => { return index + obj.Value; };
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        int start = _list.Reduce(0, add);
+        Assert.AreEqual(3, start, "Seed value should have incremented to 3");
+    }
 
+    [Test]
+    public void ReduceNonGeneric()
+    {
+        Func<object, int, int> add = (obj, index) => { return index + (obj as TestObject).Value; };
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        int start = _list.ReduceNonGeneric(0, add);
+        Assert.AreEqual(3, start, "Seed value should have incremented to 3");
     }
 
     [Test]
@@ -101,7 +233,7 @@ public class ObservableCollectionTests
     }
 
     [Test]
-    public void FilteredCollMembersPresent()
+    public void FilteredCollNonGeneric()
     {
 
     }

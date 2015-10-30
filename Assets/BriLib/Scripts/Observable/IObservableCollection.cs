@@ -13,7 +13,7 @@ namespace BriLib
 
         IObservableCollection Map(Func<object, object> mapper);
         IObservableCollection Filter(Func<object, bool> filter);
-        T Reduce<T>(T seed, Action<object, T> reducer);
+        T ReduceNonGeneric<T>(T seed, Func<object, T, T> reducer);
         IObservableCollection Union(IObservableCollection other);
         IObservableCollection Sort(Func<object, object, int> comparer);
     }
@@ -27,7 +27,7 @@ namespace BriLib
 
         IObservableCollection<L> Map<L>(Func<T, L> mapper);
         IObservableCollection<T> Filter(Func<T, bool> filter);
-        K Reduce<K>(K seed, Action<T, K> reducer);
+        K Reduce<K>(K seed, Func<T, K, K> reducer);
         IObservableCollection<T> Union(IObservableCollection<T> other);
         IObservableCollection<T> Sort(Func<T, T, int> comparer);
     }
