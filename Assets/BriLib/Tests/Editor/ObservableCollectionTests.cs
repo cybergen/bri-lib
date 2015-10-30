@@ -370,37 +370,88 @@ public class ObservableCollectionTests
     [Test]
     public void GetSortedCollection()
     {
-
+        _list.Add(_objThree);
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        var sorted = _list.Sort((obj, obj2) => { return obj.Value - obj2.Value; });
+        var cast = sorted as ObservableCollection<TestObject>;
+        Assert.AreEqual(3, cast.Count, "Sorted list count should be 3");
+        Assert.AreEqual(_objOne, cast[0], "Object one should be at position 0");
+        Assert.AreEqual(_objTwo, cast[1], "Object two should be at position 1");
+        Assert.AreEqual(_objThree, cast[2], "Object three should be at position 2");
     }
 
     [Test]
-    public void GetSortedMemberOrder()
+    public void GetSortedGeneric()
     {
-
+        _list.Add(_objThree);
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        var sorted = _list.SortNonGeneric((obj, obj2) => { return (obj as TestObject).Value - (obj2 as TestObject).Value; });
+        Assert.AreEqual(3, sorted.Count, "Sorted list count should be 3");
+        Assert.AreEqual(_objOne, sorted[0], "Object one should be at position 0");
+        Assert.AreEqual(_objTwo, sorted[1], "Object two should be at position 1");
+        Assert.AreEqual(_objThree, sorted[2], "Object three should be at position 2");
     }
 
     [Test]
     public void SortedAddMember()
     {
-
+        _list.Add(_objThree);
+        _list.Add(_objTwo);
+        var sorted = _list.SortNonGeneric((obj, obj2) => { return (obj as TestObject).Value - (obj2 as TestObject).Value; });
+        Assert.AreEqual(2, sorted.Count, "Sorted list count should be 2");
+        Assert.AreEqual(_objTwo, sorted[0], "Object two should be at position 1");
+        Assert.AreEqual(_objThree, sorted[1], "Object three should be at position 2");
+        _list.Add(_objOne);
+        Assert.AreEqual(3, sorted.Count, "Sorted list count should be 3");
+        Assert.AreEqual(_objOne, sorted[0], "Object one should be at position 0");
     }
 
     [Test]
     public void SortedRemoveMember()
     {
-
+        _list.Add(_objThree);
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        var sorted = _list.SortNonGeneric((obj, obj2) => { return (obj as TestObject).Value - (obj2 as TestObject).Value; });
+        Assert.AreEqual(3, sorted.Count, "Sorted list count should be 3");
+        Assert.AreEqual(_objOne, sorted[0], "Object one should be at position 0");
+        Assert.AreEqual(_objTwo, sorted[1], "Object two should be at position 1");
+        Assert.AreEqual(_objThree, sorted[2], "Object three should be at position 2");
+        _list.Remove(_objTwo);
+        Assert.AreEqual(2, sorted.Count, "Sorted list count should be 2");
+        Assert.AreEqual(_objOne, sorted[0], "Object one should be at position 0");
+        Assert.AreEqual(_objThree, sorted[1], "Object three should be at position 1");
     }
 
     [Test]
     public void SortedReplace()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        var sorted = _list.SortNonGeneric((obj, obj2) => { return (obj as TestObject).Value - (obj2 as TestObject).Value; });
+        Assert.AreEqual(2, sorted.Count, "Sorted list count should be 2");
+        Assert.AreEqual(_objOne, sorted[0], "Object one should be at position 0");
+        Assert.AreEqual(_objTwo, sorted[1], "Object two should be at position 1");
+        _list[0] = _objThree;
+        Assert.AreEqual(2, sorted.Count, "Sorted list count should be 2");
+        Assert.AreEqual(_objTwo, sorted[0], "Object two should be at position 0");
+        Assert.AreEqual(_objThree, sorted[1], "Object three should be at position 1");
     }
 
     [Test]
     public void SortedClear()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        var sorted = _list.SortNonGeneric((obj, obj2) => { return (obj as TestObject).Value - (obj2 as TestObject).Value; });
+        Assert.AreEqual(2, sorted.Count, "Sorted list count should be 2");
+        bool clearCalled = false;
+        sorted.OnCleared += () => clearCalled = true;
+        _list.Clear();
+        Assert.True(clearCalled, "Clear should have been called");
+        Assert.AreEqual(0, sorted.Count, "Sorted list should now be empty");
     }
 
     [Test]

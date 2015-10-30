@@ -15,7 +15,7 @@ namespace BriLib
         IObservableCollection FilterNonGeneric(Func<object, bool> filter);
         T ReduceNonGeneric<T>(T seed, Func<object, T, T> reducer);
         IObservableCollection Union(IObservableCollection other);
-        IObservableCollection Sort(Func<object, object, int> comparer);
+        IObservableCollection SortNonGeneric(Func<object, object, int> comparer);
     }
 
     public interface IObservableCollection<T> : IList<T>, IObservableCollection

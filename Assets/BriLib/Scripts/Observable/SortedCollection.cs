@@ -64,7 +64,7 @@ namespace BriLib
         {
             if (Count == 0) { return 0; }
 
-            for (int i = Count; i >= 0; i--)
+            for (int i = 0; i < Count; i++)
             {
                 if (_comparer(obj, this[i]) < 0) { return i; }
             }

@@ -46,7 +46,7 @@ namespace BriLib
             return seed;
         }
 
-        public IObservableCollection Sort(Func<object, object, int> comparer)
+        public IObservableCollection SortNonGeneric(Func<object, object, int> comparer)
         {
             return new SortedCollection<T>(this, (entry, entry2) => { return comparer(entry, entry2); });
         }
