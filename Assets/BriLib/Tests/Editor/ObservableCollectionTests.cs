@@ -229,67 +229,142 @@ public class ObservableCollectionTests
     [Test]
     public void GetFilteredCollection()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        var filtered = _list.Filter((obj) => { return obj.Value == 1; });
+        var cast = filtered as ObservableCollection<TestObject>;
+        Assert.AreEqual(1, cast.Count, "Filtered list should have just one object");
+        Assert.AreEqual(_objOne, cast[0], "Object at position 0 should be objOne");
     }
 
     [Test]
     public void FilteredCollNonGeneric()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        var filtered = _list.FilterNonGeneric((obj) => { return (obj as TestObject).Value == 1; });
+        Assert.AreEqual(1, filtered.Count, "Filtered list should have just one object");
+        Assert.AreEqual(_objOne, filtered[0], "Object at position 0 should be objOne");
     }
 
     [Test]
     public void FilteredCollAddMember()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        var filtered = _list.Filter((obj) => { return obj.Value == 1 || obj.Value == 3; });
+        var cast = filtered as ObservableCollection<TestObject>;
+        Assert.AreEqual(1, cast.Count, "Filtered list should have just one object");
+        Assert.AreEqual(_objOne, cast[0], "Object at position 0 should be objOne");
+        _list.Add(_objThree);
+        Assert.AreEqual(2, cast.Count, "Filtered list should have additional object");
+        Assert.AreEqual(_objThree, cast[1], "Object three should be at position 1");
     }
 
     [Test]
     public void FilteredCollAddFilteredOutMember()
     {
-
+        _list.Add(_objOne);
+        var filtered = _list.Filter((obj) => { return obj.Value == 1 || obj.Value == 3; });
+        var cast = filtered as ObservableCollection<TestObject>;
+        Assert.AreEqual(1, cast.Count, "Filtered list should have just one object");
+        Assert.AreEqual(_objOne, cast[0], "Object at position 0 should be objOne");
+        _list.Add(_objTwo);
+        Assert.AreEqual(1, cast.Count, "Filtered list should not have additional object");
+        Assert.AreEqual(_objOne, cast[0], "Object one should be at position 0");
     }
 
     [Test]
     public void FilteredCollReplaceMember()
     {
-
+        _list.Add(_objOne);
+        var filtered = _list.Filter((obj) => { return obj.Value == 1 || obj.Value == 3; });
+        var cast = filtered as ObservableCollection<TestObject>;
+        Assert.AreEqual(1, cast.Count, "Filtered list should have just one object");
+        Assert.AreEqual(_objOne, cast[0], "Object at position 0 should be objOne");
+        _list[0] = _objThree;
+        Assert.AreEqual(1, cast.Count, "Filtered list should not have additional object");
+        Assert.AreEqual(_objThree, cast[0], "Object three should be at position 0");
     }
 
     [Test]
     public void FilteredCollReplaceNonpresentMember()
     {
-
+        _list.Add(_objTwo);
+        var filtered = _list.Filter((obj) => { return obj.Value == 1 || obj.Value == 3; });
+        var cast = filtered as ObservableCollection<TestObject>;
+        Assert.AreEqual(0, cast.Count, "Filtered list should be empty");
+        _list[0] = _objThree;
+        Assert.AreEqual(1, cast.Count, "Filtered list should not have additional object");
+        Assert.AreEqual(_objThree, cast[0], "Object three should be at position 0");
     }
 
     [Test]
     public void FilteredCollReplacePresentMemberWithFilteredOutMember()
     {
-
+        _list.Add(_objOne);
+        var filtered = _list.Filter((obj) => { return obj.Value == 1 || obj.Value == 3; });
+        var cast = filtered as ObservableCollection<TestObject>;
+        Assert.AreEqual(1, cast.Count, "Filtered list should have just one object");
+        Assert.AreEqual(_objOne, cast[0], "Object at position 0 should be objOne");
+        _list[0] = _objTwo;
+        Assert.AreEqual(0, cast.Count, "Filtered list should not have any objects");
     }
 
     [Test]
     public void FilteredCollReplaceNonPresentWithNonPresent()
     {
-
+        _list.Add(_objTwo);
+        var filtered = _list.Filter((obj) => { return obj.Value == 1 || obj.Value == 3; });
+        var cast = filtered as ObservableCollection<TestObject>;
+        Assert.AreEqual(0, cast.Count, "Filtered list should be empty");
+        _list[0] = new TestObject() { Value = 4 };
+        Assert.AreEqual(0, cast.Count, "Filtered list should not have any objects");
     }
 
     [Test]
     public void FilteredCollRemoveMember()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        var filtered = _list.Filter((obj) => { return obj.Value == 1 || obj.Value == 3; });
+        var cast = filtered as ObservableCollection<TestObject>;
+        Assert.AreEqual(1, cast.Count, "Filtered list should have just one object");
+        Assert.AreEqual(_objOne, cast[0], "Object at position 0 should be objOne");
+        _list.Remove(_objOne);
+        Assert.AreEqual(0, cast.Count, "Filtered list should have no objects");
     }
 
     [Test]
     public void FilteredRemoveNonPresent()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        var filtered = _list.Filter((obj) => { return obj.Value == 1 || obj.Value == 3; });
+        var cast = filtered as ObservableCollection<TestObject>;
+        Assert.AreEqual(1, cast.Count, "Filtered list should have just one object");
+        Assert.AreEqual(_objOne, cast[0], "Object at position 0 should be objOne");
+        _list.Remove(_objTwo);
+        Assert.AreEqual(1, cast.Count, "Filtered list should have one object");
+        Assert.AreEqual(_objOne, cast[0], "Object one should be at position 0");
     }
 
     [Test]
     public void FilteredClear()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _list.Add(_objThree);
+        var filtered = _list.Filter((obj) => { return obj.Value == 1 || obj.Value == 3; });
+        var cast = filtered as ObservableCollection<TestObject>;
+        Assert.AreEqual(2, cast.Count, "Filtered list should have just one object");
+        Assert.AreEqual(_objOne, cast[0], "Object at position 0 should be objOne");
+        Assert.AreEqual(_objThree, cast[1], "Object three should be at position 1");
+        bool clearCalled = false;
+        filtered.OnCleared += () => clearCalled = true;
+        _list.Clear();
+        Assert.True(clearCalled, "Clear callback should have triggered");
+        Assert.AreEqual(0, cast.Count, "Filtered list should become empty");
     }
 
     [Test]

@@ -33,8 +33,8 @@ namespace BriLib
         }
 
         private void OnObserverAdded(int arg1, T arg2)
-        {
-            if (_filter(arg2)) { Insert(arg1, arg2); }
+        {            
+            if (_filter(arg2)) { Insert(GetFilteredIndex(arg1, arg2), arg2); }
         }
 
         private void OnObserverRemoved(int arg1, T arg2)
@@ -62,14 +62,19 @@ namespace BriLib
                 Remove(arg2);
             }
             else if (keepNew)
-            {
-                var priorIndex = 0;
-                for (int i = 0; i < arg1; i++)
-                {
-                    if (Contains(_observed[i])) { priorIndex++; }
-                }
-                Insert(priorIndex, arg3);
+            {                
+                Insert(GetFilteredIndex(arg1, arg3), arg3);
             }
+        }
+
+        private int GetFilteredIndex(int underlyingIndex, T obj)
+        {
+            var newIndex = 0;
+            for (int i = 0; i < underlyingIndex; i++)
+            {
+                if (Contains(_observed[i])) { newIndex++; }
+            }
+            return newIndex;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace BriLib
         Action<int, object> IObservableCollection.OnRemoved { get; set; }
         Action<int, object, object> IObservableCollection.OnReplaced { get; set; }        
 
-        public IObservableCollection Filter(Func<object, bool> filter)
+        public IObservableCollection FilterNonGeneric(Func<object, bool> filter)
         {
             return new FilteredCollection<T>(this, (entry) => { return filter(entry); });
         }

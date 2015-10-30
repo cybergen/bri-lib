@@ -12,7 +12,7 @@ namespace BriLib
         Action OnCleared { get; set; }
 
         IObservableCollection Map(Func<object, object> mapper);
-        IObservableCollection Filter(Func<object, bool> filter);
+        IObservableCollection FilterNonGeneric(Func<object, bool> filter);
         T ReduceNonGeneric<T>(T seed, Func<object, T, T> reducer);
         IObservableCollection Union(IObservableCollection other);
         IObservableCollection Sort(Func<object, object, int> comparer);
