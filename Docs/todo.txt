@@ -28,8 +28,8 @@ x-observable collection
 	x-filter tests
 	x-map tests
 	x-sort tests
+	x-union tests
 	-generic main tests
-	-union tests
 -promises
 	-queueable wrapper around coroutines
 	-can be chained

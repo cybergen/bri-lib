@@ -6,9 +6,13 @@ using BriLib;
 public class ObservableCollectionTests
 {
     private ObservableCollection<TestObject> _list;
+    private ObservableCollection<TestObject> _listTwo;
     private TestObject _objOne;
     private TestObject _objTwo;
     private TestObject _objThree;
+    private TestObject _objFour;
+    private TestObject _objFive;
+    private TestObject _objSix;
 
     private object _addedObj;
     private int _addedObjIndex;
@@ -17,9 +21,14 @@ public class ObservableCollectionTests
     public void Setup()
     {
         _list = new ObservableCollection<TestObject>();
+        _listTwo = new ObservableCollection<TestObject>();
         _objOne = new TestObject { Value = 1 };
         _objTwo = new TestObject { Value = 2 };
         _objThree = new TestObject { Value = 3 };
+        _objFour = new TestObject { Value = 4 };
+        _objFive = new TestObject { Value = 5 };
+        _objSix = new TestObject { Value = 6 };
+
     }
 
     [Test]
@@ -34,6 +43,24 @@ public class ObservableCollectionTests
     }
 
     [Test]
+    public void AddNonGeneric()
+    {
+        var list = _list as IObservableCollection;
+        TestObject addedItem = null;
+        int index = -1;
+        list.OnAdded += (ind, obj) => { index = ind; addedItem = obj as TestObject; };
+        list.Add(_objOne);
+        Assert.AreEqual(0, index, "Item added to index 0");
+        Assert.AreEqual(_objOne, addedItem, "Added item was item one");
+    }
+
+    [Test]
+    public void AddIncorrectTypeNonGeneric()
+    {
+
+    }
+
+    [Test]
     public void MembersPresent()
     {
         Assert.AreEqual(0, _list.Count, "Count should still be 0");
@@ -44,6 +71,20 @@ public class ObservableCollectionTests
         Assert.AreEqual(2, _list.Count, "Count should become 2");
         Assert.True(_list.Contains(_objTwo), "Object two should be in list");
         Assert.True(_list.Contains(_objOne), "Object one should be in list");
+    }
+
+    [Test]
+    public void MembersPresentNonGeneric()
+    {
+        var list = _list as IObservableCollection;
+        Assert.AreEqual(0, list.Count, "Count should still be 0");
+        list.Add(_objOne);
+        Assert.AreEqual(1, list.Count, "Count should be 1");
+        Assert.True(list.Contains(_objOne), "Object one should be in list");
+        list.Add(_objTwo);
+        Assert.AreEqual(2, list.Count, "Count should become 2");
+        Assert.True(list.Contains(_objTwo), "Object two should be in list");
+        Assert.True(list.Contains(_objOne), "Object one should be in list");
     }
 
     [Test]
@@ -63,6 +104,23 @@ public class ObservableCollectionTests
     }
 
     [Test]
+    public void RemoveItemNonGeneric()
+    {
+        var list = _list as IObservableCollection;
+        TestObject removedItem = null;
+        int index = -1;
+        list.Add(_objTwo);
+        list.Add(_objOne);
+        list.Add(_objThree);
+        list.OnRemoved += (ind, obj) => { index = ind; removedItem = obj as TestObject; };
+        Assert.True(list.Contains(_objOne), "Object one still in list");
+        Assert.AreEqual(3, list.Count, "Count should be three");
+        list.Remove(_objOne);
+        Assert.AreEqual(1, index, "Object should be removed from index 1");
+        Assert.AreEqual(removedItem, _objOne, "Object one should be removed");
+    }
+
+    [Test]
     public void UpdateItem()
     {
         var index = -1;
@@ -76,17 +134,52 @@ public class ObservableCollectionTests
     }
 
     [Test]
+    public void UpdateItemNonGeneric()
+    {
+        var list = _list as IObservableCollection;
+        var index = -1;
+        TestObject obj = null;
+        list.Add(_objOne);
+        list.Add(_objTwo);
+        list.OnReplaced += (ind, old, newObj) => { index = ind; obj = newObj as TestObject; };
+        list[1] = _objThree;
+        Assert.AreEqual(1, index, "Index replaced should be 1");
+        Assert.AreEqual(obj, _objThree, "Object two should be replaced with obj three");
+    }
+
+    [Test]
     public void ClearItem()
     {
         _list.Add(_objOne);
         _list.Add(_objTwo);
         _list.Add(_objThree);
         Assert.AreEqual(3, _list.Count, "Count should be three");
+        bool cleared = false;
+        _list.OnCleared += () => cleared = true;
         _list.Clear();
         Assert.AreEqual(0, _list.Count, "Count should be 0");
         Assert.False(_list.Contains(_objTwo), "Object two should be removed");
         Assert.False(_list.Contains(_objThree), "Object three should be removed");
         Assert.False(_list.Contains(_objOne), "Object one should be removed");
+        Assert.True(cleared, "OnClear callback should have triggered");
+    }
+
+    [Test]
+    public void ClearItemNonGeneric()
+    {
+        var list = _list as IObservableCollection;
+        list.Add(_objOne);
+        list.Add(_objTwo);
+        list.Add(_objThree);
+        Assert.AreEqual(3, list.Count, "Count should be three");
+        bool cleared = false;
+        list.OnCleared += () => cleared = true;
+        list.Clear();
+        Assert.AreEqual(0, list.Count, "Count should be 0");
+        Assert.False(list.Contains(_objTwo), "Object two should be removed");
+        Assert.False(list.Contains(_objThree), "Object three should be removed");
+        Assert.False(list.Contains(_objOne), "Object one should be removed");
+        Assert.True(cleared, "OnClear callback should have triggered");
     }
 
     [Test]
@@ -457,61 +550,179 @@ public class ObservableCollectionTests
     [Test]
     public void GetUnion()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _listTwo.Add(_objThree);
+        _listTwo.Add(_objFour);
+        var union = _list.Union(_listTwo) as ObservableCollection<TestObject>;
+        Assert.AreEqual(4, union.Count, "Unioned list should have 4 objects");
+        Assert.AreEqual(_objOne, union[0], "Entry 0 in list should be object one");
+        Assert.AreEqual(_objTwo, union[1], "Entry 1 in list should be object two");
+        Assert.AreEqual(_objThree, union[2], "Entry 2 in list should be object three");
+        Assert.AreEqual(_objFour, union[3], "Entry 3 in list should be object four");
     }
 
     [Test]
-    public void UnionCollMembers()
+    public void GetUnionNonGeneric()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _listTwo.Add(_objThree);
+        _listTwo.Add(_objFour);
+        var union = _list.Union(_listTwo) as ObservableCollection<TestObject>;
+        Assert.AreEqual(4, union.Count, "Unioned list should have 4 objects");
+        Assert.AreEqual(_objOne, union[0], "Entry 0 in list should be object one");
+        Assert.AreEqual(_objTwo, union[1], "Entry 1 in list should be object two");
+        Assert.AreEqual(_objThree, union[2], "Entry 2 in list should be object three");
+        Assert.AreEqual(_objFour, union[3], "Entry 3 in list should be object four");
     }
 
     [Test]
     public void UnionAddLeft()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _listTwo.Add(_objThree);
+        _listTwo.Add(_objFour);
+        var union = _list.Union(_listTwo) as ObservableCollection<TestObject>;
+        Assert.AreEqual(4, union.Count, "Unioned list should have 4 objects");
+        Assert.AreEqual(_objOne, union[0], "Entry 0 in list should be object one");
+        Assert.AreEqual(_objTwo, union[1], "Entry 1 in list should be object two");
+        Assert.AreEqual(_objThree, union[2], "Entry 2 in list should be object three");
+        Assert.AreEqual(_objFour, union[3], "Entry 3 in list should be object four");
+        _list.Add(_objSix);
+        Assert.AreEqual(5, union.Count, "Unioned list should be at 5 objects now");
+        Assert.AreEqual(_objSix, union[2], "Object six should be at position 2");
     }
 
     [Test]
     public void UnionAddRight()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _listTwo.Add(_objThree);
+        _listTwo.Add(_objFour);
+        var union = _list.Union(_listTwo) as ObservableCollection<TestObject>;
+        Assert.AreEqual(4, union.Count, "Unioned list should have 4 objects");
+        Assert.AreEqual(_objOne, union[0], "Entry 0 in list should be object one");
+        Assert.AreEqual(_objTwo, union[1], "Entry 1 in list should be object two");
+        Assert.AreEqual(_objThree, union[2], "Entry 2 in list should be object three");
+        Assert.AreEqual(_objFour, union[3], "Entry 3 in list should be object four");
+        _listTwo.Add(_objFive);
+        Assert.AreEqual(5, union.Count, "Unioned list should be at 5 objects now");
+        Assert.AreEqual(_objFive, union[4], "Object five should be at position 4");
     }
 
     [Test]
     public void UnionRemoveLeft()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _listTwo.Add(_objThree);
+        _listTwo.Add(_objFour);
+        var union = _list.Union(_listTwo) as ObservableCollection<TestObject>;
+        Assert.AreEqual(4, union.Count, "Unioned list should have 4 objects");
+        Assert.AreEqual(_objOne, union[0], "Entry 0 in list should be object one");
+        Assert.AreEqual(_objTwo, union[1], "Entry 1 in list should be object two");
+        Assert.AreEqual(_objThree, union[2], "Entry 2 in list should be object three");
+        Assert.AreEqual(_objFour, union[3], "Entry 3 in list should be object four");
+        _list.Remove(_objTwo);
+        Assert.AreEqual(3, union.Count, "Unioned list should be at 3 objects now");
+        Assert.AreEqual(_objOne, union[0], "Object one should be at position 0");
+        Assert.AreEqual(_objThree, union[1], "Object three should be at position 1");
     }
 
     [Test]
     public void UnionRemoveRight()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _listTwo.Add(_objThree);
+        _listTwo.Add(_objFour);
+        var union = _list.Union(_listTwo) as ObservableCollection<TestObject>;
+        Assert.AreEqual(4, union.Count, "Unioned list should have 4 objects");
+        Assert.AreEqual(_objOne, union[0], "Entry 0 in list should be object one");
+        Assert.AreEqual(_objTwo, union[1], "Entry 1 in list should be object two");
+        Assert.AreEqual(_objThree, union[2], "Entry 2 in list should be object three");
+        Assert.AreEqual(_objFour, union[3], "Entry 3 in list should be object four");
+        _listTwo.Remove(_objFour);
+        Assert.AreEqual(3, union.Count, "Unioned list should be at 3 objects now");
+        Assert.AreEqual(_objTwo, union[1], "Object two should be at position 1");
+        Assert.AreEqual(_objThree, union[2], "Object three should be at position 2");
     }
 
     [Test]
     public void UnionReplaceLeft()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _listTwo.Add(_objThree);
+        _listTwo.Add(_objFour);
+        var union = _list.Union(_listTwo) as ObservableCollection<TestObject>;
+        Assert.AreEqual(4, union.Count, "Unioned list should have 4 objects");
+        Assert.AreEqual(_objTwo, union[1], "Entry 1 in list should be object two");
+        _list[1] = _objFive;
+        Assert.AreEqual(4, union.Count, "Unioned list should have 4 objects");
+        Assert.AreEqual(_objFive, union[1], "Entry 1 in list should be object five, now");
     }
 
     [Test]
     public void UnionReplaceRight()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _listTwo.Add(_objThree);
+        _listTwo.Add(_objFour);
+        var union = _list.Union(_listTwo) as ObservableCollection<TestObject>;
+        Assert.AreEqual(4, union.Count, "Unioned list should have 4 objects");
+        Assert.AreEqual(_objTwo, union[1], "Entry 1 in list should be object two");
+        _listTwo[1] = _objFive;
+        Assert.AreEqual(4, union.Count, "Unioned list should have 4 objects");
+        Assert.AreEqual(_objFive, union[3], "Entry 3 in list should be object five, now");
     }
 
     [Test]
     public void UnionClearLeft()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _listTwo.Add(_objThree);
+        _listTwo.Add(_objFour);
+        var union = _list.Union(_listTwo) as ObservableCollection<TestObject>;
+        Assert.AreEqual(4, union.Count, "Unioned list should have 4 objects");
+        _list.Clear();
+        Assert.AreEqual(2, union.Count, "Unioned list should have 2 objects remaining");
+        Assert.AreEqual(_objThree, union[0], "Entry 0 in list should be object three");
+        Assert.AreEqual(_objFour, union[1], "Entry 1 in list should be object four");
     }
 
     [Test]
     public void UnionClearRight()
     {
-
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _listTwo.Add(_objThree);
+        _listTwo.Add(_objFour);
+        var union = _list.Union(_listTwo) as ObservableCollection<TestObject>;
+        Assert.AreEqual(4, union.Count, "Unioned list should have 4 objects");
+        _listTwo.Clear();
+        Assert.AreEqual(2, union.Count, "Unioned list should have 2 objects remaining");
+        Assert.AreEqual(_objOne, union[0], "Entry 0 in list should be object one");
+        Assert.AreEqual(_objTwo, union[1], "Entry 1 in list should be object two");
+    }
+    
+    [Test]
+    public void UnionClearBoth()
+    {
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        _listTwo.Add(_objThree);
+        _listTwo.Add(_objFour);
+        var union = _list.Union(_listTwo) as ObservableCollection<TestObject>;
+        Assert.AreEqual(4, union.Count, "Unioned list should have 4 objects");
+        _list.Clear();
+        _listTwo.Clear();
+        Assert.AreEqual(0, union.Count, "Unioned list should have 0 remaining objects");
     }
 
     private class WrappedTestObject
