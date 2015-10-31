@@ -23,13 +23,13 @@ x-observable collection
 	x-sort
 	x-reduce
 	x-union
--collection tests
+x-collection tests
 	x-main tests
 	x-filter tests
 	x-map tests
 	x-sort tests
 	x-union tests
-	-generic main tests
+	x-generic main tests
 -promises
 	-queueable wrapper around coroutines
 	-can be chained

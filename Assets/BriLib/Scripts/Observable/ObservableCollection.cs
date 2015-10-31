@@ -10,9 +10,9 @@ namespace BriLib
         public Action<int, T, T> OnReplaced { get; set; }
         public Action OnCleared { get; set; }
 
-        Action<int, object> IObservableCollection.OnAdded { get; set; }
-        Action<int, object> IObservableCollection.OnRemoved { get; set; }
-        Action<int, object, object> IObservableCollection.OnReplaced { get; set; }        
+        public Action<int, object> OnAddedNonGeneric { get; set; }
+        public Action<int, object> OnRemovedNonGeneric { get; set; }
+        public Action<int, object, object> OnReplacedNonGeneric { get; set; }        
 
         public IObservableCollection FilterNonGeneric(Func<object, bool> filter)
         {
@@ -84,6 +84,7 @@ namespace BriLib
         {
             base.InsertItem(index, item);
             if (OnAdded != null) { OnAdded(index, item); }
+            if (OnAddedNonGeneric != null) { OnAddedNonGeneric(index, item); } 
         }
 
         protected override void RemoveItem(int index)
@@ -91,6 +92,7 @@ namespace BriLib
             var removedItem = this[index];
             base.RemoveItem(index);
             if (OnRemoved != null) { OnRemoved(index, removedItem); }
+            if (OnRemovedNonGeneric != null) { OnRemovedNonGeneric(index, removedItem); }
         }
 
         protected override void SetItem(int index, T item)
@@ -98,6 +100,7 @@ namespace BriLib
             var oldItem = this[index];
             base.SetItem(index, item);
             if (OnReplaced != null) { OnReplaced(index, oldItem, item); }
+            if (OnReplacedNonGeneric != null) { OnReplacedNonGeneric(index, oldItem, item); }
         }
 
         protected override void ClearItems()

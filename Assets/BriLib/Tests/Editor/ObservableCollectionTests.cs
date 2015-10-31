@@ -48,7 +48,7 @@ public class ObservableCollectionTests
         var list = _list as IObservableCollection;
         TestObject addedItem = null;
         int index = -1;
-        list.OnAdded += (ind, obj) => { index = ind; addedItem = obj as TestObject; };
+        list.OnAddedNonGeneric += (ind, obj) => { index = ind; addedItem = obj as TestObject; };
         list.Add(_objOne);
         Assert.AreEqual(0, index, "Item added to index 0");
         Assert.AreEqual(_objOne, addedItem, "Added item was item one");
@@ -57,7 +57,47 @@ public class ObservableCollectionTests
     [Test]
     public void AddIncorrectTypeNonGeneric()
     {
+        var list = _list as IObservableCollection;
+        list.Add(_objOne);
+        list.Add(_objTwo);
+        bool excepted = false;
+        try
+        {
+            list.Add(new WrappedTestObject());
+        }
+        catch (Exception e)
+        {
+            excepted = true;
+        }
+        Assert.AreEqual(2, list.Count, "Count should only be two");
+        Assert.True(excepted, "Should get exception on type mismatch");
+    }
 
+    [Test]
+    public void GetEnumerator()
+    {
+        _list.Add(_objOne);
+        _list.Add(_objTwo);
+        int passes = 0;
+        foreach (var entry in _list)
+        {
+            passes++;
+        }
+        Assert.AreEqual(2, passes, "Should get enumerator and make two passes through loop");
+    }
+
+    [Test]
+    public void GetEnumeratorNonGeneric()
+    {
+        var list = _list as IObservableCollection;
+        list.Add(_objOne);
+        list.Add(_objTwo);
+        int passes = 0;
+        foreach (var entry in list)
+        {
+            passes++;
+        }
+        Assert.AreEqual(2, passes, "Should get enumerator and make two passes through loop");
     }
 
     [Test]
@@ -112,7 +152,7 @@ public class ObservableCollectionTests
         list.Add(_objTwo);
         list.Add(_objOne);
         list.Add(_objThree);
-        list.OnRemoved += (ind, obj) => { index = ind; removedItem = obj as TestObject; };
+        list.OnRemovedNonGeneric += (ind, obj) => { index = ind; removedItem = obj as TestObject; };
         Assert.True(list.Contains(_objOne), "Object one still in list");
         Assert.AreEqual(3, list.Count, "Count should be three");
         list.Remove(_objOne);
@@ -141,7 +181,7 @@ public class ObservableCollectionTests
         TestObject obj = null;
         list.Add(_objOne);
         list.Add(_objTwo);
-        list.OnReplaced += (ind, old, newObj) => { index = ind; obj = newObj as TestObject; };
+        list.OnReplacedNonGeneric += (ind, old, newObj) => { index = ind; obj = newObj as TestObject; };
         list[1] = _objThree;
         Assert.AreEqual(1, index, "Index replaced should be 1");
         Assert.AreEqual(obj, _objThree, "Object two should be replaced with obj three");
