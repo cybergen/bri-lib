@@ -31,5 +31,15 @@ namespace BriLib
         {
             if (action != null) { action(obj); }
         }
+
+        public static float Sq(this float value)
+        {
+            return value * value;
+        }
+
+        public static double Sq(this double value)
+        {
+            return value * value;
+        }
     }
 }

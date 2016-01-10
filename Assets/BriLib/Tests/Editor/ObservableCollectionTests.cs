@@ -66,7 +66,7 @@ public class ObservableCollectionTests
             list.Add(new WrappedTestObject());
         }
         catch (Exception e)
-        {
+        {            
             excepted = true;
         }
         Assert.AreEqual(2, list.Count, "Count should only be two");
@@ -78,11 +78,7 @@ public class ObservableCollectionTests
     {
         _list.Add(_objOne);
         _list.Add(_objTwo);
-        int passes = 0;
-        foreach (var entry in _list)
-        {
-            passes++;
-        }
+        int passes = _list.Count;
         Assert.AreEqual(2, passes, "Should get enumerator and make two passes through loop");
     }
 
@@ -92,11 +88,7 @@ public class ObservableCollectionTests
         var list = _list as IObservableCollection;
         list.Add(_objOne);
         list.Add(_objTwo);
-        int passes = 0;
-        foreach (var entry in list)
-        {
-            passes++;
-        }
+        int passes = _list.Count;
         Assert.AreEqual(2, passes, "Should get enumerator and make two passes through loop");
     }
 
