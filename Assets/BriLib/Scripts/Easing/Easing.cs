@@ -27,7 +27,8 @@ namespace BriLib
             BounceOut = 17,
             BounceIn = 18,
             BounceInOut = 19,
-            BounceOutIn = 20
+            BounceOutIn = 20,
+            Linear = 21
         }
 
         public static float Ease(float startVal, float endVal, float startTime, float endTime, float currentTime, Method type)
@@ -39,24 +40,25 @@ namespace BriLib
             {
                 case Method.ExpoOut: mult = ExpoEaseOut(time); break;
                 case Method.ExpoIn: mult = ExpoEaseIn(time); break;
-                case Method.ExpoInOut: mult = ExpoEaseInOut(time); break;
-                case Method.ExpoOutIn: mult = ExpoEaseOutIn(time); break;
+                case Method.ExpoInOut: mult = TwoPartEquation(time, ExpoEaseIn, ExpoEaseOut); break;
+                case Method.ExpoOutIn: mult = TwoPartEquation(time, ExpoEaseOut, ExpoEaseIn); break;
                 case Method.QuadOut: mult = QuadEaseOut(time); break;
                 case Method.QuadIn: mult = QuadEaseIn(time); break;
-                case Method.QuadInOut: mult = QuadEaseInOut(time); break;
-                case Method.QuadOutIn: mult = QuadEaseOutIn(time); break;
+                case Method.QuadInOut: mult = TwoPartEquation(time, QuadEaseIn, QuadEaseOut); break;
+                case Method.QuadOutIn: mult = TwoPartEquation(time, QuadEaseOut, QuadEaseIn); break;
                 case Method.SineOut: mult = SineEaseOut(time); break;
                 case Method.SineIn: mult = SineEaseIn(time); break;
-                case Method.SineInOut: mult = SineEaseInOut(time); break;
-                case Method.SineOutIn: mult = SineEaseOutIn(time); break;
+                case Method.SineInOut: mult = TwoPartEquation(time, SineEaseIn, SineEaseOut); break;
+                case Method.SineOutIn: mult = TwoPartEquation(time, SineEaseOut, SineEaseIn); break;
                 case Method.ElasticOut: mult = ElasticEaseOut(time); break;
                 case Method.ElasticIn: mult = ElasticEaseIn(time); break;
-                case Method.ElasticInOut: mult = ElasticEaseInOut(time); break;
-                case Method.ElasticOutIn: mult = ElasticEaseOutIn(time); break;
+                case Method.ElasticInOut: mult = TwoPartEquation(time, ElasticEaseIn, ElasticEaseOut); break;
+                case Method.ElasticOutIn: mult = TwoPartEquation(time, ElasticEaseOut, ElasticEaseIn); break;
                 case Method.BounceOut: mult = BounceEaseOut(time); break;
                 case Method.BounceIn: mult = BounceEaseIn(time); break;
-                case Method.BounceInOut: mult = BounceEaseInOut(time); break;
-                case Method.BounceOutIn: mult = BounceEaseOutIn(time); break;
+                case Method.BounceInOut: mult = TwoPartEquation(time, BounceEaseIn, BounceEaseOut); break;
+                case Method.BounceOutIn: mult = TwoPartEquation(time, BounceEaseOut, BounceEaseIn); break;
+                case Method.Linear: mult = time; break;
             }
             if (currentTime >= endTime) return endVal;
             return (endVal - startVal) * mult + startVal;
@@ -127,26 +129,12 @@ namespace BriLib
 
         public static float ExpoEaseOut(float time)
         {
-            return (time == 1f) ? 1f : -(float)Math.Pow(2, -10) + 1f;
+            return 1f - (float)Math.Pow(2, -10 * time);
         }
 
         public static float ExpoEaseIn(float time)
         {
-            return (time == 1f) ? 1f : (float)Math.Pow(2, -10) + 1f;
-        }
-
-        public static float ExpoEaseInOut(float time)
-        {
-            if (time == 0f) return 0f;
-            if (time == 1f) return 1f;
-            if (time < 0.5f) return (float)Math.Pow(2, 10 * time) / 2;
-            return -(float)Math.Pow(2, -10 * time);
-        }
-
-        public static float ExpoEaseOutIn(float time)
-        {
-            if (time < 0.5f) return ExpoEaseOut(time + 0.5f);
-            return ExpoEaseIn(time - 0.5f);
+            return (float)Math.Pow(2, 10 * (time - 1));
         }
 
         public static float QuadEaseOut(float time)
@@ -159,18 +147,6 @@ namespace BriLib
             return time.Sq();
         }
 
-        public static float QuadEaseInOut(float time)
-        {
-            if (time < 0.5f) return QuadEaseIn(time * 2);
-            return QuadEaseOut(time * 2);
-        }
-
-        public static float QuadEaseOutIn(float time)
-        {
-            if (time < 0.5f) return QuadEaseOut(time * 2);
-            return QuadEaseIn(time * 2);
-        }
-
         public static float SineEaseOut(float time)
         {
             return (float)Math.Sin(time * (Math.PI / 2));
@@ -181,48 +157,18 @@ namespace BriLib
             return 1 - (float)Math.Cos(time * (Math.PI / 2));
         }
 
-        public static float SineEaseInOut(float time)
-        {
-            if (time < 0.5f) return SineEaseIn(time);
-            return SineEaseOut(time);
-        }
-        
-        public static float SineEaseOutIn(float time)
-        {
-            if (time < 0.5f) return SineEaseOut(time);
-            return SineEaseIn(time);
-        }
-
         public static float ElasticEaseOut(float time)
         {
-            if (time == 1f) return 1f;
-
-            double p = .3;
-            double s = p / 4;
-
-            return (float)Math.Pow(2, -10) * (float)Math.Sin((time - s) * (2 * Math.PI) / p);
+            float p = .3f;
+            float s = p / 4f;
+            return 1f + ((float)Math.Pow(2, -10 * time) * (float)Math.Sin((time - s) * (2 * Math.PI) / p));
         }
 
         public static float ElasticEaseIn(float time)
         {
-            if (time == 1) return 1f;
-
-            double p = .3;
-            double s = p / 4;
-
-            return 1f - (float)(Math.Pow(2, 10) * Math.Sin((time - s) * (2 * Math.PI) / p));
-        }
-
-        public static float ElasticEaseInOut(float time)
-        {
-            if (time < 0.5f) return ElasticEaseIn(time);
-            return ElasticEaseOut(time);
-        }
-
-        public static float ElasticEaseOutIn(float time)
-        {
-            if (time < 0.5f) return ElasticEaseOut(time);
-            return ElasticEaseIn(time);
+            float p = .3f;
+            float s = p / 4f;
+            return -(float)(Math.Pow(2, 10 * (time -= 1)) * Math.Sin((time - s) * (2 * Math.PI) / p));
         }
 
         public static float BounceEaseOut(float time)
@@ -238,16 +184,10 @@ namespace BriLib
             return 1 - BounceEaseOut(1f - time);
         }
 
-        public static float BounceEaseInOut(float time)
+        private static float TwoPartEquation(float time, Func<float, float> partOne, Func<float, float> partTwo)
         {
-            if (time < 0.5f) return BounceEaseIn(time * 2f) * 0.5f;
-            return BounceEaseOut(time * 2f) * .5f;
-        }
-
-        public static float BounceEaseOutIn(float time)
-        {
-            if (time < 0.5f) return BounceEaseOut(time * 2) * 0.5f;
-            return BounceEaseIn(time * 2) * 0.5f;
+            if (time > 0.5f) return (partOne(1f) + partTwo((time - 0.5f) / 0.5f)) / 2f;
+            return partOne(time / 0.5f) / 2f;
         }
     }
 }
