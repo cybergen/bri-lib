@@ -6,12 +6,24 @@ namespace BriLib
     {
         public Easing.Method EasingMethod;
         public float Duration;
+        public bool TestMatrixEasing = false;
 
         private Vector3 startPoint;
         private Vector3 endPoint;
         private float startTime;
         private float endTime;
         private bool easing = false;
+        private bool cameraEasing = false;
+        private Matrix4x4 startMatrix;
+        private Matrix4x4 endMatrix;
+        private Matrix4x4 orthoMatrix;
+        private Matrix4x4 perspectiveMatrix;
+
+        private void Start()
+        {
+            perspectiveMatrix = Camera.main.projectionMatrix;
+            orthoMatrix = Matrix4x4.Ortho(-10, 10, -10, 10, 0, 100);
+        }
         
         private void Update()
         {
@@ -19,6 +31,11 @@ namespace BriLib
             {
                 transform.position = Easing.Ease(startPoint, endPoint, startTime, endTime, Time.time, EasingMethod);
                 easing = Time.time < endTime;
+            }
+            else if (cameraEasing)
+            {
+                Camera.main.projectionMatrix = Easing.Ease(startMatrix, endMatrix, startTime, endTime, Time.time, EasingMethod);
+                cameraEasing = Time.time < endTime;
             }
             else if (Input.GetMouseButton(0))
             {
@@ -31,6 +48,23 @@ namespace BriLib
                 startTime = Time.time;
                 endTime = startTime + Duration;
                 easing = true;
+            }
+            else if (TestMatrixEasing)
+            {
+                TestMatrixEasing = false;
+                startTime = Time.time;
+                endTime = startTime + Duration;
+                cameraEasing = true;
+                if (Camera.main.projectionMatrix == perspectiveMatrix)
+                {
+                    startMatrix = perspectiveMatrix;
+                    endMatrix = orthoMatrix;
+                }
+                else
+                {
+                    startMatrix = orthoMatrix;
+                    endMatrix = perspectiveMatrix;
+                }
             }
         }
     }
