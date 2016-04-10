@@ -93,7 +93,64 @@ namespace BriLib
 
         public override string ToString()
         {
-            return string.Format("[Tuple ItemOne={0}, ItemTwo={1}, ItemThree={2}]", ItemOne, ItemTwo);
+            return string.Format("[Tuple ItemOne={0}, ItemTwo={1}, ItemThree={2}]", ItemOne, ItemTwo, ItemThree);
+        }
+    }
+
+    public class Tuple<T, K, L, M>
+    {
+        public T ItemOne { get; private set; }
+        public K ItemTwo { get; private set; }
+        public L ItemThree { get; private set; }
+        public M ItemFour { get; private set; }
+
+        public Tuple(T itemOne, K itemTwo, L itemThree, M itemFour)
+        {
+            ItemOne = itemOne;
+            ItemTwo = itemTwo;
+            ItemThree = itemThree;
+            ItemFour = itemFour;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            if (!(obj is Tuple<T, K, L, M>)) return false;
+            return this == (Tuple<T, K, L, M>)obj;
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash = hash * 23 + (ItemOne != null ? ItemOne.GetHashCode() : 0);
+            hash = hash * 23 + (ItemTwo != null ? ItemTwo.GetHashCode() : 0);
+            hash = hash * 23 + (ItemThree != null ? ItemThree.GetHashCode() : 0);
+            hash = hash * 23 + (ItemFour != null ? ItemFour.GetHashCode() : 0);
+            return hash;
+        }
+
+        public static bool operator ==(Tuple<T, K, L, M> a, Tuple<T, K, L, M> b)
+        {
+            if (ReferenceEquals(a, b)) return true;
+            if (a.ItemOne == null != (b.ItemOne == null)) return false;
+            if (a.ItemTwo == null != (b.ItemTwo == null)) return false;
+            if (a.ItemThree == null != (b.ItemThree == null)) return false;
+            if (a.ItemFour == null != (b.ItemFour == null)) return false;
+            return (a.ItemOne != null ? a.ItemOne.Equals(b.ItemOne) : true)
+                && (a.ItemTwo != null ? a.ItemTwo.Equals(b.ItemTwo) : true)
+                && (a.ItemThree != null ? a.ItemThree.Equals(b.ItemThree) : true)
+                && (a.ItemFour != null ? a.ItemFour.Equals(b.ItemFour) : true);
+        }
+
+        public static bool operator !=(Tuple<T, K, L, M> a, Tuple<T, K, L, M> b)
+        {
+            return !(a == b);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[Tuple ItemOne={0}, ItemTwo={1}, ItemThree={2}, ItemFour={3}]", 
+                ItemOne, ItemTwo, ItemThree, ItemFour);
         }
     }
 }
