@@ -41,5 +41,10 @@ namespace BriLib
         {
             return value * value;
         }
+
+        public static float MapRange(this float currValue, float fromStart, float toStart, float fromEnd, float toEnd)
+        {
+            return (currValue - fromStart) / (toStart - fromStart) * (toEnd - fromEnd) + fromEnd;
+        }
     }
 }
