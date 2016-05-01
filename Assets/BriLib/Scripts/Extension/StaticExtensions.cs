@@ -42,6 +42,16 @@ namespace BriLib
             return value * value;
         }
 
+        public static float Sqrt(this float value)
+        {
+            return (float)Math.Sqrt(value);
+        }
+
+        public static double Sqrt(this double value)
+        {
+            return Math.Sqrt(value);
+        }
+
         public static float MapRange(this float currValue, float fromStart, float toStart, float fromEnd, float toEnd)
         {
             return (currValue - fromStart) / (toStart - fromStart) * (toEnd - fromEnd) + fromEnd;
