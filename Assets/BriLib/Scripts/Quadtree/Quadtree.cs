@@ -1,9 +1,8 @@
-using System;
 using System.Collections.Generic;
 
 namespace BriLib
 {
-    public class Quadtree<T>
+    public class Quadtree<T> where T : class
     {
         public enum Quadrant
         {
@@ -17,17 +16,27 @@ namespace BriLib
         private TwoDimensionalBoundingBox _boundingBox;
         private List<Point<T>> _children;
         private Quadtree<T>[] _subtrees;
+        private Dictionary<T, Point<T>> _childMap;
         
         public Quadtree(TwoDimensionalBoundingBox boundingBox, int maxObjectsPerNode)
-        {
-            _maxObjectsPerNode = maxObjectsPerNode;
-            _boundingBox = boundingBox;
-            _children = new List<Point<T>>();
-            _subtrees = new Quadtree<T>[4];
-        }
+            : this(boundingBox, maxObjectsPerNode, new Dictionary<T, Point<T>>()) { }
 
         public Quadtree(float centerX, float centerY, float radius, int maxObjectsPerNode)
             : this(new TwoDimensionalBoundingBox(centerX, centerY, radius), maxObjectsPerNode) { }
+
+        private Quadtree(TwoDimensionalBoundingBox boundingBox, int maxObj, Dictionary<T, Point<T>> childMap)
+        {
+            if (maxObj <= 0)
+            {
+                throw new System.ArgumentOutOfRangeException("Must allow at least 1 object per quadtree node");
+            }
+
+            _maxObjectsPerNode = maxObj;
+            _boundingBox = boundingBox;
+            _children = new List<Point<T>>();
+            _subtrees = new Quadtree<T>[4];
+            _childMap = childMap;
+        }
 
         public Quadrant GetQuadrant(float x, float y)
         {
@@ -39,14 +48,27 @@ namespace BriLib
 
         public void Insert(float x, float y, T obj)
         {
+            if (_childMap.ContainsKey(obj))
+            {
+                throw new System.ArgumentOutOfRangeException("Cannot add object already in tree: " + obj);
+            }
+
+            var hasSubTrees = _subtrees[0] != null;
+
             if (_children.Count >= _maxObjectsPerNode)
             {
                 Subdivide();
                 _subtrees[(int)GetQuadrant(x, y)].Insert(x, y, obj);
             }
+            else if (hasSubTrees)
+            {
+                _subtrees[(int)GetQuadrant(x, y)].Insert(x, y, obj);
+            }
             else
             {
-                _children.Add(new Point<T>(x, y, obj));
+                var child = new Point<T>(x, y, obj);
+                _children.Add(child);
+                _childMap.Add(obj, child);
             }
         }
 
@@ -77,9 +99,136 @@ namespace BriLib
             }
         }
 
+        public bool Remove(T obj)
+        {
+            if (!_childMap.ContainsKey(obj))
+            {
+                throw new System.ArgumentOutOfRangeException("Cannot remove element that was not in tree: " + obj);
+            }
+
+            for (int i = 0; i < _children.Count; i++)
+            {
+                if (_children[i].StoredObject == obj)
+                {
+                    _children.RemoveAt(i);
+                    _childMap.Remove(obj);
+                    return true;
+                }
+            }
+
+            var point = _childMap[obj];
+            if (_subtrees[(int)GetQuadrant(point.X, point.Y)].Remove(obj))
+            {
+                EvaluateSubtrees();
+            }
+            return false;
+        }
+
         public T GetNearestNeighbor(float x, float y)
         {
-            throw new NotImplementedException();
+            //If we have leaf nodes, check for closest and return it
+            if (_children.Count > 0)
+            {
+                var nearestDistance = float.MaxValue;
+                T nearestChild = null;
+
+                for (int i = 0; i < _children.Count; i++)
+                {
+                    var child = _children[i];
+                    var distance = Distance(x, y, child.X, child.Y);
+                    if (distance < nearestDistance)
+                    {
+                        nearestDistance = distance;
+                        nearestChild = child.StoredObject;
+                    }
+                }
+                return nearestChild;
+            }
+
+            //If we don't have children, return
+            var hasSubTrees = _subtrees[0] != null;
+            if (!hasSubTrees) return null;
+
+            //First check for neighbor in the octant point is currently at. If we find something, store distance.
+            var startQuadrant = (int)GetQuadrant(x, y);
+            var distanceToBest = float.MaxValue;
+            var best = _subtrees[startQuadrant].GetNearestNeighbor(x, y);
+            if (best != null)
+            {
+                var loc = _childMap[best];
+                distanceToBest = Distance(x, y, loc.X, loc.Y);
+            }
+
+            //Only search other octants that have distance at nearest edge less than distance to current best point.
+            //Start by sorting the list of octants by distance, excluding ones that are too far or already visited.
+            List<Tuple<int, float>> subtreeList = new List<Tuple<int, float>>();
+            for (var enumerator = System.Enum.GetValues(typeof(Quadrant)).GetEnumerator(); enumerator.MoveNext();)
+            {
+                //Skip octant if it is the start octant
+                var quadrantIndex = (int)enumerator.Current;
+                if (quadrantIndex == startQuadrant) continue;
+
+                //If distance to nearest point of octant is greater than current best, skip
+                var distanceToQuadrant = BoundsDistance(x, y, _subtrees[quadrantIndex]._boundingBox);
+                if (distanceToBest <= distanceToQuadrant) continue;
+
+                //Otherwise, add the octant to the list, sorted in order of ascending distance
+                var quadrantEntry = new Tuple<int, float>(quadrantIndex, distanceToQuadrant);
+                if (subtreeList.Count == 0)
+                {
+                    subtreeList.Add(quadrantEntry);
+                }
+                else
+                {
+                    for (int i = 0; i < subtreeList.Count; i++)
+                    {
+                        if (quadrantEntry.ItemTwo < subtreeList[i].ItemTwo)
+                        {
+                            subtreeList.Insert(i, quadrantEntry);
+                            break;
+                        }
+                        else if (i == subtreeList.Count - 1)
+                        {
+                            subtreeList.Add(quadrantEntry);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            //Go through sorted quadrant list and try to better our best
+            for (int i = 0; i < subtreeList.Count; i++)
+            {
+                //If we have already found something closer than current quadrant, exit early
+                if (distanceToBest < subtreeList[i].ItemTwo) break;
+
+                //Check if quadrant has a candidate for neighbor
+                var candidate = _subtrees[subtreeList[i].ItemOne].GetNearestNeighbor(x, y);
+                if (candidate == null) continue;
+
+                //If candidate distance is shorter than current best, replace current best
+                var candidateLoc = _childMap[candidate];
+                var candidateDistance = Distance(x, y, candidateLoc.X, candidateLoc.Y);
+                if (candidateDistance < distanceToBest)
+                {
+                    best = candidate;
+                    distanceToBest = candidateDistance;
+                }
+            }
+
+            return best;
+        }
+
+        public float Distance(float xA, float yA, float xB, float yB)
+        {
+            return ((xA - xB).Sq() + (yA - yB).Sq()).Sqrt();
+        }
+
+        public float BoundsDistance(float x, float y, TwoDimensionalBoundingBox bounds)
+        {
+            var xDist = System.Math.Abs(x - bounds.X) - bounds.Radius;
+            var yDist = System.Math.Abs(y - bounds.Y) - bounds.Radius;
+            return System.Math.Max(xDist, yDist);
         }
 
         private void Subdivide()
@@ -89,25 +238,40 @@ namespace BriLib
             var y = _boundingBox.Y;
 
             var nwBox = new TwoDimensionalBoundingBox(x - quarterRadius, y + quarterRadius, quarterRadius);
-            _subtrees[(int)Quadrant.NorthWest] = new Quadtree<T>(nwBox, _maxObjectsPerNode);
+            _subtrees[(int)Quadrant.NorthWest] = new Quadtree<T>(nwBox, _maxObjectsPerNode, _childMap);
 
             var neBox = new TwoDimensionalBoundingBox(x + quarterRadius, y + quarterRadius, quarterRadius);
-            _subtrees[(int)Quadrant.NorthEast] = new Quadtree<T>(neBox, _maxObjectsPerNode);
+            _subtrees[(int)Quadrant.NorthEast] = new Quadtree<T>(neBox, _maxObjectsPerNode, _childMap);
 
             var seBox = new TwoDimensionalBoundingBox(x + quarterRadius, y - quarterRadius, quarterRadius);
-            _subtrees[(int)Quadrant.SouthEast] = new Quadtree<T>(seBox, _maxObjectsPerNode);
+            _subtrees[(int)Quadrant.SouthEast] = new Quadtree<T>(seBox, _maxObjectsPerNode, _childMap);
 
             var swBox = new TwoDimensionalBoundingBox(x - quarterRadius, y - quarterRadius, quarterRadius);
-            _subtrees[(int)Quadrant.SouthWest] = new Quadtree<T>(swBox, _maxObjectsPerNode);
+            _subtrees[(int)Quadrant.SouthWest] = new Quadtree<T>(swBox, _maxObjectsPerNode, _childMap);
 
             for (int i = 0; i < _children.Count; i++)
             {
                 var childX = _children[i].X;
                 var childY = _children[i].Y;
+                _childMap.Remove(_children[i].StoredObject);
                 _subtrees[(int)GetQuadrant(childX, childY)].Insert(childX, childY, _children[i].StoredObject);
             }
 
             _children = new List<Point<T>>();
+        }
+
+        private void EvaluateSubtrees()
+        {
+            var clearChildren = true;
+            for (var i = 0; i < _subtrees.Length; i++)
+            {
+                clearChildren &= _subtrees[i]._children.Count == 0;
+            }
+
+            if (clearChildren)
+            {
+                _subtrees = new Quadtree<T>[4];
+            }
         }
 
         private struct Point<K>
