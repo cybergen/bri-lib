@@ -135,7 +135,7 @@ namespace BriLib
                 for (int i = 0; i < _children.Count; i++)
                 {
                     var child = _children[i];
-                    var distance = Distance(x, y, child.X, child.Y);
+                    var distance = MathHelpers.Distance(x, y, child.X, child.Y);
                     if (distance < nearestDistance)
                     {
                         nearestDistance = distance;
@@ -156,7 +156,7 @@ namespace BriLib
             if (best != null)
             {
                 var loc = _childMap[best];
-                distanceToBest = Distance(x, y, loc.X, loc.Y);
+                distanceToBest = MathHelpers.Distance(x, y, loc.X, loc.Y);
             }
 
             //Only search other octants that have distance at nearest edge less than distance to current best point.
@@ -169,7 +169,7 @@ namespace BriLib
                 if (quadrantIndex == startQuadrant) continue;
 
                 //If distance to nearest point of octant is greater than current best, skip
-                var distanceToQuadrant = BoundsDistance(x, y, _subtrees[quadrantIndex]._boundingBox);
+                var distanceToQuadrant = _subtrees[quadrantIndex]._boundingBox.BoundsDistance(x, y);
                 if (distanceToBest <= distanceToQuadrant) continue;
 
                 //Otherwise, add the octant to the list, sorted in order of ascending distance
@@ -208,7 +208,7 @@ namespace BriLib
 
                 //If candidate distance is shorter than current best, replace current best
                 var candidateLoc = _childMap[candidate];
-                var candidateDistance = Distance(x, y, candidateLoc.X, candidateLoc.Y);
+                var candidateDistance = MathHelpers.Distance(x, y, candidateLoc.X, candidateLoc.Y);
                 if (candidateDistance < distanceToBest)
                 {
                     best = candidate;
@@ -217,18 +217,6 @@ namespace BriLib
             }
 
             return best;
-        }
-
-        public float Distance(float xA, float yA, float xB, float yB)
-        {
-            return ((xA - xB).Sq() + (yA - yB).Sq()).Sqrt();
-        }
-
-        public float BoundsDistance(float x, float y, TwoDimensionalBoundingBox bounds)
-        {
-            var xDist = System.Math.Abs(x - bounds.X) - bounds.Radius;
-            var yDist = System.Math.Abs(y - bounds.Y) - bounds.Radius;
-            return System.Math.Max(xDist, yDist);
         }
 
         private void Subdivide()

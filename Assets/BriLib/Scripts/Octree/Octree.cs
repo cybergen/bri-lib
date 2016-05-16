@@ -144,7 +144,7 @@ namespace BriLib
                 for (int i = 0; i < _children.Count; i++)
                 {
                     var child = _children[i];
-                    var distance = Distance(x, y, z, child.X, child.Y, child.Z);
+                    var distance = MathHelpers.Distance(x, y, z, child.X, child.Y, child.Z);
                     if (distance < nearestDistance)
                     {
                         nearestDistance = distance;
@@ -165,7 +165,7 @@ namespace BriLib
             if (best != null)
             {
                 var loc = _childMap[best];
-                distanceToBest = Distance(x, y, z, loc.X, loc.Y, loc.Z);
+                distanceToBest = MathHelpers.Distance(x, y, z, loc.X, loc.Y, loc.Z);
             }
 
             //Only search other octants that have distance at nearest edge less than distance to current best point.
@@ -178,7 +178,7 @@ namespace BriLib
                 if (octantIndex == startOctant) continue;
 
                 //If distance to nearest point of octant is greater than current best, skip
-                var distanceToOctant = BoundsDistance(x, y, z, _subtrees[octantIndex]._bounds);
+                var distanceToOctant = _subtrees[octantIndex]._bounds.BoundsDistance(x, y, z);
                 if (distanceToBest <= distanceToOctant) continue;
 
                 //Otherwise, add the octant to the list, sorted in order of ascending distance
@@ -217,7 +217,7 @@ namespace BriLib
 
                 //If candidate distance is shorter than current best, replace current best
                 var candidateLoc = _childMap[candidate];
-                var candidateDistance = Distance(x, y, z, candidateLoc.X, candidateLoc.Y, candidateLoc.Z);
+                var candidateDistance = MathHelpers.Distance(x, y, z, candidateLoc.X, candidateLoc.Y, candidateLoc.Z);
                 if (candidateDistance < distanceToBest)
                 {
                     best = candidate;
@@ -226,20 +226,6 @@ namespace BriLib
             }
 
             return best;
-        }
-
-        public float Distance(float xA, float yA, float zA, float xB, float yB, float zB)
-        {
-            return ((xA - xB).Sq() + (yA - yB).Sq() + (zA - zB).Sq()).Sqrt();
-        }
-
-        public float BoundsDistance(float x, float y, float z, ThreeDimensionalBoundingBox bounds)
-        {
-            var xDist = System.Math.Abs(x - bounds.X) - bounds.Radius;
-            var yDist = System.Math.Abs(y - bounds.Y) - bounds.Radius;
-            var zDist = System.Math.Abs(z - bounds.Z) - bounds.Radius;
-            var startMax = System.Math.Max(xDist, yDist);
-            return System.Math.Max(startMax, zDist);
         }
 
         private void Subdivide()

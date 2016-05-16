@@ -44,5 +44,22 @@ namespace BriLib
             return topLeftBack || topLeftFront || bottomLeftBack || bottomLeftFront 
                 || topRightBack || topRightFront || bottomRightBack || bottomRightFront;
         }
+
+        public float BoundsDistance(float x, float y, float z)
+        {
+            var xDist = System.Math.Abs(x - X) - Radius;
+            var yDist = System.Math.Abs(y - Y) - Radius;
+            var zDist = System.Math.Abs(z - Z) - Radius;
+
+            if (yDist > 0 && xDist <= 0 && zDist <= 0) return yDist;
+            if (yDist <= 0 && xDist > 0 && zDist <= 0) return xDist;
+            if (yDist <= 0 && xDist <= 0 && zDist > 0) return zDist;
+            if (yDist > 0 && xDist > 0 && zDist <= 0) return (yDist.Sq() + xDist.Sq()).Sqrt();
+            if (yDist > 0 && xDist <= 0 && zDist > 0) return (yDist.Sq() + zDist.Sq()).Sqrt();
+            if (yDist <= 0 && xDist > 0 && zDist > 0) return (xDist.Sq() + zDist.Sq()).Sqrt();
+            if (yDist <= 0 && xDist <= 0 && zDist <= 0) return System.Math.Min(xDist, yDist);
+
+            return (xDist.Sq() + yDist.Sq() + zDist.Sq()).Sqrt();
+        }
     }
 }

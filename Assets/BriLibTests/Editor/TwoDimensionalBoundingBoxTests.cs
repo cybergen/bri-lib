@@ -45,4 +45,29 @@ public class TwoDimensionalBoundingBoxTests
         var newBox = new TwoDimensionalBoundingBox(-5, -5, 3);
         Assert.False(_box.Intersects(newBox));
     }
+
+    [Test]
+    public void DistanceAlongStraightPath()
+    {
+        var newBox = new TwoDimensionalBoundingBox(2, 2, 2);
+        var dist = newBox.BoundsDistance(6, 2);
+        Assert.AreEqual(2, dist);
+    }
+
+    [Test]
+    public void DistanceAlongDiagonal()
+    {
+        var hypotenuse = (float)(2f.Sq() + 2d.Sq()).Sqrt();
+        var newBox = new TwoDimensionalBoundingBox(2, 2, 2);
+        var dist = newBox.BoundsDistance(6, 6);
+        Assert.AreEqual(hypotenuse, dist);
+    }
+
+    [Test]
+    public void DistancePointInside()
+    {
+        var newBox = new TwoDimensionalBoundingBox(2, 2, 2);
+        var dist = newBox.BoundsDistance(2, 4);
+        Assert.AreEqual(-2, dist);
+    }
 }

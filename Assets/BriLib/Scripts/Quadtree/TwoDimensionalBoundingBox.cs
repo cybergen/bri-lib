@@ -34,5 +34,17 @@ namespace BriLib
             var yInter = (boxBot >= myBot && boxBot <= myTop || boxTop >= myBot && boxTop <= myTop);
             return xInter && yInter;
         }
+
+        public float BoundsDistance(float x, float y)
+        {
+            var xDist = System.Math.Abs(x - X) - Radius;
+            var yDist = System.Math.Abs(y - Y) - Radius;
+
+            if (yDist > 0 && xDist < 0) return yDist;
+            if (yDist < 0 && xDist > 0) return xDist;
+            if (yDist <= 0 && xDist <= 0) return System.Math.Min(xDist, yDist);
+
+            return (xDist.Sq() + yDist.Sq()).Sqrt();
+        }
     }
 }

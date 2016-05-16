@@ -45,4 +45,47 @@ public class ThreeDimensionalBoundingBoxTests
         var newBox = new ThreeDimensionalBoundingBox(-5, -5, -5, 3);
         Assert.False(_box.Intersects(newBox));
     }
+
+    [Test]
+    public void DistanceAlongStraightPath3D()
+    {
+        var newBox = new ThreeDimensionalBoundingBox(2, 2, 2, 2);
+        var dist = newBox.BoundsDistance(6, 2, 2);
+        Assert.AreEqual(2, dist);
+    }
+
+    [Test]
+    public void DistancePointInside3D()
+    {
+        var newBox = new ThreeDimensionalBoundingBox(2, 2, 2, 2);
+        var dist = newBox.BoundsDistance(2, 4, 4);
+        Assert.AreEqual(-2, dist);
+    }
+
+    [Test]
+    public void DistanceFlatPlaneXZPlane3D()
+    {
+        var hypotenuse = (float)(2f.Sq() + 2d.Sq()).Sqrt();
+        var newBox = new ThreeDimensionalBoundingBox(2, 2, 2, 2);
+        var dist = newBox.BoundsDistance(2, 6, 6);
+        Assert.AreEqual(hypotenuse, dist);
+    }
+
+    [Test]
+    public void DistanceFlatPlaneYZPlane3D()
+    {
+        var hypotenuse = (float)(2f.Sq() + 2d.Sq()).Sqrt();
+        var newBox = new ThreeDimensionalBoundingBox(2, 2, 2, 2);
+        var dist = newBox.BoundsDistance(6, 2, 6);
+        Assert.AreEqual(hypotenuse, dist);
+    }
+
+    [Test]
+    public void DistanceAlongDiagonalYXPlane3D()
+    {
+        var hypotenuse = (float)(2f.Sq() + 2d.Sq()).Sqrt();
+        var newBox = new ThreeDimensionalBoundingBox(2, 2, 2, 2);
+        var dist = newBox.BoundsDistance(6, 6, 2);
+        Assert.AreEqual(hypotenuse, dist);
+    }
 }
