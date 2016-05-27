@@ -21,10 +21,12 @@ public class VoronoiTester : MonoBehaviour
     public int Width;
     public int Height;
     public int VoronoiCount;
+    public Material Material;
 
     private MeshRenderer _renderer;
     private Quadtree<ColorWrapper> _colorTree;
     private State _currentState;
+    private Texture2D _texture;
 
     private void Start()
     {
@@ -77,11 +79,77 @@ public class VoronoiTester : MonoBehaviour
     private void SetState(State state)
     {
         Debug.Log("Setting state to " + state);
+        switch (state)
+        {
+            case State.Points: SetPoints(); break;
+            case State.VoronoiCells: AddVoronoiCells(); break;
+            case State.CircumCircles: AddCircumCircles(); break;
+            case State.Triangles: CalculateTriangles(); break;
+            case State.Broken: SeparateMesh(); break;
+        }
         _currentState = state;
+    }
+
+    private void SetPoints()
+    {
+        _colorTree = new Quadtree<ColorWrapper>(Width / 2, Height / 2, Width / 2, 5);
+        var _rand = new System.Random();
+        for (int i = 0; i < VoronoiCount; i++)
+        {
+            var r = _rand.Next(256) / 256f;
+            var g = _rand.Next(256) / 256f;
+            var b = _rand.Next(256) / 256f;
+            var color = new Color(r, g, b);
+            var wrapper = new ColorWrapper { Color = color };
+
+            var x = _rand.Next(Width);
+            var y = _rand.Next(Width);
+
+            _colorTree.Insert(x, y, wrapper);
+        }
+
+        _texture = new Texture2D(Width, Height, TextureFormat.RGB24, false) { wrapMode = TextureWrapMode.Clamp };
+
+        for (int y = 0; y < Height; y++)
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                _texture.SetPixel(x, y, Color.white);
+
+                var colors = _colorTree.GetRange(x, y, 2);
+                foreach (var color in colors)
+                {
+                    _texture.SetPixel(x, y, color.Color);
+                }
+            }
+        }
+
+        _texture.Apply();
+        Material.SetTexture("_MainTex", _texture);
+    }
+
+    private void AddVoronoiCells()
+    {
+        throw new NotImplementedException();
+    }
+
+    private void AddCircumCircles()
+    {
+        throw new NotImplementedException();
+    }
+
+    private void CalculateTriangles()
+    {
+        throw new NotImplementedException();
+    }
+
+    private void SeparateMesh()
+    {
+        throw new NotImplementedException();
     }
 
     private class ColorWrapper
     {
-        public Color color;
+        public Color Color;
     }
 }
