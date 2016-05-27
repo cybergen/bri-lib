@@ -22,6 +22,8 @@ public class VoronoiTester : MonoBehaviour
     public int Height;
     public int VoronoiCount;
     public Material Material;
+    public int PointSize;
+    public Color BGColor;
 
     private MeshRenderer _renderer;
     private Quadtree<ColorWrapper> _colorTree;
@@ -57,11 +59,7 @@ public class VoronoiTester : MonoBehaviour
 
     private void AdvanceToState(State v)
     {
-        if ((int)v == (int)_currentState)
-        {
-            return;
-        }
-        else if ((int)v < (int)_currentState)
+        if ((int)v < (int)_currentState || (int)v == (int)_currentState)
         {
             _currentState = State.None;
             AdvanceToState(v);
@@ -92,6 +90,7 @@ public class VoronoiTester : MonoBehaviour
 
     private void SetPoints()
     {
+        var insertedYValues = new List<int>();
         _colorTree = new Quadtree<ColorWrapper>(Width / 2, Height / 2, Width / 2, 5);
         var _rand = new System.Random();
         for (int i = 0; i < VoronoiCount; i++)
@@ -106,23 +105,27 @@ public class VoronoiTester : MonoBehaviour
             var y = _rand.Next(Width);
 
             _colorTree.Insert(x, y, wrapper);
+            insertedYValues.Add(y);
         }
 
         _texture = new Texture2D(Width, Height, TextureFormat.RGB24, false) { wrapMode = TextureWrapMode.Clamp };
+        var foundYValues = new List<int>();
+
 
         for (int y = 0; y < Height; y++)
         {
             for (int x = 0; x < Width; x++)
             {
-                _texture.SetPixel(x, y, Color.white);
+                _texture.SetPixel(x, y, BGColor);
 
-                var colors = _colorTree.GetRange(x, y, 2);
+                var colors = _colorTree.GetRange(x, y, PointSize);
                 foreach (var color in colors)
                 {
+                    if (!foundYValues.Contains(y)) foundYValues.Add(y);
                     _texture.SetPixel(x, y, color.Color);
                 }
             }
-        }
+        }        
 
         _texture.Apply();
         Material.SetTexture("_MainTex", _texture);
