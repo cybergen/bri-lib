@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
-using UnityEditor;
 using BriLib;
 
-public class VoronoiTester : MonoBehaviour
+public class ShatterTester : MonoBehaviour
 {
     public enum State
     {
@@ -24,16 +21,10 @@ public class VoronoiTester : MonoBehaviour
     public Material Material;
     public int PointSize;
     public Color BGColor;
-
-    private MeshRenderer _renderer;
+    
     private Quadtree<ColorWrapper> _colorTree;
     private State _currentState;
     private Texture2D _texture;
-
-    private void Start()
-    {
-        _renderer = gameObject.GetComponent<MeshRenderer>();
-    }
 
     private void OnGUI()
     {

@@ -12,10 +12,28 @@ namespace BriLib
             SouthWest = 3,
         }
 
-        private int _maxObjectsPerNode;
-        private TwoDimensionalBoundingBox _boundingBox;
-        private List<Point<T>> _children;
+        public TwoDimensionalBoundingBox BoundingBox { get; private set; }
+        public IEnumerable<TwoDimensionalBoundingBox> RecursiveBounds
+        {
+            get
+            {
+                yield return BoundingBox;
+                for (int i = 0; i < _subtrees.Length; i++)
+                {
+                    if (_subtrees[i] != null)
+                    {
+                        foreach (var box in _subtrees[i].RecursiveBounds)
+                        {
+                            yield return box;
+                        }
+                }
+                }
+            }
+        }
+
         private Quadtree<T>[] _subtrees;
+        private int _maxObjectsPerNode;
+        private List<Point<T>> _children;
         private Dictionary<T, Point<T>> _childMap;
         
         public Quadtree(TwoDimensionalBoundingBox boundingBox, int maxObjectsPerNode)
@@ -32,7 +50,7 @@ namespace BriLib
             }
 
             _maxObjectsPerNode = maxObj;
-            _boundingBox = boundingBox;
+            BoundingBox = boundingBox;
             _children = new List<Point<T>>();
             _subtrees = new Quadtree<T>[4];
             _childMap = childMap;
@@ -40,9 +58,9 @@ namespace BriLib
 
         public Quadrant GetQuadrant(float x, float y)
         {
-            if (x < _boundingBox.X && y >= _boundingBox.Y) return Quadrant.NorthEast;
-            if (x >= _boundingBox.X && y >= _boundingBox.Y) return Quadrant.NorthWest;
-            if (x < _boundingBox.X && y < _boundingBox.Y) return Quadrant.SouthWest;
+            if (x < BoundingBox.X && y >= BoundingBox.Y) return Quadrant.NorthEast;
+            if (x >= BoundingBox.X && y >= BoundingBox.Y) return Quadrant.NorthWest;
+            if (x < BoundingBox.X && y < BoundingBox.Y) return Quadrant.SouthWest;
             return Quadrant.SouthEast;
         }
 
@@ -89,7 +107,7 @@ namespace BriLib
 
             for (int i = 0; i < _subtrees.Length; i++)
             {
-                if (_subtrees[i] != null && _subtrees[i]._boundingBox.Intersects(bounds))
+                if (_subtrees[i] != null && _subtrees[i].BoundingBox.Intersects(bounds))
                 {
                     for (var enumerator = _subtrees[i].GetRange(bounds).GetEnumerator(); enumerator.MoveNext();)
                     {
@@ -169,7 +187,7 @@ namespace BriLib
                 if (quadrantIndex == startQuadrant) continue;
 
                 //If distance to nearest point of octant is greater than current best, skip
-                var distanceToQuadrant = _subtrees[quadrantIndex]._boundingBox.BoundsDistance(x, y);
+                var distanceToQuadrant = _subtrees[quadrantIndex].BoundingBox.BoundsDistance(x, y);
                 if (distanceToBest <= distanceToQuadrant) continue;
 
                 //Otherwise, add the octant to the list, sorted in order of ascending distance
@@ -219,17 +237,17 @@ namespace BriLib
             return best;
         }
 
-        private void Subdivide()
+        protected void Subdivide()
         {
-            var quarterRadius = _boundingBox.Radius / 2;
-            var x = _boundingBox.X;
-            var y = _boundingBox.Y;
+            var quarterRadius = BoundingBox.Radius / 2;
+            var x = BoundingBox.X;
+            var y = BoundingBox.Y;
 
-            var nwBox = new TwoDimensionalBoundingBox(x - quarterRadius, y + quarterRadius, quarterRadius);
-            _subtrees[(int)Quadrant.NorthWest] = new Quadtree<T>(nwBox, _maxObjectsPerNode, _childMap);
-
-            var neBox = new TwoDimensionalBoundingBox(x + quarterRadius, y + quarterRadius, quarterRadius);
+            var neBox = new TwoDimensionalBoundingBox(x - quarterRadius, y + quarterRadius, quarterRadius);
             _subtrees[(int)Quadrant.NorthEast] = new Quadtree<T>(neBox, _maxObjectsPerNode, _childMap);
+
+            var nwBox = new TwoDimensionalBoundingBox(x + quarterRadius, y + quarterRadius, quarterRadius);
+            _subtrees[(int)Quadrant.NorthWest] = new Quadtree<T>(nwBox, _maxObjectsPerNode, _childMap);
 
             var seBox = new TwoDimensionalBoundingBox(x + quarterRadius, y - quarterRadius, quarterRadius);
             _subtrees[(int)Quadrant.SouthEast] = new Quadtree<T>(seBox, _maxObjectsPerNode, _childMap);
