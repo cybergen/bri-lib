@@ -22,11 +22,11 @@ namespace BriLib
                 {
                     if (_subtrees[i] != null)
                     {
-                        foreach (var box in _subtrees[i].RecursiveBounds)
+                        for (var enumerator = _subtrees[i].RecursiveBounds.GetEnumerator(); enumerator.MoveNext();)
                         {
-                            yield return box;
+                            yield return enumerator.Current;
                         }
-                }
+                    }
                 }
             }
         }
@@ -58,9 +58,9 @@ namespace BriLib
 
         public Quadrant GetQuadrant(float x, float y)
         {
-            if (x < BoundingBox.X && y >= BoundingBox.Y) return Quadrant.NorthEast;
-            if (x >= BoundingBox.X && y >= BoundingBox.Y) return Quadrant.NorthWest;
-            if (x < BoundingBox.X && y < BoundingBox.Y) return Quadrant.SouthWest;
+            if (x < BoundingBox.X && y <= BoundingBox.Y) return Quadrant.NorthEast;
+            if (x >= BoundingBox.X && y <= BoundingBox.Y) return Quadrant.NorthWest;
+            if (x >= BoundingBox.X && y > BoundingBox.Y) return Quadrant.SouthWest;
             return Quadrant.SouthEast;
         }
 
@@ -97,11 +97,24 @@ namespace BriLib
 
         public IEnumerable<T> GetRange(TwoDimensionalBoundingBox bounds)
         {
+            for (var enumerator = GetPointRange(bounds).GetEnumerator(); enumerator.MoveNext();)
+            {
+                yield return enumerator.Current.StoredObject;
+            }
+        }
+
+        public IEnumerable<Point<T>> GetPointRange(float x, float y, float radius)
+        {
+            return GetPointRange(new TwoDimensionalBoundingBox(x, y, radius));
+        }
+
+        public IEnumerable<Point<T>> GetPointRange(TwoDimensionalBoundingBox bounds)
+        {
             for (int i = 0; i < _children.Count; i++)
             {
                 if (bounds.Intersects(_children[i].X, _children[i].Y))
                 {
-                    yield return _children[i].StoredObject;
+                    yield return _children[i];
                 }
             }
 
@@ -109,7 +122,7 @@ namespace BriLib
             {
                 if (_subtrees[i] != null && _subtrees[i].BoundingBox.Intersects(bounds))
                 {
-                    for (var enumerator = _subtrees[i].GetRange(bounds).GetEnumerator(); enumerator.MoveNext();)
+                    for (var enumerator = _subtrees[i].GetPointRange(bounds).GetEnumerator(); enumerator.MoveNext();)
                     {
                         yield return enumerator.Current;
                     }
@@ -243,16 +256,16 @@ namespace BriLib
             var x = BoundingBox.X;
             var y = BoundingBox.Y;
 
-            var neBox = new TwoDimensionalBoundingBox(x - quarterRadius, y + quarterRadius, quarterRadius);
+            var neBox = new TwoDimensionalBoundingBox(x - quarterRadius, y - quarterRadius, quarterRadius);
             _subtrees[(int)Quadrant.NorthEast] = new Quadtree<T>(neBox, _maxObjectsPerNode, _childMap);
 
-            var nwBox = new TwoDimensionalBoundingBox(x + quarterRadius, y + quarterRadius, quarterRadius);
+            var nwBox = new TwoDimensionalBoundingBox(x + quarterRadius, y - quarterRadius, quarterRadius);
             _subtrees[(int)Quadrant.NorthWest] = new Quadtree<T>(nwBox, _maxObjectsPerNode, _childMap);
 
-            var seBox = new TwoDimensionalBoundingBox(x + quarterRadius, y - quarterRadius, quarterRadius);
+            var seBox = new TwoDimensionalBoundingBox(x - quarterRadius, y + quarterRadius, quarterRadius);
             _subtrees[(int)Quadrant.SouthEast] = new Quadtree<T>(seBox, _maxObjectsPerNode, _childMap);
 
-            var swBox = new TwoDimensionalBoundingBox(x - quarterRadius, y - quarterRadius, quarterRadius);
+            var swBox = new TwoDimensionalBoundingBox(x + quarterRadius, y + quarterRadius, quarterRadius);
             _subtrees[(int)Quadrant.SouthWest] = new Quadtree<T>(swBox, _maxObjectsPerNode, _childMap);
 
             for (int i = 0; i < _children.Count; i++)
@@ -280,7 +293,7 @@ namespace BriLib
             }
         }
 
-        private struct Point<K>
+        public struct Point<K>
         {
             public K StoredObject;
             public float X;

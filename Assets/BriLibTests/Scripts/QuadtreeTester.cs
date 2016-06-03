@@ -77,12 +77,16 @@ public class QuadtreeTester : MonoBehaviour
 
     private void DrawPoints()
     {
-        for (int y = 0; y < Height; y++)
+        foreach (var point in _tree.GetPointRange(Width / 2, Height / 2, Width / 2))
         {
-            for (int x = 0; x < Width; x++)
+            var startX = (int)Mathf.Max(0, point.X - PointSize / 2);
+            var endX = (int)Mathf.Min(Width, point.X + PointSize / 2);
+            var startY = (int)Mathf.Max(0, point.Y - PointSize / 2);
+            var endY = (int)Mathf.Min(Height, point.Y + PointSize / 2);
+
+            for (int y = startY; y <= endY; y++)
             {
-                var colors = _tree.GetRange(x, y, PointSize);
-                foreach (var color in colors)
+                for (int x = startX; x <= endX; x++)
                 {
                     _texture.SetPixel(x, y, PointColor);
                 }
@@ -99,14 +103,20 @@ public class QuadtreeTester : MonoBehaviour
 
         for (var x = startX; x <= endX; x++)
         {
-            _texture.SetPixel((int)x, (int)startY, BoundsColor);
-            _texture.SetPixel((int)x, (int)endY, BoundsColor);
+            for (var subX = -1; subX < 2; subX++)
+            {
+                _texture.SetPixel((int)x, (int)startY + subX, BoundsColor);
+                _texture.SetPixel((int)x, (int)endY + subX, BoundsColor);
+            }
         }
 
         for (var y = startY; y <= endY; y++)
         {
-            _texture.SetPixel((int)startX, (int)y, BoundsColor);
-            _texture.SetPixel((int)endX, (int)y, BoundsColor);
+            for (var subY = -1; subY < 2; subY++)
+            {
+                _texture.SetPixel((int)startX + subY, (int)y, BoundsColor);
+                _texture.SetPixel((int)endX + subY, (int)y, BoundsColor);
+            }
         }
     }
 

@@ -37,6 +37,7 @@ public class ThreeDimensionalBoundingBoxTests
     {
         var newBox = new ThreeDimensionalBoundingBox(11, 11, 11, 2);
         Assert.True(_box.Intersects(newBox));
+        Assert.True(newBox.Intersects(_box));
     }
 
     [Test]
