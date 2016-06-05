@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using BriLib;
 
-public class ShatterTester : MonoBehaviour
+public class ShatterTester : TextureWriteTester
 {
     public enum State
     {
@@ -15,16 +15,11 @@ public class ShatterTester : MonoBehaviour
         Broken = 5,
     }
 
-    public int Width;
-    public int Height;
     public int VoronoiCount;
-    public Material Material;
     public int PointSize;
-    public Color BGColor;
     
     private Quadtree<ColorWrapper> _colorTree;
     private State _currentState;
-    private Texture2D _texture;
 
     private void OnGUI()
     {
@@ -81,7 +76,6 @@ public class ShatterTester : MonoBehaviour
 
     private void SetPoints()
     {
-        var insertedYValues = new List<int>();
         _colorTree = new Quadtree<ColorWrapper>(Width / 2, Height / 2, Width / 2, 5);
         var _rand = new System.Random();
         for (int i = 0; i < VoronoiCount; i++)
@@ -96,35 +90,30 @@ public class ShatterTester : MonoBehaviour
             var y = _rand.Next(Width);
 
             _colorTree.Insert(x, y, wrapper);
-            insertedYValues.Add(y);
         }
 
-        _texture = new Texture2D(Width, Height, TextureFormat.RGB24, false) { wrapMode = TextureWrapMode.Clamp };
-        var foundYValues = new List<int>();
+        Initialize();
+        DrawBackground();
 
-
-        for (int y = 0; y < Height; y++)
+        foreach (var point in _colorTree.GetPointRange(Width / 2, Height / 2, Width / 2))
         {
-            for (int x = 0; x < Width; x++)
-            {
-                _texture.SetPixel(x, y, BGColor);
+            DrawPoint((int)point.X, (int)point.Y, PointSize, point.StoredObject.Color);
+        }
 
-                var colors = _colorTree.GetRange(x, y, PointSize);
-                foreach (var color in colors)
-                {
-                    if (!foundYValues.Contains(y)) foundYValues.Add(y);
-                    _texture.SetPixel(x, y, color.Color);
-                }
-            }
-        }        
-
-        _texture.Apply();
-        Material.SetTexture("_MainTex", _texture);
+        UpdateTexture();
     }
 
     private void AddVoronoiCells()
     {
-        throw new NotImplementedException();
+        for (int y = 0; y < Height; y++)
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                var point = _colorTree.GetNearestNeighbor(x, y);
+                _texture.SetPixel(x, y, point.Color);
+            }
+        }
+        UpdateTexture();
     }
 
     private void AddCircumCircles()

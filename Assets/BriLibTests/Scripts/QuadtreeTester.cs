@@ -1,21 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 using BriLib;
 
-public class QuadtreeTester : MonoBehaviour
+public class QuadtreeTester : TextureWriteTester
 {
-    public int Width;
-    public int Height;
-    public Material Material;
     public int PointSize;
-    public Color BgColor;
     public Color PointColor;
     public Color BoundsColor;
 
-    private Texture2D _texture;
     private Quadtree<EmptyPoint> _tree;
 
     private void Start()
@@ -40,31 +31,18 @@ public class QuadtreeTester : MonoBehaviour
         }
     }
 
-    private void Initialize()
+    protected override void Initialize()
     {
+        base.Initialize();
         _tree = new Quadtree<EmptyPoint>(Width / 2, Height / 2, Width / 2, 3);
-        _texture = new Texture2D(Width, Height, TextureFormat.RGB24, false) { wrapMode = TextureWrapMode.Clamp };
-        DrawBackground();
         UpdateTexture();
     }
 
-    private void UpdateTexture()
+    protected override void UpdateTexture()
     {
         DrawBoundingBoxes();
         DrawPoints();
-        _texture.Apply();
-        Material.SetTexture("_MainTex", _texture);
-    }
-
-    private void DrawBackground()
-    {
-        for (int y = 0; y < Height; y++)
-        {
-            for (int x = 0; x < Width; x++)
-            {
-                _texture.SetPixel(x, y, BgColor);
-            }
-        }
+        base.UpdateTexture();
     }
 
     private void DrawBoundingBoxes()
@@ -79,18 +57,7 @@ public class QuadtreeTester : MonoBehaviour
     {
         foreach (var point in _tree.GetPointRange(Width / 2, Height / 2, Width / 2))
         {
-            var startX = (int)Mathf.Max(0, point.X - PointSize / 2);
-            var endX = (int)Mathf.Min(Width, point.X + PointSize / 2);
-            var startY = (int)Mathf.Max(0, point.Y - PointSize / 2);
-            var endY = (int)Mathf.Min(Height, point.Y + PointSize / 2);
-
-            for (int y = startY; y <= endY; y++)
-            {
-                for (int x = startX; x <= endX; x++)
-                {
-                    _texture.SetPixel(x, y, PointColor);
-                }
-            }
+            DrawPoint((int)point.X, (int)point.Y, PointSize, PointColor);
         }
     }
 
