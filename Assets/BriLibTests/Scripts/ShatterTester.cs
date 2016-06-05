@@ -118,7 +118,7 @@ public class ShatterTester : TextureWriteTester
 
     private void AddCircumCircles()
     {
-        throw new NotImplementedException();
+
     }
 
     private void CalculateTriangles()

@@ -27,6 +27,17 @@ public class TextureWriteTester : MonoBehaviour
         }
     }
 
+    protected virtual void DrawCircle(float centerX, float centerY, float radius, Color color)
+    {
+        for (float angle = 0; angle < 360; angle += 0.2f)
+        {
+            var rad = angle * System.Math.PI / 180f;
+            var x = System.Math.Cos(rad) * radius + centerX;
+            var y = System.Math.Sin(rad) * radius + centerY;
+            _texture.SetPixel((int)x, (int)y, color);
+        }
+    }
+
     protected virtual void UpdateTexture()
     {
         _texture.Apply();
