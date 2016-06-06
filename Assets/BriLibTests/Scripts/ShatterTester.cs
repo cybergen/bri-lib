@@ -1,7 +1,10 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using BriLib;
+using Point = BriLib.TwoDimensionalPoint<ShatterTester.ColorWrapper>;
+using PointCollection = BriLib.IObservableCollection<BriLib.TwoDimensionalPoint<ShatterTester.ColorWrapper>>;
 
 public class ShatterTester : TextureWriteTester
 {
@@ -118,7 +121,19 @@ public class ShatterTester : TextureWriteTester
 
     private void AddCircumCircles()
     {
+        var position = Width / 2;
+        var orderedPoints = OrderPoints(_colorTree.GetPointRange(position, position, position));
+        var points = new PointSet<ColorWrapper>(orderedPoints);
+    }
 
+    private PointCollection OrderPoints(IEnumerable<TwoDimensionalPoint<ColorWrapper>> enumerable)
+    {
+        var backer = new ObservableCollection<Point>();
+        foreach (var point in enumerable)
+        {
+            backer.Add(point);
+        }
+        return backer.Sort(PointComparer);
     }
 
     private void CalculateTriangles()
@@ -131,8 +146,51 @@ public class ShatterTester : TextureWriteTester
         throw new NotImplementedException();
     }
 
-    private class ColorWrapper
+    private int PointComparer(Point arg1, Point arg2)
+    {
+        if (arg1.X == arg2.X) return (int)arg1.Y - (int)arg2.Y;
+        return (int)arg1.X - (int)arg2.X;
+    }
+
+    public class ColorWrapper
     {
         public Color Color;
+    }
+
+    public class PointSet<T>
+    {
+        public int Count { get { return _points.Count; } }
+        public PointSet<T> Next = null;
+
+        private List<TwoDimensionalPoint<T>> _points = new List<TwoDimensionalPoint<T>>();
+
+        public PointSet(IEnumerable<TwoDimensionalPoint<T>> points)
+        {
+            _points = points.ToList();
+            Subdivide();
+        }
+
+        private void Subdivide()
+        {
+            if (Count < 4) return;
+
+            var limit = Count / 2;
+            var leftList = _points.GetRange(0, limit);
+
+            var next = new PointSet<T>(_points.GetRange(limit, Count - limit));
+            if (Next != null)
+            {
+                var oldNext = Next;
+                Next = next;
+                Next.Next = oldNext;
+            }
+            else
+            {
+                Next = next;
+            }
+            _points = leftList;
+
+            Subdivide();
+        }
     }
 }

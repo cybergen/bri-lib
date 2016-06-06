@@ -33,16 +33,16 @@ namespace BriLib
 
         private Quadtree<T>[] _subtrees;
         private int _maxObjectsPerNode;
-        private List<Point<T>> _children;
-        private Dictionary<T, Point<T>> _childMap;
+        private List<TwoDimensionalPoint<T>> _children;
+        private Dictionary<T, TwoDimensionalPoint<T>> _childMap;
         
         public Quadtree(TwoDimensionalBoundingBox boundingBox, int maxObjectsPerNode)
-            : this(boundingBox, maxObjectsPerNode, new Dictionary<T, Point<T>>()) { }
+            : this(boundingBox, maxObjectsPerNode, new Dictionary<T, TwoDimensionalPoint<T>>()) { }
 
         public Quadtree(float centerX, float centerY, float radius, int maxObjectsPerNode)
             : this(new TwoDimensionalBoundingBox(centerX, centerY, radius), maxObjectsPerNode) { }
 
-        private Quadtree(TwoDimensionalBoundingBox boundingBox, int maxObj, Dictionary<T, Point<T>> childMap)
+        private Quadtree(TwoDimensionalBoundingBox boundingBox, int maxObj, Dictionary<T, TwoDimensionalPoint<T>> childMap)
         {
             if (maxObj <= 0)
             {
@@ -51,7 +51,7 @@ namespace BriLib
 
             _maxObjectsPerNode = maxObj;
             BoundingBox = boundingBox;
-            _children = new List<Point<T>>();
+            _children = new List<TwoDimensionalPoint<T>>();
             _subtrees = new Quadtree<T>[4];
             _childMap = childMap;
         }
@@ -84,7 +84,7 @@ namespace BriLib
             }
             else
             {
-                var child = new Point<T>(x, y, obj);
+                var child = new TwoDimensionalPoint<T>(x, y, obj);
                 _children.Add(child);
                 _childMap.Add(obj, child);
             }
@@ -103,12 +103,12 @@ namespace BriLib
             }
         }
 
-        public IEnumerable<Point<T>> GetPointRange(float x, float y, float radius)
+        public IEnumerable<TwoDimensionalPoint<T>> GetPointRange(float x, float y, float radius)
         {
             return GetPointRange(new TwoDimensionalBoundingBox(x, y, radius));
         }
 
-        public IEnumerable<Point<T>> GetPointRange(TwoDimensionalBoundingBox bounds)
+        public IEnumerable<TwoDimensionalPoint<T>> GetPointRange(TwoDimensionalBoundingBox bounds)
         {
             for (int i = 0; i < _children.Count; i++)
             {
@@ -276,7 +276,7 @@ namespace BriLib
                 _subtrees[(int)GetQuadrant(childX, childY)].Insert(childX, childY, _children[i].StoredObject);
             }
 
-            _children = new List<Point<T>>();
+            _children = new List<TwoDimensionalPoint<T>>();
         }
 
         private void EvaluateSubtrees()
@@ -292,19 +292,5 @@ namespace BriLib
                 _subtrees = new Quadtree<T>[4];
             }
         }
-
-        public struct Point<K>
-        {
-            public K StoredObject;
-            public float X;
-            public float Y;
-
-            public Point(float x, float y, K obj)
-            {
-                X = x;
-                Y = y;
-                StoredObject = obj;
-            }
-        }        
     }
 }

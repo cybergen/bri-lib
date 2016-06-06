@@ -18,17 +18,17 @@ namespace BriLib
 
         private int _maxObjectsPerNode;
         private ThreeDimensionalBoundingBox _bounds;
-        private List<Point<T>> _children;
+        private List<ThreeDimensionalPoint<T>> _children;
         private Octree<T>[] _subtrees;
-        private Dictionary<T, Point<T>> _childMap;
+        private Dictionary<T, ThreeDimensionalPoint<T>> _childMap;
 
         public Octree(ThreeDimensionalBoundingBox bounds, int maxObjsPerNode)
-            : this(bounds, maxObjsPerNode, new Dictionary<T, Point<T>>()) { }
+            : this(bounds, maxObjsPerNode, new Dictionary<T, ThreeDimensionalPoint<T>>()) { }
 
         public Octree(float centerX, float centerY, float centerZ, float radius, int maxObjs)
             : this(new ThreeDimensionalBoundingBox(centerX, centerY, centerZ, radius), maxObjs) { }
 
-        private Octree(ThreeDimensionalBoundingBox bounds, int maxObjs, Dictionary<T, Point<T>> childMap)
+        private Octree(ThreeDimensionalBoundingBox bounds, int maxObjs, Dictionary<T, ThreeDimensionalPoint<T>> childMap)
         {
             if (maxObjs <= 0)
             {
@@ -37,7 +37,7 @@ namespace BriLib
 
             _maxObjectsPerNode = maxObjs;
             _bounds = bounds;
-            _children = new List<Point<T>>();
+            _children = new List<ThreeDimensionalPoint<T>>();
             _subtrees = new Octree<T>[8];
             _childMap = childMap;
         }
@@ -77,7 +77,7 @@ namespace BriLib
             }
             else
             {
-                var point = new Point<T>(x, y, z, obj);
+                var point = new ThreeDimensionalPoint<T>(x, y, z, obj);
                 _children.Add(point);
                 _childMap.Add(obj, point);
             }
@@ -264,7 +264,7 @@ namespace BriLib
                 _subtrees[(int)GetOctant(childX, childY, childZ)].Insert(childX, childY, childZ, child);
             }
 
-            _children = new List<Point<T>>();
+            _children = new List<ThreeDimensionalPoint<T>>();
         }
 
         private void EvaluateSubtrees()
@@ -278,22 +278,6 @@ namespace BriLib
             if (clearChildren)
             {
                 _subtrees = new Octree<T>[8];
-            }
-        }
-
-        private struct Point<K>
-        {
-            public float X;
-            public float Y;
-            public float Z;
-            public K StoredObject;
-
-            public Point(float x, float y, float z, K obj)
-            {
-                X = x;
-                Y = y;
-                Z = z;
-                StoredObject = obj;
             }
         }
     }
