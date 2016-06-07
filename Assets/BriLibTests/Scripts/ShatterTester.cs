@@ -123,7 +123,7 @@ public class ShatterTester : TextureWriteTester
     {
         var position = Width / 2;
         var orderedPoints = OrderPoints(_colorTree.GetPointRange(position, position, position));
-        var points = new PointSet<ColorWrapper>(orderedPoints);
+        var points = new SubdividingSet<Point>(orderedPoints, 3);
     }
 
     private PointCollection OrderPoints(IEnumerable<TwoDimensionalPoint<ColorWrapper>> enumerable)
@@ -155,42 +155,5 @@ public class ShatterTester : TextureWriteTester
     public class ColorWrapper
     {
         public Color Color;
-    }
-
-    public class PointSet<T>
-    {
-        public int Count { get { return _points.Count; } }
-        public PointSet<T> Next = null;
-
-        private List<TwoDimensionalPoint<T>> _points = new List<TwoDimensionalPoint<T>>();
-
-        public PointSet(IEnumerable<TwoDimensionalPoint<T>> points)
-        {
-            _points = points.ToList();
-            Subdivide();
-        }
-
-        private void Subdivide()
-        {
-            if (Count < 4) return;
-
-            var limit = Count / 2;
-            var leftList = _points.GetRange(0, limit);
-
-            var next = new PointSet<T>(_points.GetRange(limit, Count - limit));
-            if (Next != null)
-            {
-                var oldNext = Next;
-                Next = next;
-                Next.Next = oldNext;
-            }
-            else
-            {
-                Next = next;
-            }
-            _points = leftList;
-
-            Subdivide();
-        }
     }
 }

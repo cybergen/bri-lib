@@ -42,7 +42,7 @@ namespace BriLib
             var bottomRightFront = Intersects(highX, lowY, lowZ);
 
             return topLeftBack || topLeftFront || bottomLeftBack || bottomLeftFront 
-                || topRightBack || topRightFront || bottomRightBack || bottomRightFront;
+                || topRightBack || topRightFront || bottomRightBack || bottomRightFront || otherBox.Intersects(this);
         }
 
         public float BoundsDistance(float x, float y, float z)
