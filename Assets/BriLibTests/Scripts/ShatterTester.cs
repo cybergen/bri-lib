@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using BriLib;
@@ -14,14 +13,23 @@ public class ShatterTester : TextureWriteTester
         Points = 1,
         VoronoiCells = 2,
         CircumCircles = 3,
-        Triangles = 4,
-        Broken = 5,
+        IntersectionPoints = 4,
+        Triangles = 5,
+        Broken = 6,
     }
 
     public int VoronoiCount;
     public int PointSize;
-    
+    public int IntersectionPointSize;
+    public Color CircleColor;
+    public Color IntersectionColor;
+    public Color TriangleColor;
+    public MeshFilter MeshFilter;
+
     private Quadtree<ColorWrapper> _colorTree;
+    private VoronoiDiagram _voronoi;
+    private Dictionary<ColorWrapper, BriLib.Point> _pointMap;
+    private Triangulation _delaunay;
     private State _currentState;
 
     private void OnGUI()
@@ -46,9 +54,42 @@ public class ShatterTester : TextureWriteTester
         }
     }
 
+    protected override void OnMouseClick(int x, int y)
+    {
+        base.OnMouseClick(x, y);
+
+        if (_colorTree == null) return;
+
+        var _rand = new System.Random();
+        var r = _rand.Next(256) / 256f;
+        var g = _rand.Next(256) / 256f;
+        var b = _rand.Next(256) / 256f;
+        var color = new Color(r, g, b);
+        var wrapper = new ColorWrapper { Color = color };
+        
+        _colorTree.Insert(x, y, wrapper);
+        _delaunay.delaunayPlace(new Pnt(x, y));
+    }
+
+    protected override void Initialize()
+    {
+        base.Initialize();
+        _colorTree = new Quadtree<ColorWrapper>(Width / 2, Height / 2, Width / 2, 5);
+        _voronoi = new VoronoiDiagram();
+        _pointMap = new Dictionary<ColorWrapper, BriLib.Point>();
+        var points = new List<Pnt>
+        {
+            new Pnt(-10000, -10000),
+            new Pnt(10000, -10000),
+            new Pnt(0, 10000)
+        };
+        _delaunay = new Triangulation(new Triangle(points));
+        UpdateTexture();
+    }
+
     private void AdvanceToState(State v)
     {
-        if ((int)v < (int)_currentState || (int)v == (int)_currentState)
+        if ((int)v <= (int)_currentState)
         {
             _currentState = State.None;
             AdvanceToState(v);
@@ -66,90 +107,93 @@ public class ShatterTester : TextureWriteTester
     private void SetState(State state)
     {
         Debug.Log("Setting state to " + state);
-        switch (state)
-        {
-            case State.Points: SetPoints(); break;
-            case State.VoronoiCells: AddVoronoiCells(); break;
-            case State.CircumCircles: AddCircumCircles(); break;
-            case State.Triangles: CalculateTriangles(); break;
-            case State.Broken: SeparateMesh(); break;
-        }
+        if (state == State.Points) Initialize();
         _currentState = state;
-    }
-
-    private void SetPoints()
-    {
-        _colorTree = new Quadtree<ColorWrapper>(Width / 2, Height / 2, Width / 2, 5);
-        var _rand = new System.Random();
-        for (int i = 0; i < VoronoiCount; i++)
-        {
-            var r = _rand.Next(256) / 256f;
-            var g = _rand.Next(256) / 256f;
-            var b = _rand.Next(256) / 256f;
-            var color = new Color(r, g, b);
-            var wrapper = new ColorWrapper { Color = color };
-
-            var x = _rand.Next(Width);
-            var y = _rand.Next(Width);
-
-            _colorTree.Insert(x, y, wrapper);
-        }
-
-        Initialize();
-        DrawBackground();
-
-        foreach (var point in _colorTree.GetPointRange(Width / 2, Height / 2, Width / 2))
-        {
-            DrawPoint((int)point.X, (int)point.Y, PointSize, point.StoredObject.Color);
-        }
-
         UpdateTexture();
+        if (state == State.Broken) SeparateMesh();
     }
 
-    private void AddVoronoiCells()
+    protected override void UpdateTexture()
     {
+        DrawBackground();
+        DrawPoints();
+        if ((int)_currentState >= (int)State.VoronoiCells) DrawVoronoi();
+        if ((int)_currentState >= (int)State.CircumCircles) DrawCircumcircles();
+        if ((int)_currentState >= (int)State.IntersectionPoints) ShowIntersections();
+        if ((int)_currentState >= (int)State.Triangles) DrawTriangles();
+        base.UpdateTexture();
+    }
+
+    private void DrawVoronoi()
+    {
+        if (_colorTree == null) return;
+
         for (int y = 0; y < Height; y++)
         {
             for (int x = 0; x < Width; x++)
             {
                 var point = _colorTree.GetNearestNeighbor(x, y);
+                if (point == null) continue;
                 _texture.SetPixel(x, y, point.Color);
             }
         }
-        UpdateTexture();
     }
 
-    private void AddCircumCircles()
+    private void DrawPoints()
     {
-        var position = Width / 2;
-        var orderedPoints = OrderPoints(_colorTree.GetPointRange(position, position, position));
-        var points = new SubdividingSet<Point>(orderedPoints, 3);
-    }
+        if (_colorTree == null) return;
 
-    private PointCollection OrderPoints(IEnumerable<TwoDimensionalPoint<ColorWrapper>> enumerable)
-    {
-        var backer = new ObservableCollection<Point>();
-        foreach (var point in enumerable)
+        foreach (var point in _colorTree.GetPointRange(Width / 2, Height / 2, Width / 2))
         {
-            backer.Add(point);
+            DrawPoint((int)point.X, (int)point.Y, PointSize, point.StoredObject.Color);
+            if (_pointMap.ContainsKey(point.StoredObject)) continue;
+
+            var voronoiPoint = new BriLib.Point(point.X, point.Y);
+            _voronoi.AddVoronoiFacePoint(voronoiPoint);
+            _pointMap.Add(point.StoredObject, voronoiPoint);
         }
-        return backer.Sort(PointComparer);
     }
 
-    private void CalculateTriangles()
+    private void DrawCircumcircles()
     {
-        throw new NotImplementedException();
+        //foreach (var circle in _voronoi.Circumcircles)
+        //{
+        //    DrawCircle(circle.Center.Coordinates[0], circle.Center.Coordinates[1], circle.Radius, CircleColor);
+        //}
+    }
+
+    private void ShowIntersections()
+    {
+        //foreach (var intersection in _voronoi.IntersectionPoints)
+        //{
+        //    DrawPoint(
+        //        (int)intersection.Coordinates[0], 
+        //        (int)intersection.Coordinates[1],  
+        //        IntersectionPointSize, 
+        //        IntersectionColor);
+        //}
+    }
+
+    private void DrawTriangles()
+    {
+        foreach (var triangle in _delaunay.Triangles)
+        {
+            Debug.Log("Got triangle: " + triangle);
+            var enumerator = triangle.GetEnumerator();
+            if (!enumerator.MoveNext()) continue;
+            var old = enumerator.Current;
+            while (enumerator.MoveNext())
+            {
+                var newPoint = enumerator.Current;
+                DrawLine(old[0], old[1], newPoint[0], newPoint[1], TriangleColor);
+                old = newPoint;
+            }
+        }
     }
 
     private void SeparateMesh()
     {
         throw new NotImplementedException();
-    }
-
-    private int PointComparer(Point arg1, Point arg2)
-    {
-        if (arg1.X == arg2.X) return (int)arg1.Y - (int)arg2.Y;
-        return (int)arg1.X - (int)arg2.X;
     }
 
     public class ColorWrapper

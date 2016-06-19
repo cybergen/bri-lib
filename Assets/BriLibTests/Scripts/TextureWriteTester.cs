@@ -13,11 +13,31 @@ public class TextureWriteTester : MonoBehaviour
     {
         _texture = new Texture2D(Width, Height, TextureFormat.RGB24, false) { wrapMode = TextureWrapMode.Clamp };
         DrawBackground();
-
     }
+
+    private void Update()
+    {
+        if (Input.GetMouseButtonUp(0))
+        {
+            var point = Input.mousePosition;
+            var hit = new RaycastHit();
+            if (Physics.Raycast(Camera.main.ScreenPointToRay(point), out hit, Mathf.Infinity))
+            {
+                var uv = hit.textureCoord;
+                var x = uv.x * Width;
+                var y = uv.y * Height;
+                OnMouseClick((int)x, (int)y);
+                UpdateTexture();
+            }
+        }
+    }
+
+    protected virtual void OnMouseClick(int x, int y) { }
 
     protected virtual void DrawBackground()
     {
+        if (_texture == null) return;
+
         for (int y = 0; y < Height; y++)
         {
             for (int x = 0; x < Width; x++)
@@ -38,8 +58,20 @@ public class TextureWriteTester : MonoBehaviour
         }
     }
 
+    protected virtual void DrawLine(double startX, double startY, double endX, double endY, Color color)
+    {
+        for (float i = 0; i < 100; i++)
+        {
+            var x = (endX - startX) * (i / 100) + startX;
+            var y = (endY - startY) * (i / 100) + startY;
+            _texture.SetPixel((int)x, (int)y, color);
+        }
+    }
+
     protected virtual void UpdateTexture()
     {
+        if (_texture == null) return;
+
         _texture.Apply();
         Material.SetTexture("_MainTex", _texture);
     }

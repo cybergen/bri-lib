@@ -14,21 +14,10 @@ public class QuadtreeTester : TextureWriteTester
         Initialize();
     }
 
-    private void Update()
+    protected override void OnMouseClick(int x, int y)
     {
-        if (Input.GetMouseButtonUp(0))
-        {
-            var point = Input.mousePosition;
-            var hit = new RaycastHit();
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(point), out hit, Mathf.Infinity))
-            {
-                var uv = hit.textureCoord;
-                var x = uv.x * Width;
-                var y = uv.y * Height;
-                _tree.Insert((int)x, (int)y, new EmptyPoint());
-                UpdateTexture();
-            }
-        }
+        base.OnMouseClick(x, y);
+        _tree.Insert(x, y, new EmptyPoint());
     }
 
     protected override void Initialize()
