@@ -21,6 +21,7 @@ public class ShatterTester : TextureWriteTester
     public int VoronoiCount;
     public int PointSize;
     public int IntersectionPointSize;
+    public float LineWidth;
     public Color CircleColor;
     public Color IntersectionColor;
     public Color TriangleColor;
@@ -36,7 +37,7 @@ public class ShatterTester : TextureWriteTester
     {
         var startX = 20;
         var width = 100;
-        var startY = Screen.height - 70;
+        var startY = Screen.height - 30;
         var height = 30;
         var currentX = startX;
 
@@ -185,7 +186,7 @@ public class ShatterTester : TextureWriteTester
             while (enumerator.MoveNext())
             {
                 var newPoint = enumerator.Current;
-                DrawLine(old[0], old[1], newPoint[0], newPoint[1], TriangleColor);
+                DrawLine(old[0], old[1], newPoint[0], newPoint[1], LineWidth, TriangleColor);
                 old = newPoint;
             }
         }

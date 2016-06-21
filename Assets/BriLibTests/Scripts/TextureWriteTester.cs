@@ -58,13 +58,26 @@ public class TextureWriteTester : MonoBehaviour
         }
     }
 
-    protected virtual void DrawLine(double startX, double startY, double endX, double endY, Color color)
+    protected virtual void DrawLine(double startX, double startY, double endX, double endY, float width, Color color)
     {
-        for (float i = 0; i < 100; i++)
+        var start = new Vector3((float)startX, 0f, (float)startY);
+        var end = new Vector3((float)endX, 0f, (float)endY);
+        var dir = end - start;
+        var length = dir.magnitude;
+        dir.Normalize();
+
+        var cross = Vector3.Cross(dir, new Vector3(0f, 1f, 0f));
+
+        for (float i = 0; i < length; i++)
         {
-            var x = (endX - startX) * (i / 100) + startX;
-            var y = (endY - startY) * (i / 100) + startY;
-            _texture.SetPixel((int)x, (int)y, color);
+            var point = start + dir * i;
+            for (float j = 0; j < width / 2; j++)
+            {
+                var left = point + cross * j;
+                var right = point - cross * j;
+                _texture.SetPixel((int)left.x, (int)left.z, color);
+                _texture.SetPixel((int)right.x, (int)right.z, color);
+            }
         }
     }
 
