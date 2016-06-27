@@ -15,7 +15,7 @@ public class TextureWriteTester : MonoBehaviour
 
     private void Awake()
     {
-        UnityEngine.Camera.onPostRender += OnCameraPost;
+        Camera.onPostRender += OnCameraPost;
     }
 
     protected virtual void Initialize()
@@ -36,12 +36,15 @@ public class TextureWriteTester : MonoBehaviour
                 var x = uv.x * Width;
                 var y = uv.y * Height;
                 OnMouseClick((int)x, (int)y);
+                OnMouseClickWorld(hit.point);
                 UpdateTexture();
             }
         }
     }
 
     protected virtual void OnMouseClick(int x, int y) { }
+
+    protected virtual void OnMouseClickWorld(Vector3 point) { }
 
     protected virtual void DrawBackground()
     {

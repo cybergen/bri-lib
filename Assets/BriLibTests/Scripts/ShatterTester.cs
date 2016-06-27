@@ -69,7 +69,13 @@ public class ShatterTester : TextureWriteTester
         var wrapper = new ColorWrapper { Color = color };
 
         _colorTree.Insert(x, y, wrapper);
-        _delaunay.delaunayPlace(new Pnt(x, y));
+    }
+
+    protected override void OnMouseClickWorld(Vector3 point)
+    {
+        base.OnMouseClickWorld(point);
+        var localPoint = transform.InverseTransformPoint(point);
+        _delaunay.delaunayPlace(new Pnt(localPoint.x, localPoint.z));
     }
 
     protected override void Initialize()
