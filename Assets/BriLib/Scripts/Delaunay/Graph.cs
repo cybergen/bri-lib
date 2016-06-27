@@ -52,6 +52,9 @@ public class Graph<N> {
      * @throws NullPointerException if either endpoint is not in graph
      */
     public void add (N nodeA, N nodeB) {
+        if (!theNeighbors.ContainsKey(nodeA)) add(nodeA);
+        if (!theNeighbors.ContainsKey(nodeB)) add(nodeB);
+
         theNeighbors[nodeA].AddIfNotContains(nodeB);
         theNeighbors[nodeB].AddIfNotContains(nodeA);
     }
@@ -90,7 +93,7 @@ public class Graph<N> {
      * @throws NullPointerException if node does not appear in graph
      */
     public List<N> neighbors (N node) {
-        return new List<N>(theNeighbors[node]);
+        return theNeighbors[node];
     }
 
     /**

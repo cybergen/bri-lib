@@ -33,4 +33,22 @@ public static class DelaunayExtensions
             list.AddIfNotContains(enumerator.Current);
         }
     }
+
+    public static bool ListsEqual<T>(this IList<T> list, IList<T> otherList)
+    {
+        if (list.Count != otherList.Count) return false;
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (!otherList.Contains(list[i])) return false;
+        }
+        return true;
+    }
+
+    public static void AddUniques<T>(this IList<T> list, IList<T> others)
+    {
+        for (int i = 0; i < others.Count; i++)
+        {
+            list.AddIfNotContains(others[i]);
+        }
+    }
 }

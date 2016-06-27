@@ -43,7 +43,6 @@ class Triangle : List<Pnt> {
     private Pnt circumcenter = null;        // The triangle's circumcenter
 
     private static int idGenerator = 0;     // Used to create id numbers
-    public static bool moreInfo = false; // True iff more info in toString
 
     /**
      * @param vertices the vertices of the Triangle.
@@ -63,8 +62,12 @@ class Triangle : List<Pnt> {
     }
     
     public override string ToString () {
-        if (!moreInfo) return "Triangle" + idNumber;
-        return "Triangle" + idNumber + base.ToString();
+        var s = "[Triangle" + idNumber;
+        foreach (var entry in this)
+        {
+            s += " " + entry + ",";
+        }
+        return s + "]";
     }
 
     /**
@@ -119,8 +122,15 @@ class Triangle : List<Pnt> {
         return (int)(idNumber^((uint)idNumber>>32));
     }
     
-    public override bool Equals (object o) {
-        return (this == o);
+    public override bool Equals(object o) {
+        if (this == o) return true;
+        var t = o as Triangle;
+        if (t == null) return false;
+        if (t.Count != Count) return false;
+        for (int i = 0; i < Count; i++)
+        {
+            if (!t.Contains(this[i])) return false;
+        }
+        return true;
     }
-
 }

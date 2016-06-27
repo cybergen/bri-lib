@@ -50,20 +50,19 @@ public class Pnt {
     }
     
     public override string ToString () {
-        if (coordinates.Length == 0) return "Pnt()";
-        string result = "Pnt(" + coordinates[0];
+        if (coordinates.Length == 0) return "Pnt[]";
+        string result = "Pnt[" + coordinates[0];
         for (int i = 1; i < coordinates.Length; i++)
             result = result + "," + coordinates[i];
-        result = result + ")";
-        return result;
+        return result + "]";
     }
     
     public override bool Equals(object other) {
         if (!(other is Pnt)) return false;
         Pnt p = (Pnt) other;
-        if (this.coordinates.Length != p.coordinates.Length) return false;
-        for (int i = 0; i < this.coordinates.Length; i++)
-            if (this.coordinates[i] != p.coordinates[i]) return false;
+        if (dimension() != p.dimension()) return false;
+        for (int i = 0; i < coordinates.Length; i++)
+            if (coordinates[i] != p.coordinates[i]) return false;
         return true;
     }
     

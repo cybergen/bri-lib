@@ -1,13 +1,22 @@
 using UnityEngine;
+using BriLib;
 
 public class TextureWriteTester : MonoBehaviour
 {
     public int Width;
     public int Height;
     public Material Material;
+    public Material LinRenderMat;
     public Color BgColor;
+    public float LineWidth;
+    public Color TriangleColor;
 
     protected Texture2D _texture;
+
+    private void Awake()
+    {
+        UnityEngine.Camera.onPostRender += OnCameraPost;
+    }
 
     protected virtual void Initialize()
     {
@@ -58,26 +67,54 @@ public class TextureWriteTester : MonoBehaviour
         }
     }
 
-    protected virtual void DrawLine(double startX, double startY, double endX, double endY, float width, Color color)
+    protected virtual void DrawLine(Vector3 start, Vector3 end)
     {
-        var start = new Vector3((float)startX, 0f, (float)startY);
-        var end = new Vector3((float)endX, 0f, (float)endY);
-        var dir = end - start;
-        var length = dir.magnitude;
-        dir.Normalize();
+        lineList.Add(new Tuple<Vector3, Vector3>(start, end));
+    }
 
-        var cross = Vector3.Cross(dir, new Vector3(0f, 1f, 0f));
+    private System.Collections.Generic.List<Tuple<Vector3, Vector3>> lineList = new System.Collections.Generic.List<Tuple<Vector3, Vector3>>();
 
-        for (float i = 0; i < length; i++)
+    protected void ClearLines()
+    {
+        lineList.Clear();
+    }
+
+    private void OnCameraPost(Camera cam)
+    {
+        foreach (var line in lineList)
         {
-            var point = start + dir * i;
-            for (float j = 0; j < width / 2; j++)
-            {
-                var left = point + cross * j;
-                var right = point - cross * j;
-                _texture.SetPixel((int)left.x, (int)left.z, color);
-                _texture.SetPixel((int)right.x, (int)right.z, color);
-            }
+            var start = line.ItemOne;
+            var end = line.ItemTwo;
+
+            GL.Begin(GL.QUADS);
+            LinRenderMat.SetPass(0);
+            GL.Color(TriangleColor);
+
+            //Shift each end point further along their angle by half the line width to get our edges to line up
+            var upward = (start - end);
+            upward.Normalize();
+            upward *= LineWidth / 2;
+            start += upward;
+            end -= upward;
+
+            //Determine the direction to offset our vertices to add line width
+            var cross = Vector3.Cross(start - end, Vector3.up);
+            cross.Normalize();
+            cross *= LineWidth / 2;
+
+            //Generate a vertex for each point on the quad
+            var leftTopEdge = start + cross;
+            var rightTopEdge = start - cross;
+            var leftBottomEdge = end + cross;
+            var rightBottomEdge = end - cross;
+
+            //Push vertex list to gpu
+            GL.Vertex3(rightTopEdge.x, rightTopEdge.y, rightTopEdge.z);
+            GL.Vertex3(leftTopEdge.x, leftTopEdge.y, leftTopEdge.z);
+            GL.Vertex3(leftBottomEdge.x, leftBottomEdge.y, leftBottomEdge.z);
+            GL.Vertex3(rightBottomEdge.x, rightBottomEdge.y, rightBottomEdge.z);
+
+            GL.End();
         }
     }
 
@@ -91,7 +128,7 @@ public class TextureWriteTester : MonoBehaviour
 
     protected virtual void DrawPoint(int x, int y, int size, Color pointColor)
     {
-        var startX = (int)Mathf.Max(0, x- size / 2);
+        var startX = (int)Mathf.Max(0, x - size / 2);
         var endX = (int)Mathf.Min(Width, x + size / 2);
         var startY = (int)Mathf.Max(0, y - size / 2);
         var endY = (int)Mathf.Min(Height, y + size / 2);

@@ -21,10 +21,8 @@ public class ShatterTester : TextureWriteTester
     public int VoronoiCount;
     public int PointSize;
     public int IntersectionPointSize;
-    public float LineWidth;
     public Color CircleColor;
     public Color IntersectionColor;
-    public Color TriangleColor;
     public MeshFilter MeshFilter;
 
     private Quadtree<ColorWrapper> _colorTree;
@@ -59,6 +57,8 @@ public class ShatterTester : TextureWriteTester
     {
         base.OnMouseClick(x, y);
 
+        Debug.Log("Got mouse click at x: " + x + ", y: " + y);
+
         if (_colorTree == null) return;
 
         var _rand = new System.Random();
@@ -67,7 +67,7 @@ public class ShatterTester : TextureWriteTester
         var b = _rand.Next(256) / 256f;
         var color = new Color(r, g, b);
         var wrapper = new ColorWrapper { Color = color };
-        
+
         _colorTree.Insert(x, y, wrapper);
         _delaunay.delaunayPlace(new Pnt(x, y));
     }
@@ -78,13 +78,28 @@ public class ShatterTester : TextureWriteTester
         _colorTree = new Quadtree<ColorWrapper>(Width / 2, Height / 2, Width / 2, 5);
         _voronoi = new VoronoiDiagram();
         _pointMap = new Dictionary<ColorWrapper, BriLib.Point>();
-        var points = new List<Pnt>
+
+        _delaunay = new Triangulation();
+        var verts = MeshFilter.mesh.vertices;
+        var tris = MeshFilter.mesh.triangles;
+
+        var triList = new List<Triangle>();
+
+        for (int i = 0; i < tris.Length; i += 3)
         {
-            new Pnt(-10000, -10000),
-            new Pnt(10000, -10000),
-            new Pnt(0, 10000)
-        };
-        _delaunay = new Triangulation(new Triangle(points));
+            var s = "[Point=X:" + verts[tris[i]].x + ",Y:" + verts[tris[i]].y + ",Z:" + verts[tris[i]].z + "]";
+            s += ",[Point=X:" + verts[tris[i + 1]].x + ",Y:" + verts[tris[i + 1]].y + ",Z:" + verts[tris[i + 1]].z + "]";
+            s += ",[Point=X:" + verts[tris[i + 2]].x + ",Y:" + verts[tris[i + 2]].y + ",Z:" + verts[tris[i + 2]].z + "]";
+            Debug.Log("Got tri with points: " + s);
+            var pnt = new Pnt(verts[tris[i]].x, verts[tris[i]].z);
+            var pnt2 = new Pnt(verts[tris[i + 1]].x, verts[tris[i + 1]].z);
+            var pnt3 = new Pnt(verts[tris[i + 2]].x, verts[tris[i + 2]].z);
+            var tri = new Triangle(pnt, pnt2, pnt3);
+            triList.Add(tri);
+        }
+
+        _delaunay.AddExistingTriangles(triList);
+
         UpdateTexture();
     }
 
@@ -177,24 +192,46 @@ public class ShatterTester : TextureWriteTester
 
     private void DrawTriangles()
     {
+        ClearLines();
+
         foreach (var triangle in _delaunay.Triangles)
         {
             Debug.Log("Got triangle: " + triangle);
             var enumerator = triangle.GetEnumerator();
             if (!enumerator.MoveNext()) continue;
             var old = enumerator.Current;
+            var first = old;
             while (enumerator.MoveNext())
             {
                 var newPoint = enumerator.Current;
-                DrawLine(old[0], old[1], newPoint[0], newPoint[1], LineWidth, TriangleColor);
+                MakeDrawLine(old, newPoint);
                 old = newPoint;
+            }
+            if (first != null && old != null)
+            {
+                MakeDrawLine(old, first);
             }
         }
     }
 
+    private void MakeDrawLine(Pnt old, Pnt newPoint)
+    {
+        var oldPoint = transform.TransformPoint(new Vector3((float)old[0], this.transform.position.y + 0.01f, (float)old[1]));
+        var newP = transform.TransformPoint(new Vector3((float)newPoint[0], this.transform.position.y + 0.01f, (float)newPoint[1]));
+        DrawLine(oldPoint, newP);
+    }
+
     private void SeparateMesh()
     {
-        throw new NotImplementedException();
+        if (_colorTree == null) return;
+
+        foreach (var point in _colorTree.GetPointRange(Width / 2, Height / 2, Width / 2))
+        {
+            var pnt = new Pnt(point.X, point.Y);
+            var tri = _delaunay.locate(pnt);
+            var tris = _delaunay.surroundingTriangles(pnt, tri);
+
+        }
     }
 
     public class ColorWrapper

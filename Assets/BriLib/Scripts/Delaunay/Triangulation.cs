@@ -58,6 +58,11 @@ class Triangulation : List<Triangle> {
         mostRecent = triangle;
     }
 
+    public Triangulation()
+    {
+        triGraph = new Graph<Triangle>();
+    }
+
     /* The following two methods are required by AbstractSet */
     public int size () {
         return triGraph.nodeSet().Count;
@@ -217,11 +222,19 @@ class Triangulation : List<Triangle> {
 
         // Find boundary facets and adjacent triangles
         foreach (var triangle in cavity) {
-            theTriangles.AddRange(neighbors(triangle));
+            var neighborTriangles = neighbors(triangle);
+            theTriangles.AddUniques(neighborTriangles);
             foreach (var vertex in triangle) {
                 List<Pnt> facet = triangle.facetOpposite(vertex);
-                if (boundary.Contains(facet)) boundary.Remove(facet);
-                else boundary.AddIfNotContains(facet);
+
+                int removeIndex = -1;
+                for (int i = 0; i < boundary.Count; i++)
+                {
+                    if (boundary[i].ListsEqual(facet)) removeIndex = i;
+                }
+
+                if (removeIndex != -1) boundary.RemoveAt(removeIndex);
+                else boundary.Add(facet);
             }
         }
         theTriangles.RemoveAll(cavity);        // Adj triangles only
@@ -249,6 +262,19 @@ class Triangulation : List<Triangle> {
         var enumerator = newTriangles.GetEnumerator();
         enumerator.MoveNext();
         return enumerator.Current;
+    }
+
+    public void AddExistingTriangles(List<Triangle> triangles)
+    {
+        foreach (var triangle in triangles) triGraph.add(triangle);
+        foreach (var triangle in triangles)
+        {
+            foreach (var other in triangles)
+            {
+                if (triangle.isNeighbor(other)) triGraph.add(triangle, other);
+            }
+            mostRecent = triangle;
+        }
     }
 
     /**
