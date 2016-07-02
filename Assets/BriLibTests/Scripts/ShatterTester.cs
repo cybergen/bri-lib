@@ -84,27 +84,33 @@ public class ShatterTester : TextureWriteTester
         _colorTree = new Quadtree<ColorWrapper>(Width / 2, Height / 2, Width / 2, 5);
         _voronoi = new VoronoiDiagram();
         _pointMap = new Dictionary<ColorWrapper, BriLib.Point>();
+        var tri = new Triangle(
+                new Pnt(-10000, -10000),
+                new Pnt(10000, -10000),
+                new Pnt(Width / 2, 10000)
+            );
+        _delaunay = new Triangulation(tri);
 
-        _delaunay = new Triangulation();
-        var verts = MeshFilter.mesh.vertices;
-        var tris = MeshFilter.mesh.triangles;
+        //_delaunay = new Triangulation();
+        //var verts = MeshFilter.mesh.vertices;
+        //var tris = MeshFilter.mesh.triangles;
 
-        var triList = new List<Triangle>();
+        //var triList = new List<Triangle>();
 
-        for (int i = 0; i < tris.Length; i += 3)
-        {
-            var s = "[Point=X:" + verts[tris[i]].x + ",Y:" + verts[tris[i]].y + ",Z:" + verts[tris[i]].z + "]";
-            s += ",[Point=X:" + verts[tris[i + 1]].x + ",Y:" + verts[tris[i + 1]].y + ",Z:" + verts[tris[i + 1]].z + "]";
-            s += ",[Point=X:" + verts[tris[i + 2]].x + ",Y:" + verts[tris[i + 2]].y + ",Z:" + verts[tris[i + 2]].z + "]";
-            Debug.Log("Got tri with points: " + s);
-            var pnt = new Pnt(verts[tris[i]].x, verts[tris[i]].z);
-            var pnt2 = new Pnt(verts[tris[i + 1]].x, verts[tris[i + 1]].z);
-            var pnt3 = new Pnt(verts[tris[i + 2]].x, verts[tris[i + 2]].z);
-            var tri = new Triangle(pnt, pnt2, pnt3);
-            triList.Add(tri);
-        }
+        //for (int i = 0; i < tris.Length; i += 3)
+        //{
+        //    var s = "[Point=X:" + verts[tris[i]].x + ",Y:" + verts[tris[i]].y + ",Z:" + verts[tris[i]].z + "]";
+        //    s += ",[Point=X:" + verts[tris[i + 1]].x + ",Y:" + verts[tris[i + 1]].y + ",Z:" + verts[tris[i + 1]].z + "]";
+        //    s += ",[Point=X:" + verts[tris[i + 2]].x + ",Y:" + verts[tris[i + 2]].y + ",Z:" + verts[tris[i + 2]].z + "]";
+        //    Debug.Log("Got tri with points: " + s);
+        //    var pnt = new Pnt(verts[tris[i]].x, verts[tris[i]].z);
+        //    var pnt2 = new Pnt(verts[tris[i + 1]].x, verts[tris[i + 1]].z);
+        //    var pnt3 = new Pnt(verts[tris[i + 2]].x, verts[tris[i + 2]].z);
+        //    var tri = new Triangle(pnt, pnt2, pnt3);
+        //    triList.Add(tri);
+        //}
 
-        _delaunay.AddExistingTriangles(triList);
+        //_delaunay.AddExistingTriangles(triList);
 
         UpdateTexture();
     }

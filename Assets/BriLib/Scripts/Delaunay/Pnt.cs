@@ -60,7 +60,7 @@ public class Pnt {
     public override bool Equals(object other) {
         if (!(other is Pnt)) return false;
         Pnt p = (Pnt) other;
-        if (dimension() != p.dimension()) return false;
+        if (Dimension != p.Dimension) return false;
         for (int i = 0; i < coordinates.Length; i++)
             if (coordinates[i] != p.coordinates[i]) return false;
         return true;
@@ -83,21 +83,15 @@ public class Pnt {
      * @return the specified coordinate of this Pnt
      * @throws IndexOutOfRangeException for bad coordinate
      */
-    public double coord (int i) {
-        return this.coordinates[i];
-    }
-
     public double this[int index]
     {
-        get { return coord(index); }
+        get { return coordinates[index]; }
     }
 
     /**
      * @return this Pnt's dimension.
      */
-    public int dimension () {
-        return coordinates.Length;
-    }
+    public int Dimension {  get { return coordinates.Length; } }
 
     /**
      * Check that dimensions match.
@@ -105,7 +99,7 @@ public class Pnt {
      * @return the dimension of the Pnts
      * @throws ArgumentException if dimension fail to match
      */
-    public int dimCheck (Pnt p) {
+    public int DimCheck (Pnt p) {
         int len = this.coordinates.Length;
         if (len != p.coordinates.Length)
             throw new ArgumentException("Dimension mismatch");
@@ -130,7 +124,7 @@ public class Pnt {
      * @return dot product of this Pnt and p
      */
     public double dot (Pnt p) {
-        int len = dimCheck(p);
+        int len = DimCheck(p);
         double sum = 0;
         for (int i = 0; i < len; i++)
             sum += this.coordinates[i] * p.coordinates[i];
@@ -151,7 +145,7 @@ public class Pnt {
      * @return a new Pnt = this - p
      */
     public Pnt subtract (Pnt p) {
-        int len = dimCheck(p);
+        int len = DimCheck(p);
         double[] coords = new double[len];
         for (int i = 0; i < len; i++)
             coords[i] = this.coordinates[i] - p.coordinates[i];
@@ -164,7 +158,7 @@ public class Pnt {
      * @return a new Pnt = this + p
      */
     public Pnt add (Pnt p) {
-        int len = dimCheck(p);
+        int len = DimCheck(p);
         double[] coords = new double[len];
         for (int i = 0; i < len; i++)
             coords[i] = this.coordinates[i] + p.coordinates[i];
@@ -189,7 +183,7 @@ public class Pnt {
      * @return the coefficients of the perpendicular bisector
      */
     public Pnt bisector (Pnt point) {
-        dimCheck(point);
+        DimCheck(point);
         Pnt diff = this.subtract(point);
         Pnt sum = this.add(point);
         double dot = diff.dot(sum);
@@ -221,7 +215,7 @@ public class Pnt {
      * @throws ArgumentException if dimensions are wrong
      */
     public static double determinant (Pnt[] matrix) {
-        if (matrix.Length != matrix[0].dimension())
+        if (matrix.Length != matrix[0].Dimension)
             throw new ArgumentException("Matrix is not square");
         bool[] columns = new bool[matrix.Length];
         for (int i = 0; i < matrix.Length; i++) columns[i] = true;
@@ -266,7 +260,7 @@ public class Pnt {
      */
     public static Pnt cross (Pnt[] matrix) {
         int len = matrix.Length + 1;
-        if (len != matrix[0].dimension())
+        if (len != matrix[0].Dimension)
             throw new ArgumentException("Dimension mismatch");
         bool[] columns = new bool[len];
         for (int i = 0; i < len; i++) columns[i] = true;
@@ -330,7 +324,7 @@ public class Pnt {
          * Analogous results occur in higher dimensions.
          */
         int dim = simplex.Length - 1;
-        if (this.dimension() != dim)
+        if (this.Dimension != dim)
             throw new ArgumentException("Dimension mismatch");
 
         /* Create and load the matrix */
@@ -429,7 +423,7 @@ public class Pnt {
      * @return the circumcenter (a Pnt) of simplex
      */
     public static Pnt circumcenter (Pnt[] simplex) {
-        int dim = simplex[0].dimension();
+        int dim = simplex[0].Dimension;
         if (simplex.Length - 1 != dim)
             throw new ArgumentException("Dimension mismatch");
         Pnt[] matrix = new Pnt[dim];
