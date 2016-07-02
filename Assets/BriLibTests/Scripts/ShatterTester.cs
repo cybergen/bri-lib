@@ -115,6 +115,25 @@ public class ShatterTester : TextureWriteTester
         UpdateTexture();
     }
 
+    public void drawAllVoronoi(boolean withFill, boolean withSites)
+    {
+        // Keep track of sites done; no drawing for initial triangles sites
+        HashSet<Pnt> done = new HashSet<Pnt>(initialTriangle);
+        for (Triangle triangle : dt)
+            for (Pnt site: triangle)
+            {
+                if (done.contains(site)) continue;
+                done.add(site);
+                List<Triangle> list = dt.surroundingTriangles(site, triangle);
+                Pnt[] vertices = new Pnt[list.size()];
+                int i = 0;
+                for (Triangle tri: list)
+                    vertices[i++] = tri.getCircumcenter();
+                draw(vertices, withFill ? getColor(site) : null);
+                if (withSites) draw(site);
+            }
+    }
+
     private void AdvanceToState(State v)
     {
         if ((int)v <= (int)_currentState)
