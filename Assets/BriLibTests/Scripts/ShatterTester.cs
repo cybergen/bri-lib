@@ -156,14 +156,9 @@ public class ShatterTester : TextureWriteTester
     {
         if (_colorTree == null) return;
 
-        for (int y = 0; y < Height; y++)
+        foreach (var point in _colorTree.GetPointRange(Width / 2, Height / 2, Width / 2))
         {
-            for (int x = 0; x < Width; x++)
-            {
-                var point = _colorTree.GetNearestNeighbor(x, y);
-                if (point == null) continue;
-                _texture.SetPixel(x, y, point.Color);
-            }
+            var color = point.StoredObject.Color;
         }
     }
 

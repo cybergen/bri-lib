@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using BriLib;
 
@@ -12,6 +13,9 @@ public class TextureWriteTester : MonoBehaviour
     public Color TriangleColor;
 
     protected Texture2D _texture;
+
+    private List<Tuple<Vector3, Vector3>> lineList = new List<Tuple<Vector3, Vector3>>();
+    private List<Tuple<Vector3[], Color>> triList = new List<Tuple<Vector3[], Color>>();
 
     private void Awake()
     {
@@ -75,7 +79,10 @@ public class TextureWriteTester : MonoBehaviour
         lineList.Add(new Tuple<Vector3, Vector3>(start, end));
     }
 
-    private System.Collections.Generic.List<Tuple<Vector3, Vector3>> lineList = new System.Collections.Generic.List<Tuple<Vector3, Vector3>>();
+    protected virtual void DrawTriangle(Vector3[] points, Color color)
+    {
+        triList.Add(new Tuple<Vector3[], Color>(points, color));
+    }
 
     protected void ClearLines()
     {
@@ -119,6 +126,12 @@ public class TextureWriteTester : MonoBehaviour
 
             GL.End();
         }
+
+        foreach (var tri in triList)
+        {
+            //GL.Begin(GL.TRIANGLES) 
+        }
+
     }
 
     protected virtual void UpdateTexture()
