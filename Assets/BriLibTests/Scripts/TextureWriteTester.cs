@@ -81,12 +81,18 @@ public class TextureWriteTester : MonoBehaviour
 
     protected virtual void DrawTriangle(Vector3[] points, Color color)
     {
+        Debug.Log("Adding triangle to draw with points " + points[0] + ", " + points[1] + ", " + points[2]);
         triList.Add(new Tuple<Vector3[], Color>(points, color));
     }
 
     protected void ClearLines()
     {
         lineList.Clear();
+    }
+
+    protected void ClearTris()
+    {
+        triList.Clear();
     }
 
     private void OnCameraPost(Camera cam)
@@ -127,11 +133,18 @@ public class TextureWriteTester : MonoBehaviour
             GL.End();
         }
 
+        GL.Begin(GL.TRIANGLES);
+        LinRenderMat.SetPass(0);
         foreach (var tri in triList)
         {
-            //GL.Begin(GL.TRIANGLES) 
-        }
+            var array = tri.ItemOne;
 
+            GL.Color(tri.ItemTwo);
+            GL.Vertex3(array[0].x, array[0].y, array[0].z);
+            GL.Vertex3(array[1].x, array[1].y, array[1].z);
+            GL.Vertex3(array[2].x, array[2].y, array[2].z);
+        }
+        GL.End();
     }
 
     protected virtual void UpdateTexture()

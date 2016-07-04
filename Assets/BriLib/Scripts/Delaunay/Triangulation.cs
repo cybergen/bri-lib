@@ -41,7 +41,7 @@ using System.Collections.Generic;
  * explicitly creating a cavity.  Added code needed to find a Voronoi cell.
  *
  */
-class Triangulation : List<Triangle> {
+class Triangulation {
 
     public IEnumerable<Triangle> Triangles { get { return triGraph.nodeSet(); } }
 
@@ -153,7 +153,7 @@ class Triangulation : List<Triangle> {
         }
         // No luck; try brute force
         //System.out.println("Warning: Checking all triangles for " + point);
-        foreach (var tri in this) {
+        foreach (var tri in Triangles) {
             if (point.isOutside(tri.ToArray()) == null) return tri;
         }
         // No such triangle

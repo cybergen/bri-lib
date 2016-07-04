@@ -29,6 +29,7 @@ public class ShatterTester : TextureWriteTester
     private VoronoiDiagram _voronoi;
     private Dictionary<ColorWrapper, BriLib.Point> _pointMap;
     private Triangulation _delaunay;
+    private Triangle _initial;
     private State _currentState;
 
     private void OnGUI()
@@ -84,12 +85,15 @@ public class ShatterTester : TextureWriteTester
         _colorTree = new Quadtree<ColorWrapper>(Width / 2, Height / 2, Width / 2, 5);
         _voronoi = new VoronoiDiagram();
         _pointMap = new Dictionary<ColorWrapper, BriLib.Point>();
-        var tri = new Triangle(
+        _initial = new Triangle(
                 new Pnt(-10000, -10000),
                 new Pnt(10000, -10000),
                 new Pnt(Width / 2, 10000)
             );
-        _delaunay = new Triangulation(tri);
+        _delaunay = new Triangulation(_initial);
+
+        ClearTris();
+        ClearLines();
 
         //_delaunay = new Triangulation();
         //var verts = MeshFilter.mesh.vertices;
@@ -113,25 +117,6 @@ public class ShatterTester : TextureWriteTester
         //_delaunay.AddExistingTriangles(triList);
 
         UpdateTexture();
-    }
-
-    public void drawAllVoronoi(boolean withFill, boolean withSites)
-    {
-        // Keep track of sites done; no drawing for initial triangles sites
-        HashSet<Pnt> done = new HashSet<Pnt>(initialTriangle);
-        for (Triangle triangle : dt)
-            for (Pnt site: triangle)
-            {
-                if (done.contains(site)) continue;
-                done.add(site);
-                List<Triangle> list = dt.surroundingTriangles(site, triangle);
-                Pnt[] vertices = new Pnt[list.size()];
-                int i = 0;
-                for (Triangle tri: list)
-                    vertices[i++] = tri.getCircumcenter();
-                draw(vertices, withFill ? getColor(site) : null);
-                if (withSites) draw(site);
-            }
     }
 
     private void AdvanceToState(State v)
@@ -175,11 +160,45 @@ public class ShatterTester : TextureWriteTester
     {
         if (_colorTree == null) return;
 
-        foreach (var point in _colorTree.GetPointRange(Width / 2, Height / 2, Width / 2))
+        ClearTris();
+
+        // Keep track of sites done; no drawing for initial triangles sites
+        HashSet<Pnt> done = new HashSet<Pnt>(_initial);
+        foreach (var triangle in _delaunay.Triangles)
         {
-            var color = point.StoredObject.Color;
+            foreach (var site in triangle)
+            {
+                if (done.Contains(site)) continue;
+                var color = _colorTree.GetNearestNeighbor((float)site[0], (float)site[1]).Color;
+
+                done.Add(site);
+                List<Triangle> list = _delaunay.surroundingTriangles(site, triangle);
+                Pnt[] vertices = new Pnt[list.Count];
+                int i = 0;
+                foreach (var tri in list) vertices[i++] = tri.getCircumcenter();
+
+                if (vertices.Length > 2)
+                {
+                    var firstVert = vertices[0];
+                    var currentTriangle = new Triangle();
+                    for (int j = 0; j < vertices.Length; j++)
+                    {
+                        currentTriangle.Add(vertices[j]);
+                        if (currentTriangle.Count == 3)
+                        {
+                            DrawTriangle(VectorifyTri(currentTriangle), color);
+                            currentTriangle = new Triangle();
+                        }
+                    }
+                    if (currentTriangle.Count == 2)
+                    {
+                        currentTriangle.Add(firstVert);
+                        DrawTriangle(VectorifyTri(currentTriangle), color);
+                    }
+                }
+            }
         }
-    }
+    }    
 
     private void DrawPoints()
     {
@@ -245,6 +264,16 @@ public class ShatterTester : TextureWriteTester
         var oldPoint = transform.TransformPoint(new Vector3((float)old[0], this.transform.position.y + 0.01f, (float)old[1]));
         var newP = transform.TransformPoint(new Vector3((float)newPoint[0], this.transform.position.y + 0.01f, (float)newPoint[1]));
         DrawLine(oldPoint, newP);
+    }
+
+    private Vector3[] VectorifyTri(Triangle tri)
+    {
+        var vectors = new List<Vector3>();
+        foreach (var point in tri)
+        {
+            vectors.Add(transform.TransformPoint((float)point[0], transform.position.y + 0.01f, (float)point[1]));
+        }
+        return vectors.ToArray();
     }
 
     private void SeparateMesh()

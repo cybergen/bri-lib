@@ -44,6 +44,8 @@ class Triangle : List<Pnt> {
 
     private static int idGenerator = 0;     // Used to create id numbers
 
+    public Triangle() { }
+
     /**
      * @param vertices the vertices of the Triangle.
      * @throws ArgumentException if there are not three distinct vertices
