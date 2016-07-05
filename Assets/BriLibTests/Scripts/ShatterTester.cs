@@ -54,13 +54,14 @@ public class ShatterTester : TextureWriteTester
         }
     }
 
-    protected override void OnMouseClick(int x, int y)
+    protected override void OnMouseClickWorld(Vector3 point)
     {
-        base.OnMouseClick(x, y);
-
-        Debug.Log("Got mouse click at x: " + x + ", y: " + y);
+        base.OnMouseClickWorld(point);
 
         if (_colorTree == null) return;
+
+        var localPoint = transform.InverseTransformPoint(point);
+        _delaunay.delaunayPlace(new Pnt(localPoint.x, localPoint.z));
 
         var _rand = new System.Random();
         var r = _rand.Next(256) / 256f;
@@ -69,14 +70,8 @@ public class ShatterTester : TextureWriteTester
         var color = new Color(r, g, b);
         var wrapper = new ColorWrapper { Color = color };
 
-        _colorTree.Insert(x, y, wrapper);
-    }
+        _colorTree.Insert(localPoint.x, localPoint.z, wrapper);
 
-    protected override void OnMouseClickWorld(Vector3 point)
-    {
-        base.OnMouseClickWorld(point);
-        var localPoint = transform.InverseTransformPoint(point);
-        _delaunay.delaunayPlace(new Pnt(localPoint.x, localPoint.z));
     }
 
     protected override void Initialize()
@@ -94,28 +89,6 @@ public class ShatterTester : TextureWriteTester
 
         ClearTris();
         ClearLines();
-
-        //_delaunay = new Triangulation();
-        //var verts = MeshFilter.mesh.vertices;
-        //var tris = MeshFilter.mesh.triangles;
-
-        //var triList = new List<Triangle>();
-
-        //for (int i = 0; i < tris.Length; i += 3)
-        //{
-        //    var s = "[Point=X:" + verts[tris[i]].x + ",Y:" + verts[tris[i]].y + ",Z:" + verts[tris[i]].z + "]";
-        //    s += ",[Point=X:" + verts[tris[i + 1]].x + ",Y:" + verts[tris[i + 1]].y + ",Z:" + verts[tris[i + 1]].z + "]";
-        //    s += ",[Point=X:" + verts[tris[i + 2]].x + ",Y:" + verts[tris[i + 2]].y + ",Z:" + verts[tris[i + 2]].z + "]";
-        //    Debug.Log("Got tri with points: " + s);
-        //    var pnt = new Pnt(verts[tris[i]].x, verts[tris[i]].z);
-        //    var pnt2 = new Pnt(verts[tris[i + 1]].x, verts[tris[i + 1]].z);
-        //    var pnt3 = new Pnt(verts[tris[i + 2]].x, verts[tris[i + 2]].z);
-        //    var tri = new Triangle(pnt, pnt2, pnt3);
-        //    triList.Add(tri);
-        //}
-
-        //_delaunay.AddExistingTriangles(triList);
-
         UpdateTexture();
     }
 
@@ -176,43 +149,41 @@ public class ShatterTester : TextureWriteTester
                 Pnt[] vertices = new Pnt[list.Count];
                 int i = 0;
                 foreach (var tri in list) vertices[i++] = tri.getCircumcenter();
+                
+                if (vertices.Length < 3) return;
+                var vectors = new Vector3[vertices.Length];
+                var firstPoint = GetPoint(vertices[0]);
 
-                if (vertices.Length > 2)
+                for (int j = 2; j < vertices.Length; j++)
                 {
-                    var firstVert = vertices[0];
-                    var currentTriangle = new Triangle();
-                    for (int j = 0; j < vertices.Length; j++)
-                    {
-                        currentTriangle.Add(vertices[j]);
-                        if (currentTriangle.Count == 3)
-                        {
-                            DrawTriangle(VectorifyTri(currentTriangle), color);
-                            currentTriangle = new Triangle();
-                        }
-                    }
-                    if (currentTriangle.Count == 2)
-                    {
-                        currentTriangle.Add(firstVert);
-                        DrawTriangle(VectorifyTri(currentTriangle), color);
-                    }
+                    var vector = new Vector3[3];
+                    vector[0] = firstPoint;
+                    vector[1] = GetPoint(vertices[j - 1]);
+                    vector[2] = GetPoint(vertices[j]);
+                    DrawTriangle(vector, color);
                 }
             }
         }
-    }    
+    }
+
+    private Vector3 GetPoint(Pnt point)
+    {
+        return transform.TransformPoint((float)point[0], transform.position.y + 0.01f, (float)point[1]);
+    }
 
     private void DrawPoints()
     {
         if (_colorTree == null) return;
 
-        foreach (var point in _colorTree.GetPointRange(Width / 2, Height / 2, Width / 2))
-        {
-            DrawPoint((int)point.X, (int)point.Y, PointSize, point.StoredObject.Color);
-            if (_pointMap.ContainsKey(point.StoredObject)) continue;
+        //foreach (var point in _colorTree.GetPointRange(Width / 2, Height / 2, Width / 2))
+        //{
+        //    DrawPoint((int)point.X, (int)point.Y, PointSize, point.StoredObject.Color);
+        //    if (_pointMap.ContainsKey(point.StoredObject)) continue;
 
-            var voronoiPoint = new BriLib.Point(point.X, point.Y);
-            _voronoi.AddVoronoiFacePoint(voronoiPoint);
-            _pointMap.Add(point.StoredObject, voronoiPoint);
-        }
+        //    var voronoiPoint = new BriLib.Point(point.X, point.Y);
+        //    _voronoi.AddVoronoiFacePoint(voronoiPoint);
+        //    _pointMap.Add(point.StoredObject, voronoiPoint);
+        //}
     }
 
     private void DrawCircumcircles()
@@ -264,16 +235,6 @@ public class ShatterTester : TextureWriteTester
         var oldPoint = transform.TransformPoint(new Vector3((float)old[0], this.transform.position.y + 0.01f, (float)old[1]));
         var newP = transform.TransformPoint(new Vector3((float)newPoint[0], this.transform.position.y + 0.01f, (float)newPoint[1]));
         DrawLine(oldPoint, newP);
-    }
-
-    private Vector3[] VectorifyTri(Triangle tri)
-    {
-        var vectors = new List<Vector3>();
-        foreach (var point in tri)
-        {
-            vectors.Add(transform.TransformPoint((float)point[0], transform.position.y + 0.01f, (float)point[1]));
-        }
-        return vectors.ToArray();
     }
 
     private void SeparateMesh()
