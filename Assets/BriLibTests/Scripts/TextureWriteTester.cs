@@ -10,12 +10,14 @@ public class TextureWriteTester : MonoBehaviour
     public Material LinRenderMat;
     public Color BgColor;
     public float LineWidth;
+    public float PointSize;
     public Color TriangleColor;
 
     protected Texture2D _texture;
 
     private List<Tuple<Vector3, Vector3>> lineList = new List<Tuple<Vector3, Vector3>>();
     private List<Tuple<Vector3[], Color>> triList = new List<Tuple<Vector3[], Color>>();
+    private List<Tuple<Vector3, Color>> pointList = new List<Tuple<Vector3, Color>>();
 
     private void Awake()
     {
@@ -84,6 +86,11 @@ public class TextureWriteTester : MonoBehaviour
         triList.Add(new Tuple<Vector3[], Color>(points, color));
     }
 
+    protected virtual void DrawGLPoint(Vector3 point, Color color)
+    {
+        pointList.Add(new Tuple<Vector3, Color>(point, color));
+    }
+
     protected void ClearLines()
     {
         lineList.Clear();
@@ -94,8 +101,25 @@ public class TextureWriteTester : MonoBehaviour
         triList.Clear();
     }
 
+    protected void ClearPoints()
+    {
+        pointList.Clear();
+    }
+
     private void OnCameraPost(Camera cam)
     {
+        foreach (var tri in triList)
+        {
+            GL.Begin(GL.TRIANGLES);
+            LinRenderMat.SetPass(0);
+            GL.Color(tri.ItemTwo);
+            foreach (var entry in tri.ItemOne)
+            {
+                GL.Vertex3(entry.x, entry.y, entry.z);
+            }
+            GL.End();
+        }
+
         foreach (var line in lineList)
         {
             var start = line.ItemOne;
@@ -132,15 +156,15 @@ public class TextureWriteTester : MonoBehaviour
             GL.End();
         }
 
-        foreach (var tri in triList)
+        foreach (var point in pointList)
         {
-            GL.Begin(GL.TRIANGLES);
+            GL.Begin(GL.QUADS);
             LinRenderMat.SetPass(0);
-            GL.Color(tri.ItemTwo);
-            foreach (var entry in tri.ItemOne)
-            {
-                GL.Vertex3(entry.x, entry.y, entry.z);
-            }
+            GL.Color(point.ItemTwo);            
+            GL.Vertex3(point.ItemOne.x - PointSize / 2, point.ItemOne.y, point.ItemOne.z - PointSize / 2);
+            GL.Vertex3(point.ItemOne.x + PointSize / 2, point.ItemOne.y, point.ItemOne.z - PointSize / 2);
+            GL.Vertex3(point.ItemOne.x + PointSize / 2, point.ItemOne.y, point.ItemOne.z + PointSize / 2);
+            GL.Vertex3(point.ItemOne.x - PointSize / 2, point.ItemOne.y, point.ItemOne.z + PointSize / 2);
             GL.End();
         }
     }

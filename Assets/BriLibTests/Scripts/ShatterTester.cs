@@ -19,7 +19,6 @@ public class ShatterTester : TextureWriteTester
     }
 
     public int VoronoiCount;
-    public int PointSize;
     public int IntersectionPointSize;
     public Color CircleColor;
     public Color IntersectionColor;
@@ -77,7 +76,7 @@ public class ShatterTester : TextureWriteTester
     protected override void Initialize()
     {
         base.Initialize();
-        _colorTree = new Quadtree<ColorWrapper>(Width / 2, Height / 2, Width / 2, 5);
+        _colorTree = new Quadtree<ColorWrapper>(0, 0, Width / 2, 5);
         _voronoi = new VoronoiDiagram();
         _pointMap = new Dictionary<ColorWrapper, BriLib.Point>();
         _initial = new Triangle(
@@ -89,6 +88,7 @@ public class ShatterTester : TextureWriteTester
 
         ClearTris();
         ClearLines();
+        ClearPoints();
         UpdateTexture();
     }
 
@@ -174,16 +174,13 @@ public class ShatterTester : TextureWriteTester
     private void DrawPoints()
     {
         if (_colorTree == null) return;
+        ClearPoints();
 
-        //foreach (var point in _colorTree.GetPointRange(Width / 2, Height / 2, Width / 2))
-        //{
-        //    DrawPoint((int)point.X, (int)point.Y, PointSize, point.StoredObject.Color);
-        //    if (_pointMap.ContainsKey(point.StoredObject)) continue;
-
-        //    var voronoiPoint = new BriLib.Point(point.X, point.Y);
-        //    _voronoi.AddVoronoiFacePoint(voronoiPoint);
-        //    _pointMap.Add(point.StoredObject, voronoiPoint);
-        //}
+        foreach (var point in _colorTree.GetPointRange(0, 0, Width / 2))
+        {
+            var p = GetPoint(new Pnt(point.X, point.Y));
+            DrawGLPoint(p, point.StoredObject.Color);
+        }
     }
 
     private void DrawCircumcircles()
@@ -232,8 +229,8 @@ public class ShatterTester : TextureWriteTester
 
     private void MakeDrawLine(Pnt old, Pnt newPoint)
     {
-        var oldPoint = transform.TransformPoint(new Vector3((float)old[0], this.transform.position.y + 0.01f, (float)old[1]));
-        var newP = transform.TransformPoint(new Vector3((float)newPoint[0], this.transform.position.y + 0.01f, (float)newPoint[1]));
+        var oldPoint = transform.TransformPoint(new Vector3((float)old[0], transform.position.y + 0.02f, (float)old[1]));
+        var newP = transform.TransformPoint(new Vector3((float)newPoint[0], transform.position.y + 0.02f, (float)newPoint[1]));
         DrawLine(oldPoint, newP);
     }
 
