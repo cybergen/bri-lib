@@ -1,23 +1,9 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using BriLib;
-using Point = BriLib.TwoDimensionalPoint<ShatterTester.ColorWrapper>;
-using PointCollection = BriLib.IObservableCollection<BriLib.TwoDimensionalPoint<ShatterTester.ColorWrapper>>;
 
 public class ShatterTester : TextureWriteTester
 {
-    public enum State
-    {
-        None = 0,
-        Points = 1,
-        VoronoiCells = 2,
-        CircumCircles = 3,
-        IntersectionPoints = 4,
-        Triangles = 5,
-        Broken = 6,
-    }
-
     public int VoronoiCount;
     public int IntersectionPointSize;
     public Color CircleColor;
@@ -29,27 +15,36 @@ public class ShatterTester : TextureWriteTester
     private Dictionary<ColorWrapper, BriLib.Point> _pointMap;
     private Triangulation _delaunay;
     private Triangle _initial;
-    private State _currentState;
 
     private void OnGUI()
     {
-        var startX = 20;
         var width = 100;
         var startY = Screen.height - 30;
         var height = 30;
-        var currentX = startX;
+        var gap = 20;
+        var x = Screen.width / 2 - gap - gap / 2 - width * 2;
 
-        var enumValues = Enum.GetValues(typeof(State));
-        var enumNames = Enum.GetNames(typeof(State));
-
-        for (int i = 1; i < enumValues.Length; i++)
+        if (GUI.Button(new Rect(x, startY, width, height), "Initialize"))
         {
-            if (GUI.Button(new Rect(currentX, startY, width, height), enumNames[i]))
-            {
-                AdvanceToState((State)enumValues.GetValue(i));
-            }
+            Initialize();
+        }
 
-            currentX += width + startX;
+        x += width + gap;
+        if (GUI.Button(new Rect(x, startY, width, height), "Toggle Points"))
+        {
+            drawPoints = !drawPoints;
+        }
+
+        x += width + gap;
+        if (GUI.Button(new Rect(x, startY, width, height), "Toggle Voronoi"))
+        {
+            drawVoronoi = !drawVoronoi;
+        }
+
+        x += width + gap;
+        if (GUI.Button(new Rect(x, startY, width, height), "Toggle Delaunay"))
+        {
+            drawLines = !drawLines;
         }
     }
 
@@ -92,40 +87,12 @@ public class ShatterTester : TextureWriteTester
         UpdateTexture();
     }
 
-    private void AdvanceToState(State v)
-    {
-        if ((int)v <= (int)_currentState)
-        {
-            _currentState = State.None;
-            AdvanceToState(v);
-        }
-        else
-        {
-            while ((int)_currentState < (int)v)
-            {
-                var newState = (int)_currentState + 1;
-                SetState((State)newState);
-            }
-        }
-    }
-
-    private void SetState(State state)
-    {
-        Debug.Log("Setting state to " + state);
-        if (state == State.Points) Initialize();
-        _currentState = state;
-        UpdateTexture();
-        if (state == State.Broken) SeparateMesh();
-    }
-
     protected override void UpdateTexture()
     {
         DrawBackground();
         DrawPoints();
-        if ((int)_currentState >= (int)State.VoronoiCells) DrawVoronoi();
-        if ((int)_currentState >= (int)State.CircumCircles) DrawCircumcircles();
-        if ((int)_currentState >= (int)State.IntersectionPoints) ShowIntersections();
-        if ((int)_currentState >= (int)State.Triangles) DrawTriangles();
+        DrawVoronoi();
+        DrawTriangles();
         base.UpdateTexture();
     }
 
@@ -181,26 +148,6 @@ public class ShatterTester : TextureWriteTester
             var p = GetPoint(new Pnt(point.X, point.Y));
             DrawGLPoint(p, point.StoredObject.Color);
         }
-    }
-
-    private void DrawCircumcircles()
-    {
-        //foreach (var circle in _voronoi.Circumcircles)
-        //{
-        //    DrawCircle(circle.Center.Coordinates[0], circle.Center.Coordinates[1], circle.Radius, CircleColor);
-        //}
-    }
-
-    private void ShowIntersections()
-    {
-        //foreach (var intersection in _voronoi.IntersectionPoints)
-        //{
-        //    DrawPoint(
-        //        (int)intersection.Coordinates[0], 
-        //        (int)intersection.Coordinates[1],  
-        //        IntersectionPointSize, 
-        //        IntersectionColor);
-        //}
     }
 
     private void DrawTriangles()

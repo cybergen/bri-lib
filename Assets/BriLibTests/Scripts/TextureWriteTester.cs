@@ -15,6 +15,10 @@ public class TextureWriteTester : MonoBehaviour
 
     protected Texture2D _texture;
 
+    protected bool drawLines = false;
+    protected bool drawVoronoi = false;
+    protected bool drawPoints = false;
+
     private List<Tuple<Vector3, Vector3>> lineList = new List<Tuple<Vector3, Vector3>>();
     private List<Tuple<Vector3[], Color>> triList = new List<Tuple<Vector3[], Color>>();
     private List<Tuple<Vector3, Color>> pointList = new List<Tuple<Vector3, Color>>();
@@ -108,64 +112,73 @@ public class TextureWriteTester : MonoBehaviour
 
     private void OnCameraPost(Camera cam)
     {
-        foreach (var tri in triList)
+        if (drawVoronoi)
         {
-            GL.Begin(GL.TRIANGLES);
-            LinRenderMat.SetPass(0);
-            GL.Color(tri.ItemTwo);
-            foreach (var entry in tri.ItemOne)
+            foreach (var tri in triList)
             {
-                GL.Vertex3(entry.x, entry.y, entry.z);
+                GL.Begin(GL.TRIANGLES);
+                LinRenderMat.SetPass(0);
+                GL.Color(tri.ItemTwo);
+                foreach (var entry in tri.ItemOne)
+                {
+                    GL.Vertex3(entry.x, entry.y, entry.z);
+                }
+                GL.End();
             }
-            GL.End();
         }
 
-        foreach (var line in lineList)
+        if (drawLines)
         {
-            var start = line.ItemOne;
-            var end = line.ItemTwo;
+            foreach (var line in lineList)
+            {
+                var start = line.ItemOne;
+                var end = line.ItemTwo;
 
-            GL.Begin(GL.QUADS);
-            LinRenderMat.SetPass(0);
-            GL.Color(TriangleColor);
+                GL.Begin(GL.QUADS);
+                LinRenderMat.SetPass(0);
+                GL.Color(TriangleColor);
 
-            //Shift each end point further along their angle by half the line width to get our edges to line up
-            var upward = (start - end);
-            upward.Normalize();
-            upward *= LineWidth / 2;
-            start += upward;
-            end -= upward;
+                //Shift each end point further along their angle by half the line width to get our edges to line up
+                var upward = (start - end);
+                upward.Normalize();
+                upward *= LineWidth / 2;
+                start += upward;
+                end -= upward;
 
-            //Determine the direction to offset our vertices to add line width
-            var cross = Vector3.Cross(start - end, Vector3.up);
-            cross.Normalize();
-            cross *= LineWidth / 2;
+                //Determine the direction to offset our vertices to add line width
+                var cross = Vector3.Cross(start - end, Vector3.up);
+                cross.Normalize();
+                cross *= LineWidth / 2;
 
-            //Generate a vertex for each point on the quad
-            var leftTopEdge = start + cross;
-            var rightTopEdge = start - cross;
-            var leftBottomEdge = end + cross;
-            var rightBottomEdge = end - cross;
+                //Generate a vertex for each point on the quad
+                var leftTopEdge = start + cross;
+                var rightTopEdge = start - cross;
+                var leftBottomEdge = end + cross;
+                var rightBottomEdge = end - cross;
 
-            //Push vertex list to gpu
-            GL.Vertex3(rightTopEdge.x, rightTopEdge.y, rightTopEdge.z);
-            GL.Vertex3(leftTopEdge.x, leftTopEdge.y, leftTopEdge.z);
-            GL.Vertex3(leftBottomEdge.x, leftBottomEdge.y, leftBottomEdge.z);
-            GL.Vertex3(rightBottomEdge.x, rightBottomEdge.y, rightBottomEdge.z);
+                //Push vertex list to gpu
+                GL.Vertex3(rightTopEdge.x, rightTopEdge.y, rightTopEdge.z);
+                GL.Vertex3(leftTopEdge.x, leftTopEdge.y, leftTopEdge.z);
+                GL.Vertex3(leftBottomEdge.x, leftBottomEdge.y, leftBottomEdge.z);
+                GL.Vertex3(rightBottomEdge.x, rightBottomEdge.y, rightBottomEdge.z);
 
-            GL.End();
+                GL.End();
+            }
         }
 
-        foreach (var point in pointList)
+        if (drawPoints)
         {
-            GL.Begin(GL.QUADS);
-            LinRenderMat.SetPass(0);
-            GL.Color(point.ItemTwo);            
-            GL.Vertex3(point.ItemOne.x - PointSize / 2, point.ItemOne.y, point.ItemOne.z - PointSize / 2);
-            GL.Vertex3(point.ItemOne.x + PointSize / 2, point.ItemOne.y, point.ItemOne.z - PointSize / 2);
-            GL.Vertex3(point.ItemOne.x + PointSize / 2, point.ItemOne.y, point.ItemOne.z + PointSize / 2);
-            GL.Vertex3(point.ItemOne.x - PointSize / 2, point.ItemOne.y, point.ItemOne.z + PointSize / 2);
-            GL.End();
+            foreach (var point in pointList)
+            {
+                GL.Begin(GL.QUADS);
+                LinRenderMat.SetPass(0);
+                GL.Color(point.ItemTwo);
+                GL.Vertex3(point.ItemOne.x - PointSize / 2, point.ItemOne.y, point.ItemOne.z - PointSize / 2);
+                GL.Vertex3(point.ItemOne.x + PointSize / 2, point.ItemOne.y, point.ItemOne.z - PointSize / 2);
+                GL.Vertex3(point.ItemOne.x + PointSize / 2, point.ItemOne.y, point.ItemOne.z + PointSize / 2);
+                GL.Vertex3(point.ItemOne.x - PointSize / 2, point.ItemOne.y, point.ItemOne.z + PointSize / 2);
+                GL.End();
+            }
         }
     }
 
