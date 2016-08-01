@@ -1,6 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using BriLib;
+using System;
+using System.Collections;
 
 public class ShatterTester : TextureWriteTester
 {
@@ -9,12 +12,14 @@ public class ShatterTester : TextureWriteTester
     public Color CircleColor;
     public Color IntersectionColor;
     public MeshFilter MeshFilter;
-
-    private Quadtree<ColorWrapper> _colorTree;
+    public MeshRenderer Renderer;
+    public float FragmentDisplaceDistance;
+    public float EaseTime;
+    
     private VoronoiDiagram _voronoi;
-    private Dictionary<ColorWrapper, BriLib.Point> _pointMap;
-    private Triangulation _delaunay;
     private Triangle _initial;
+    private Dictionary<Vector3, Color> _pointColors = new Dictionary<Vector3, Color>();
+    private System.Random _rand = new System.Random();
 
     private void OnGUI()
     {
@@ -22,7 +27,7 @@ public class ShatterTester : TextureWriteTester
         var startY = Screen.height - 30;
         var height = 30;
         var gap = 20;
-        var x = Screen.width / 2 - gap - gap / 2 - width * 2;
+        var x = Screen.width / 2 - (gap * 4) - width * 3;
 
         if (GUI.Button(new Rect(x, startY, width, height), "Initialize"))
         {
@@ -46,40 +51,44 @@ public class ShatterTester : TextureWriteTester
         {
             drawLines = !drawLines;
         }
+
+        x += width + gap;
+        if (GUI.Button(new Rect(x, startY, width, height), "Apply Voronoi to Texture"))
+        {
+            ApplyVoronoiToTexture();
+        }
+
+        x += width + gap;
+        if (GUI.Button(new Rect(x, startY, width, height), "Shatter Mesh"))
+        {
+            SeparateMesh();
+        }
     }
 
     protected override void OnMouseClickWorld(Vector3 point)
     {
         base.OnMouseClickWorld(point);
 
-        if (_colorTree == null) return;
+        if (_voronoi == null) return;
 
         var localPoint = transform.InverseTransformPoint(point);
-        _delaunay.delaunayPlace(new Pnt(localPoint.x, localPoint.z));
+        _voronoi.AddFacePoint(new Vector3(localPoint.x, localPoint.y, localPoint.z));
+        _pointColors.Add(localPoint, GetRandomColor());
+    }
 
-        var _rand = new System.Random();
+    private Color GetRandomColor()
+    {
         var r = _rand.Next(256) / 256f;
         var g = _rand.Next(256) / 256f;
         var b = _rand.Next(256) / 256f;
-        var color = new Color(r, g, b);
-        var wrapper = new ColorWrapper { Color = color };
-
-        _colorTree.Insert(localPoint.x, localPoint.z, wrapper);
-
+        return new Color(r, g, b);
     }
 
     protected override void Initialize()
     {
         base.Initialize();
-        _colorTree = new Quadtree<ColorWrapper>(0, 0, Width / 2, 5);
-        _voronoi = new VoronoiDiagram();
-        _pointMap = new Dictionary<ColorWrapper, BriLib.Point>();
-        _initial = new Triangle(
-                new Pnt(-10000, -10000),
-                new Pnt(10000, -10000),
-                new Pnt(Width / 2, 10000)
-            );
-        _delaunay = new Triangulation(_initial);
+        _voronoi = new VoronoiDiagram(MeshFilter, transform);
+        _pointColors.Clear();
 
         ClearTris();
         ClearLines();
@@ -98,63 +107,37 @@ public class ShatterTester : TextureWriteTester
 
     private void DrawVoronoi()
     {
-        if (_colorTree == null) return;
+        if (_voronoi == null) return;
 
         ClearTris();
-
-        // Keep track of sites done; no drawing for initial triangles sites
-        HashSet<Pnt> done = new HashSet<Pnt>(_initial);
-        foreach (var triangle in _delaunay.Triangles)
+        foreach (var cell in _voronoi.Cells)
         {
-            foreach (var site in triangle)
+            var color = GetRandomColor();
+            foreach (var tri in cell.Triangles)
             {
-                if (done.Contains(site)) continue;
-                var color = _colorTree.GetNearestNeighbor((float)site[0], (float)site[1]).Color;
-
-                done.Add(site);
-                List<Triangle> list = _delaunay.surroundingTriangles(site, triangle);
-                Pnt[] vertices = new Pnt[list.Count];
-                int i = 0;
-                foreach (var tri in list) vertices[i++] = tri.getCircumcenter();
-                
-                if (vertices.Length < 3) return;
-                var vectors = new Vector3[vertices.Length];
-                var firstPoint = GetPoint(vertices[0]);
-
-                for (int j = 2; j < vertices.Length; j++)
-                {
-                    var vector = new Vector3[3];
-                    vector[0] = firstPoint;
-                    vector[1] = GetPoint(vertices[j - 1]);
-                    vector[2] = GetPoint(vertices[j]);
-                    DrawTriangle(vector, color);
-                }
+                var vectors = new[] { tri.ItemOne, tri.ItemTwo, tri.ItemThree };
+                DrawTriangle(vectors, color);
             }
-        }
-    }
-
-    private Vector3 GetPoint(Pnt point)
-    {
-        return transform.TransformPoint((float)point[0], transform.position.y + 0.01f, (float)point[1]);
+        }        
     }
 
     private void DrawPoints()
     {
-        if (_colorTree == null) return;
+        if (_voronoi == null) return;
         ClearPoints();
 
-        foreach (var point in _colorTree.GetPointRange(0, 0, Width / 2))
+        foreach (var point in _pointColors.Keys)
         {
-            var p = GetPoint(new Pnt(point.X, point.Y));
-            DrawGLPoint(p, point.StoredObject.Color);
+            DrawGLPoint(point, _pointColors[point]);
         }
     }
 
     private void DrawTriangles()
     {
+        if (_voronoi == null) return;
         ClearLines();
 
-        foreach (var triangle in _delaunay.Triangles)
+        foreach (var triangle in _voronoi.DelaunayTris)
         {
             Debug.Log("Got triangle: " + triangle);
             var enumerator = triangle.GetEnumerator();
@@ -176,26 +159,90 @@ public class ShatterTester : TextureWriteTester
 
     private void MakeDrawLine(Pnt old, Pnt newPoint)
     {
-        var oldPoint = transform.TransformPoint(new Vector3((float)old[0], transform.position.y + 0.02f, (float)old[1]));
-        var newP = transform.TransformPoint(new Vector3((float)newPoint[0], transform.position.y + 0.02f, (float)newPoint[1]));
+        var oldPoint = transform.TransformPoint(new Vector3((float)old[0], 0.01f, (float)old[1]));
+        var newP = transform.TransformPoint(new Vector3((float)newPoint[0], 0.01f, (float)newPoint[1]));
         DrawLine(oldPoint, newP);
+    }
+
+    private void ApplyVoronoiToTexture()
+    {
+        if (_voronoi == null) return;
+
+        //for (int y = 0; y < Height; y++)
+        //{
+        //    for (int x = 0; x < Width; x++)
+        //    {
+        //        var color = _colorTree.GetNearestNeighbor((float)x, (float)y).Color;
+        //        _texture.SetPixel(x, y, color);
+        //    }
+        //}
+        //_texture.Apply();
     }
 
     private void SeparateMesh()
     {
-        if (_colorTree == null) return;
+        if (_voronoi == null) return;
 
-        foreach (var point in _colorTree.GetPointRange(Width / 2, Height / 2, Width / 2))
+        var minX = float.MaxValue;
+        var maxX = float.MinValue;
+        var minY = float.MaxValue;
+        var maxY = float.MinValue;
+        var minZ = float.MaxValue;
+        var maxZ = float.MinValue;
+
+        foreach (var vert in MeshFilter.mesh.vertices)
         {
-            var pnt = new Pnt(point.X, point.Y);
-            var tri = _delaunay.locate(pnt);
-            var tris = _delaunay.surroundingTriangles(pnt, tri);
+            minX = Mathf.Min(minX, vert.x);
+            maxX = Mathf.Max(maxX, vert.x);
+            minY = Mathf.Min(minY, vert.y);
+            maxY = Mathf.Max(maxY, vert.y);
+            minZ = Mathf.Min(minZ, vert.z);
+            maxZ = Mathf.Max(maxZ, vert.z);
+        }
 
+        Debug.Log("MinX: " + minX + ", MaxX: " + maxX + ", MinY: " + minY + ", MaxY: " + maxY + ", MinZ: " + minZ + ", MaxZ: " + maxZ);
+
+        var frags = _voronoi.Fragments;
+        foreach (var frag in frags)
+        {
+            //Copy this object
+            var newGo = Instantiate(gameObject);
+            newGo.GetComponent<ShatterTester>().enabled = false;
+            var mesh = newGo.GetComponent<MeshFilter>().mesh;
+
+            //Apply verts, tris, and uvs
+            mesh.Clear();
+            mesh.vertices = frag.Vertices;
+            mesh.triangles = frag.Triangles;
+            mesh.uv = frag.UVs;
+
+            //Animate it outwards based on direction and magnitude from 
+            var xDir = (float)(_rand.Next(200) - 100) / 100f;
+            var yDir = (float)(_rand.Next(200) - 100) / 100f;
+            var start = newGo.transform;
+            StartCoroutine(BreakCoroutine(new Vector3(xDir, start.position.y, yDir), start, EaseTime));
+        }
+        Renderer.enabled = false;
+    }
+
+    private IEnumerator BreakCoroutine(Vector3 vector3, Transform start, float easeTime)
+    {
+        var startTime = Time.time;
+        var endTime = Time.time + easeTime;
+        var elapsed = 0f;
+        var startPosition = start.position;
+
+        while (elapsed < easeTime)
+        {
+            elapsed = Time.time - startTime;
+            start.position = startPosition + Easing.ElasticEaseOut(elapsed / easeTime) * vector3 * FragmentDisplaceDistance;
+            yield return null;
         }
     }
 
-    public class ColorWrapper
+    private class ColorWrapper
     {
         public Color Color;
+        public ColorWrapper(Color color) { Color = color; }
     }
 }

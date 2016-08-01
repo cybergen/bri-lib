@@ -37,7 +37,7 @@ using System.Collections.Generic;
  * Created December 2007. Replaced general simplices with geometric triangle.
  *
  */
-class Triangle : List<Pnt> {
+public class Triangle : List<Pnt> {
 
     private int idNumber;                   // The id number
     private Pnt circumcenter = null;        // The triangle's circumcenter

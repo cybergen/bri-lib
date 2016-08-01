@@ -41,7 +41,7 @@ using System.Collections.Generic;
  * explicitly creating a cavity.  Added code needed to find a Voronoi cell.
  *
  */
-class Triangulation {
+public class Triangulation {
 
     public IEnumerable<Triangle> Triangles { get { return triGraph.nodeSet(); } }
 
