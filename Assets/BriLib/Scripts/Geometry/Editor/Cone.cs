@@ -198,7 +198,7 @@ namespace BriLib
             mesh.triangles = triangles;
 
             mesh.RecalculateBounds();
-            mesh.Optimize();
+            ;
 
             var collider = go.AddComponent<MeshCollider>();
             collider.sharedMesh = mesh;
