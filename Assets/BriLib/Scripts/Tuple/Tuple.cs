@@ -2,8 +2,8 @@ namespace BriLib
 {
     public class Tuple<T, K>
     {
-        public T ItemOne { get; private set; }
-        public K ItemTwo { get; private set; }
+        public T ItemOne { get; set; }
+        public K ItemTwo { get; set; }
 
         public Tuple(T itemOne, K itemTwo)
         {
@@ -48,9 +48,9 @@ namespace BriLib
 
     public class Tuple<T, K, L>
     {
-        public T ItemOne { get; private set; }
-        public K ItemTwo { get; private set; }
-        public L ItemThree { get; private set; }
+        public T ItemOne { get; set; }
+        public K ItemTwo { get; set; }
+        public L ItemThree { get; set; }
 
         public Tuple(T itemOne, K itemTwo, L itemThree)
         {
@@ -99,10 +99,10 @@ namespace BriLib
 
     public class Tuple<T, K, L, M>
     {
-        public T ItemOne { get; private set; }
-        public K ItemTwo { get; private set; }
-        public L ItemThree { get; private set; }
-        public M ItemFour { get; private set; }
+        public T ItemOne { get; set; }
+        public K ItemTwo { get; set; }
+        public L ItemThree { get; set; }
+        public M ItemFour { get; set; }
 
         public Tuple(T itemOne, K itemTwo, L itemThree, M itemFour)
         {
