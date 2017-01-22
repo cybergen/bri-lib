@@ -113,4 +113,25 @@ public class TupleTests
         Assert.False(equalsOutput, "Different tuples with different values should compare to false");
         Assert.False(operatorOutput, "Different tuples with different values should compare to false");
     }
+
+    [Test]
+    public void EqualEqualsTupleOneNull()
+    {
+        Assert.False(new Tuple<int, int>(5, 5) == null, "Null tuple on right side of == operator should not exception");
+        Assert.False(null == new Tuple<int, int>(5, 5), "Null tuple on left side of == operator should not exception");
+    }
+
+    [Test]
+    public void EqualEqualsTripleOneNull()
+    {
+        Assert.False(new Tuple<int, int, int>(5, 5, 5) == null, "Null tuple on right side of == operator should not exception");
+        Assert.False(null == new Tuple<int, int, int>(5, 5, 5), "Null tuple on left side of == operator should not exception");
+    }
+
+    [Test]
+    public void EqualEqualsQuadrupleOneNull()
+    {
+        Assert.False(new Tuple<int, int, int, int>(5, 5, 5, 5) == null, "Null tuple on right side of == operator should not exception");
+        Assert.False(null == new Tuple<int, int, int, int>(5, 5, 5, 5), "Null tuple on left side of == operator should not exception");
+    }
 }

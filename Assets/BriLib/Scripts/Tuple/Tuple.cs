@@ -32,6 +32,8 @@ namespace BriLib
         public static bool operator ==(Tuple<T, K> a, Tuple<T, K> b)
         {
             if (ReferenceEquals(a, b)) return true;
+            if (ReferenceEquals(null, a) != (ReferenceEquals(null, b))) return false;
+
             if (a.ItemOne == null != (b.ItemOne == null)) return false;
             if (a.ItemTwo == null != (b.ItemTwo == null)) return false;
             return (a.ItemOne != null ? a.ItemOne.Equals(b.ItemOne) : true)
@@ -84,6 +86,8 @@ namespace BriLib
         public static bool operator ==(Tuple<T, K, L> a, Tuple<T, K, L> b)
         {
             if (ReferenceEquals(a, b)) return true;
+            if (ReferenceEquals(null, a) != (ReferenceEquals(null, b))) return false;
+
             if (a.ItemOne == null != (b.ItemOne == null)) return false;
             if (a.ItemTwo == null != (b.ItemTwo == null)) return false;
             if (a.ItemThree == null != (b.ItemThree == null)) return false;
@@ -141,6 +145,8 @@ namespace BriLib
         public static bool operator ==(Tuple<T, K, L, M> a, Tuple<T, K, L, M> b)
         {
             if (ReferenceEquals(a, b)) return true;
+            if (ReferenceEquals(null, a) != (ReferenceEquals(null, b))) return false;
+
             if (a.ItemOne == null != (b.ItemOne == null)) return false;
             if (a.ItemTwo == null != (b.ItemTwo == null)) return false;
             if (a.ItemThree == null != (b.ItemThree == null)) return false;
