@@ -20,10 +20,13 @@ namespace BriLib
 
         public override int GetHashCode()
         {
-            int hash = 17;
-            hash = hash * 23 + (ItemOne != null ? ItemOne.GetHashCode() : 0);
-            hash = hash * 23 + (ItemTwo != null ? ItemOne.GetHashCode() : 0);
-            return hash;
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 23 + (ItemOne != null ? ItemOne.GetHashCode() : 0);
+                hash = hash * 23 + (ItemTwo != null ? ItemOne.GetHashCode() : 0);
+                return hash;
+            }
         }
 
         public static bool operator ==(Tuple<T, K> a, Tuple<T, K> b)
@@ -68,11 +71,14 @@ namespace BriLib
 
         public override int GetHashCode()
         {
-            int hash = 17;
-            hash = hash * 23 + (ItemOne != null ? ItemOne.GetHashCode() : 0);
-            hash = hash * 23 + (ItemTwo != null ? ItemTwo.GetHashCode() : 0);
-            hash = hash * 23 + (ItemThree != null ? ItemThree.GetHashCode() : 0);
-            return hash;
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 23 + (ItemOne != null ? ItemOne.GetHashCode() : 0);
+                hash = hash * 23 + (ItemTwo != null ? ItemTwo.GetHashCode() : 0);
+                hash = hash * 23 + (ItemThree != null ? ItemThree.GetHashCode() : 0);
+                return hash;
+            }
         }
 
         public static bool operator ==(Tuple<T, K, L> a, Tuple<T, K, L> b)
@@ -121,12 +127,15 @@ namespace BriLib
 
         public override int GetHashCode()
         {
-            int hash = 17;
-            hash = hash * 23 + (ItemOne != null ? ItemOne.GetHashCode() : 0);
-            hash = hash * 23 + (ItemTwo != null ? ItemTwo.GetHashCode() : 0);
-            hash = hash * 23 + (ItemThree != null ? ItemThree.GetHashCode() : 0);
-            hash = hash * 23 + (ItemFour != null ? ItemFour.GetHashCode() : 0);
-            return hash;
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 23 + (ItemOne != null ? ItemOne.GetHashCode() : 0);
+                hash = hash * 23 + (ItemTwo != null ? ItemTwo.GetHashCode() : 0);
+                hash = hash * 23 + (ItemThree != null ? ItemThree.GetHashCode() : 0);
+                hash = hash * 23 + (ItemFour != null ? ItemFour.GetHashCode() : 0);
+                return hash;
+            }
         }
 
         public static bool operator ==(Tuple<T, K, L, M> a, Tuple<T, K, L, M> b)
