@@ -41,8 +41,21 @@ namespace BriLib
             var bottomRightBack = Intersects(highX, lowY, highZ);
             var bottomRightFront = Intersects(highX, lowY, lowZ);
 
-            return topLeftBack || topLeftFront || bottomLeftBack || bottomLeftFront 
-                || topRightBack || topRightFront || bottomRightBack || bottomRightFront || otherBox.Intersects(this);
+            var myLeft = X - Radius;
+            var myRight = X + Radius;
+            var myBottom = Y - Radius;
+            var myTop = Y + Radius;
+            var myFront = Z - Radius;
+            var myBack = Z + Radius;
+
+            var xIsInside = (myLeft >= lowX && myRight <= highX);
+            var yIsInside = (myBottom >= lowY && myTop <= highY);
+            var zIsInside = (myFront >= lowZ && myBack <= highZ);
+            var isInside = xIsInside && yIsInside && zIsInside;
+
+            return topLeftBack || topLeftFront || bottomLeftBack || bottomLeftFront
+                || topRightBack || topRightFront || bottomRightBack || bottomRightFront
+                || isInside;
         }
 
         public float BoundsDistance(float x, float y, float z)
