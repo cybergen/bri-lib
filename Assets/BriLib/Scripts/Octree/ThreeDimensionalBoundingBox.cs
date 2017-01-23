@@ -51,11 +51,10 @@ namespace BriLib
             var xIsInside = (myLeft >= lowX && myRight <= highX);
             var yIsInside = (myBottom >= lowY && myTop <= highY);
             var zIsInside = (myFront >= lowZ && myBack <= highZ);
-            var isInside = xIsInside && yIsInside && zIsInside;
 
             return topLeftBack || topLeftFront || bottomLeftBack || bottomLeftFront
                 || topRightBack || topRightFront || bottomRightBack || bottomRightFront
-                || isInside;
+                || (xIsInside && yIsInside && zIsInside);
         }
 
         public float BoundsDistance(float x, float y, float z)
