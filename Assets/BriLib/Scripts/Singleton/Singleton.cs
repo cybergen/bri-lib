@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Singleton<T> : MonoBehaviour where T : UnityEngine.Component
+public abstract class Singleton<T> : MonoBehaviour, ISingleton where T : UnityEngine.Component, ISingleton
 {
     public static T Instance
     {
@@ -11,12 +11,13 @@ public class Singleton<T> : MonoBehaviour where T : UnityEngine.Component
                 var obj = new GameObject(typeof(T).GetType().ToString());
                 obj.AddComponent<T>();
                 _instance = obj.GetComponent<T>();
+                _instance.OnCreate();
             }
             return _instance;
         }
         private set
         {
-            _instance = value;    
+            _instance = value;
         }
     }
 
@@ -25,5 +26,12 @@ public class Singleton<T> : MonoBehaviour where T : UnityEngine.Component
     private void Awake()
     {
         Instance = gameObject.GetComponent<T>();
+        Instance.OnCreate();
     }
+
+    public abstract void OnCreate();
+
+    public abstract void Begin();
+
+    public abstract void End();
 }

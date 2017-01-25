@@ -1,3 +1,5 @@
+using System;
+
 namespace BriLib
 {
     public class Tuple<T, K>
@@ -50,7 +52,7 @@ namespace BriLib
             return string.Format("[Tuple ItemOne={0}, ItemTwo={1}]", ItemOne, ItemTwo);
         }
     }
-
+    
     public class Tuple<T, K, L>
     {
         public T ItemOne { get; set; }
