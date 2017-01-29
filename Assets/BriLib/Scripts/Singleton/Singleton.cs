@@ -1,37 +1,40 @@
 using UnityEngine;
 
-public abstract class Singleton<T> : MonoBehaviour, ISingleton where T : UnityEngine.Component, ISingleton
+namespace BriLib
 {
-    public static T Instance
+    public abstract class Singleton<T> : MonoBehaviour, ISingleton where T : UnityEngine.Component, ISingleton
     {
-        get
+        public static T Instance
         {
-            if (_instance == null)
+            get
             {
-                var obj = new GameObject(typeof(T).GetType().ToString());
-                obj.AddComponent<T>();
-                _instance = obj.GetComponent<T>();
-                _instance.OnCreate();
+                if (_instance == null)
+                {
+                    var obj = new GameObject(typeof(T).GetType().ToString());
+                    obj.AddComponent<T>();
+                    _instance = obj.GetComponent<T>();
+                    _instance.OnCreate();
+                }
+                return _instance;
             }
-            return _instance;
+            private set
+            {
+                _instance = value;
+            }
         }
-        private set
+
+        private static T _instance;
+
+        private void Awake()
         {
-            _instance = value;
+            Instance = gameObject.GetComponent<T>();
+            Instance.OnCreate();
         }
+
+        public abstract void OnCreate();
+
+        public abstract void Begin();
+
+        public abstract void End();
     }
-
-    private static T _instance;
-
-    private void Awake()
-    {
-        Instance = gameObject.GetComponent<T>();
-        Instance.OnCreate();
-    }
-
-    public abstract void OnCreate();
-
-    public abstract void Begin();
-
-    public abstract void End();
 }
