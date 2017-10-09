@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BriLib
 {
-    public class MessageBus : Singleton<MessageBus>
+    public class MessageBus
     {
         private Dictionary<Type, IActionStore> _actionStores = new Dictionary<Type, IActionStore>();
 
