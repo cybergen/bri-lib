@@ -17,16 +17,30 @@ namespace BriLib
     private void Awake()
     {
       easer = new EaseWrapper(EaseDuration, StartValue, EndValue, EaseType, (a) => CG.alpha = a);
+      CG.alpha = 0f;
+      gameObject.SetActive(false);
     }
 
     public void Show(Action onFinish = null, Action onCancel = null)
     {
+      gameObject.SetActive(true);
       easer.SetEase(EaseWrapper.Direction.Forward, onFinish, onCancel);
     }
 
     public void Hide(Action onFinish = null, Action onCancel = null)
     {
+      onFinish += () => gameObject.SetActive(false);
       easer.SetEase(EaseWrapper.Direction.Backward, onFinish, onCancel);
+    }
+
+    public void Show()
+    {
+      Show(null, null);
+    }
+
+    public void Hide()
+    {
+      Hide(null, null);
     }
 
     private void Update()
