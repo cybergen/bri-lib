@@ -10,6 +10,7 @@ namespace BriLib
     public float EndValue = 1f;
     public float EaseDuration = 0.4f;
     public Easing.Method EaseType = Easing.Method.ExpoOut;
+    public bool Hiding { get; private set; }
 
     private EaseWrapper easer;
     private Action<float> _onUpdate;
@@ -25,12 +26,14 @@ namespace BriLib
     {
       gameObject.SetActive(true);
       easer.SetEase(EaseWrapper.Direction.Forward, onFinish, onCancel);
+      Hiding = false;
     }
 
     public void Hide(Action onFinish = null, Action onCancel = null)
     {
       onFinish += () => gameObject.SetActive(false);
       easer.SetEase(EaseWrapper.Direction.Backward, onFinish, onCancel);
+      Hiding = true;
     }
 
     public void Show()

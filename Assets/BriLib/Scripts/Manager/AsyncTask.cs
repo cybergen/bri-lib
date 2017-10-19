@@ -18,12 +18,14 @@ namespace BriLib
 
     protected void Finish()
     {
+      UnityEngine.Debug.Log("Calling OnFinish on task: " + this.GetType());
       _onFinish.Execute();
       Cleanup();
     }
 
     protected void Fail()
     {
+      UnityEngine.Debug.Log("Calling OnFail on task: " + this.GetType());
       _onFailed.Execute();
       Cleanup();
     }

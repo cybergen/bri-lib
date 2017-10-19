@@ -11,6 +11,8 @@ namespace BriLib
 
     public T StartTask<T>(Action onFinish = null, Action onFailed = null) where T : AsyncTask, new()
     {
+      Debug.Log("Requesting task: " + typeof(T));
+
       var task = new T();
       task.SetCallbacks(onFinish, onFailed);
       _tasks.Add(task);
