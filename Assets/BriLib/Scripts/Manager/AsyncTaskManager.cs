@@ -11,7 +11,7 @@ namespace BriLib
 
     public T StartTask<T>(Action onFinish = null, Action onFailed = null) where T : AsyncTask, new()
     {
-      Debug.Log("Requesting task: " + typeof(T));
+      Debug.Log("Requesting task: " + typeof(T) + " with current task count: " + _tasks.Count);
 
       var task = new T();
       task.SetCallbacks(onFinish, onFailed);
@@ -25,8 +25,8 @@ namespace BriLib
 
       for (int i = 0; i < _tasks.Count; i++)
       {
-        _tasks[i].Tick(delta);
         if (_tasks[i].Finished) _removeList.Add(_tasks[i]);
+        else _tasks[i].Tick(delta);
       }
 
       for (int i = 0; i < _removeList.Count; i++)

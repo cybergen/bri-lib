@@ -28,7 +28,7 @@ namespace BriLib
         {
             var type = typeof(T);
             if (!_actionStores.ContainsKey(type)) { return; }
-            (_actionStores[type] as ActionStore<T>).Actions(message);
+            (_actionStores[type] as ActionStore<T>).Actions.Execute<T>(message);
         }
     }
 
