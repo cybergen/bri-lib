@@ -11,5 +11,10 @@ namespace BriLib
         {
             return ((xA - xB).Sq() + (yA - yB).Sq() + (zA - zB).Sq()).Sqrt();
         }
+
+        public static float GetRandom(float max, System.Random rand)
+        {
+            return (float)rand.Next(1000) / 1000f * max;
+        }
     }
 }
