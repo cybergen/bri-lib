@@ -88,6 +88,11 @@ public class Pnt {
         get { return coordinates[index]; }
     }
 
+    public UnityEngine.Vector3 Vectorfy()
+    {
+        return new UnityEngine.Vector3((float)coordinates[0], (float)coordinates[1], (float)coordinates[2]);
+    }
+
     /**
      * @return this Pnt's dimension.
      */
