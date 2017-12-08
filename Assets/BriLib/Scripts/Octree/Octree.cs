@@ -133,7 +133,7 @@ namespace BriLib
             return false;
         }
 
-        public T GetNearestNeighbor(float x, float y, float z)
+        public T GetNearestObject(float x, float y, float z)
         {
             //If we have leaf nodes, check for closest and return it
             if (_children.Count > 0)
@@ -161,7 +161,7 @@ namespace BriLib
             //First check for neighbor in the octant point is currently at. If we find something, store distance.
             var startOctant = (int)GetOctant(x, y, z);
             var distanceToBest = float.MaxValue;
-            var best = _subtrees[startOctant].GetNearestNeighbor(x, y, z);
+            var best = _subtrees[startOctant].GetNearestObject(x, y, z);
             if (best != null)
             {
                 var loc = _childMap[best];
@@ -212,7 +212,7 @@ namespace BriLib
                 if (distanceToBest < subtreeList[i].ItemTwo) break;
 
                 //Check if octant has a candidate for neighbor
-                var candidate = _subtrees[subtreeList[i].ItemOne].GetNearestNeighbor(x, y, z);
+                var candidate = _subtrees[subtreeList[i].ItemOne].GetNearestObject(x, y, z);
                 if (candidate == null) continue;
 
                 //If candidate distance is shorter than current best, replace current best

@@ -146,43 +146,43 @@ public class QuadtreeTests
     }
 
     [Test]
-    public void GetSingleNeighbor()
+    public void GetSingleObject()
     {
         _tree.Insert(4, 4, _fourFourObject);
-        var neighbor = _tree.GetNearestNeighbor(2, 2);
+        var neighbor = _tree.GetNearestObject(2, 2);
         Assert.AreEqual(neighbor, _fourFourObject);
     }
 
     [Test]
-    public void GetNeighborOutOfTwo()
+    public void GetNearestOutOfTwo()
     {
         _tree.Insert(4, 4, _fourFourObject);
         _tree.Insert(2, 2, _twoTwoObject);
-        var neighbor = _tree.GetNearestNeighbor(5, 5);
+        var neighbor = _tree.GetNearestObject(5, 5);
         Assert.AreEqual(neighbor, _fourFourObject);
     }
 
     [Test]
-    public void GetNeighborOutOfMany()
+    public void GetNearestOutOfMany()
     {
         _tree.Insert(15, 15, _fifteenFifteenObject);
         _tree.Insert(5, 5, _fiveFiveObject);
         _tree.Insert(4, 4, _fourFourObject);
         _tree.Insert(2, 2, _twoTwoObject);
         _tree.Insert(3, 3, _threeThreeObject);
-        var neighbor = _tree.GetNearestNeighbor(5, 5);
+        var neighbor = _tree.GetNearestObject(5, 5);
         Assert.AreEqual(neighbor, _fiveFiveObject);
     }
 
     [Test]
-    public void GetNeighborWithSeparateOctantMostProximalPoint()
+    public void GetNearestWithSeparateOctantMostProximalPoint()
     {
         var _nineFourPoint = new TestObject();
         var _sixNinePoint = new TestObject();
         _tree.Insert(2, 2, _twoTwoObject);
         _tree.Insert(6, 9, _sixNinePoint);
         _tree.Insert(9, 4, _nineFourPoint);
-        var neighbor = _tree.GetNearestNeighbor(9, 7);
+        var neighbor = _tree.GetNearestObject(9, 7);
         Assert.AreEqual(_nineFourPoint, neighbor);
     }
 

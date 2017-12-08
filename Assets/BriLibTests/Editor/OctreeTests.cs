@@ -146,43 +146,43 @@ public class OctreeTests
     }
 
     [Test]
-    public void GetSingleNeighbor3D()
+    public void GetSingleObject3D()
     {
         _tree.Insert(4, 4, 4, _fourFourObject);
-        var neighbor = _tree.GetNearestNeighbor(2, 2, 2);
+        var neighbor = _tree.GetNearestObject(2, 2, 2);
         Assert.AreEqual(neighbor, _fourFourObject);
     }
 
     [Test]
-    public void GetNeighborOutOfTwo3D()
+    public void GetNearestObjectOutOfTwo3D()
     {
         _tree.Insert(4, 4, 4, _fourFourObject);
         _tree.Insert(2, 2, 2, _twoTwoObject);
-        var neighbor = _tree.GetNearestNeighbor(5, 5, 5);
+        var neighbor = _tree.GetNearestObject(5, 5, 5);
         Assert.AreEqual(neighbor, _fourFourObject);
     }
 
     [Test]
-    public void GetNeighborOutOfMany3D()
+    public void GetNearestObjectOutOfMany3D()
     {
         _tree.Insert(15, 15, 15, _fifteenFifteenObject);
         _tree.Insert(5, 5, 5, _fiveFiveObject);
         _tree.Insert(4, 4, 4, _fourFourObject);
         _tree.Insert(2, 2, 2, _twoTwoObject);
         _tree.Insert(3, 3, 3, _threeThreeObject);
-        var neighbor = _tree.GetNearestNeighbor(5, 5, 5);
+        var neighbor = _tree.GetNearestObject(5, 5, 5);
         Assert.AreEqual(neighbor, _fiveFiveObject);
     }
 
     [Test]
-    public void GetNeighborWithSeparateOctantMostProximalPoint3D()
+    public void GetNearestWithSeparateOctantMostProximalPoint3D()
     {
         var _nineFourPoint = new TestObject();
         var _sixNinePoint = new TestObject();
         _tree.Insert(2, 2, 2, _twoTwoObject);
         _tree.Insert(6, 9, 15, _sixNinePoint);
         _tree.Insert(9, 4, 15, _nineFourPoint);
-        var neighbor = _tree.GetNearestNeighbor(9, 7, 15);
+        var neighbor = _tree.GetNearestObject(9, 7, 15);
         Assert.AreEqual(_nineFourPoint, neighbor);
     }
 
