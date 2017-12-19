@@ -1,5 +1,5 @@
 # bri-lib
-A library of useful C# concepts including Observables, Promises, Queueables, etc. Fully unit tested.
+A library of useful C# concepts including Observables, Promises, Queueables, etc. Mostly unit tested.
 
 # License
 
