@@ -16,5 +16,10 @@ namespace BriLib
         {
             return (float)rand.Next(1000) / 1000f * max;
         }
+
+        public static int GetPosNeg(System.Random rand)
+        {
+            return rand.Next(2) > 0 ? 1 : -1;
+        }
     }
 }

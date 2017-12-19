@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using BriLib;
@@ -17,7 +18,7 @@ public class OctreeTests
     [SetUp]
     public void Setup()
     {
-        _box = new ThreeDimensionalBoundingBox(10, 10, 10, 10);
+        _box = new ThreeDimensionalBoundingBox(10, 10, 10, 20);
         _tree = new Octree<TestObject>(_box, 2);
     }
 
@@ -79,6 +80,186 @@ public class OctreeTests
         Assert.True(objects.Contains(_fifteenFifteenObject));
         Assert.True(objects.Contains(_twoTwoObject));
         Assert.True(objects.Contains(_threeThreeObject));
+    }
+
+    [Test]
+    public void GetOneInRangeTreeWithOneItemPerCell()
+    {
+        _tree = new Octree<TestObject>(0, 0, 0, 10, 1);
+        var inRangeObject = new TestObject();
+        var outOfRangeObject = new TestObject();
+        _tree.Insert(0, 0, 0, inRangeObject);
+        _tree.Insert(1, 1, 1, outOfRangeObject);
+        var objects = _tree.GetRange(0, 0, 0, 0.01f);
+        Assert.AreEqual(1, objects.Count());
+        Assert.True(objects.Contains(inRangeObject));
+        Assert.False(objects.Contains(outOfRangeObject));
+    }
+
+    [Test]
+    public void GetFourInRangeTreeWithOneItemPerCell()
+    {
+        _tree = new Octree<TestObject>(0, 0, 0, 10, 1);
+        var inRangeObject = new TestObject();
+        var inRangeObjectTwo = new TestObject();
+        var inRangeObjectThree = new TestObject();
+        var inRangeObjectFour = new TestObject();
+         var outOfRangeObject = new TestObject();
+        _tree.Insert(0, 0, 0, inRangeObject);
+        _tree.Insert(0.2f, 0, 0, inRangeObjectTwo);
+        _tree.Insert(0, 0.25f, 0, inRangeObjectThree);
+        _tree.Insert(0, 0.2f, 0.25f, inRangeObjectFour);
+        _tree.Insert(1, 1, 1, outOfRangeObject);
+        var objects = _tree.GetRange(0, 0, 0, 0.6f);
+        Assert.AreEqual(4, objects.Count());
+        Assert.True(objects.Contains(inRangeObject));
+        Assert.True(objects.Contains(inRangeObjectTwo));
+        Assert.True(objects.Contains(inRangeObjectThree));
+        Assert.True(objects.Contains(inRangeObjectFour));
+        Assert.False(objects.Contains(outOfRangeObject));
+    }
+
+    [Test]
+    public void GetTwentyInRangeTreeWithOneItemPerCell()
+    {
+        _tree = new Octree<TestObject>(0, 0, 0, 10, 1);
+        var targetRadius = 1f;
+        var rand = new System.Random();
+        var inRangeList = new List<TestObject>();
+        for (int i = 0; i < 20; i++)
+        {
+            var newObject = new TestObject();
+            inRangeList.Add(newObject);
+            var x = MathHelpers.GetRandom(targetRadius / 2f, rand);
+            var y = MathHelpers.GetRandom(targetRadius / 2f, rand);
+            var z = MathHelpers.GetRandom(targetRadius / 2f, rand);
+            _tree.Insert(x, y, z, newObject);
+        }
+        var outOfRangeList = new List<TestObject>();
+        var additionalRange = 6f;
+        for (int i = 0; i < 20; i++)
+        {
+            var newObject = new TestObject();
+            outOfRangeList.Add(newObject);
+            var x = MathHelpers.GetRandom(additionalRange, rand) + targetRadius;
+            var y = MathHelpers.GetRandom(additionalRange, rand) + targetRadius;
+            var z = MathHelpers.GetRandom(additionalRange, rand) + targetRadius;
+            _tree.Insert(x, y, z, newObject);
+        }
+
+        var objects = _tree.GetRange(0, 0, 0, targetRadius);
+        Assert.AreEqual(20, objects.Count());
+
+        for (int i = 0; i < inRangeList.Count; i++)
+        {
+            Assert.True(objects.Contains(inRangeList[i]));
+        }
+
+        for (int i = 0; i < outOfRangeList.Count; i++)
+        {
+           Assert.False(objects.Contains(outOfRangeList[i]));
+        }
+    }
+
+    [Test]
+    public void AddEntriesOutOfRange()
+    {
+        _tree = new Octree<TestObject>(0, 0, 0, 10, 1);
+        var targetRadius = 1f;
+        var rand = new System.Random();
+        var inRangeList = new List<TestObject>();
+        for (int i = 0; i < 20; i++)
+        {
+            var newObject = new TestObject();
+            inRangeList.Add(newObject);
+            var x = MathHelpers.GetRandom(targetRadius / 2f, rand);
+            var y = MathHelpers.GetRandom(targetRadius / 2f, rand);
+            var z = MathHelpers.GetRandom(targetRadius / 2f, rand);
+            _tree.Insert(x, y, z, newObject);
+        }
+        var outOfRangeList = new List<TestObject>();
+        var additionalRange = 10f;
+        for (int i = 0; i < 20; i++)
+        {
+            var newObject = new TestObject();
+            outOfRangeList.Add(newObject);
+            var x = MathHelpers.GetRandom(targetRadius, rand) + additionalRange;
+            var y = MathHelpers.GetRandom(targetRadius, rand) + additionalRange;
+            var z = MathHelpers.GetRandom(targetRadius, rand) + additionalRange;
+
+            bool caughtError = false;
+            try
+            {
+                _tree.Insert(x, y, z, newObject);
+            }
+            catch (System.ArgumentOutOfRangeException e)
+            {
+               caughtError = true;
+            }
+            Assert.True(caughtError);
+        }
+
+        var objects = _tree.GetRange(0, 0, 0, 10);
+        Assert.AreEqual(20, objects.Count());
+        for (int i = 0; i < inRangeList.Count; i++)
+        {
+           Assert.True(objects.Contains(inRangeList[i]));
+        }
+
+        for (int i = 0; i < outOfRangeList.Count; i++)
+        {
+            Assert.False(objects.Contains(outOfRangeList[i]));
+        }
+    }
+
+    [Test]
+    public void GetTwentyInRangeAroundRandomPointWithOneItemPerCell()
+    {
+        _tree = new Octree<TestObject>(0, 0, 0, 10, 1);
+
+        var initialPointRange = 1f;
+        var targetRadius = 3f;
+        var rand = new System.Random();
+        var inRangeList = new List<TestObject>();
+
+        var startX = MathHelpers.GetRandom(initialPointRange, rand) * MathHelpers.GetPosNeg(rand);
+        var startY = MathHelpers.GetRandom(initialPointRange, rand) * MathHelpers.GetPosNeg(rand);
+        var startZ = MathHelpers.GetRandom(initialPointRange, rand) * MathHelpers.GetPosNeg(rand);
+
+        for (int i = 0; i < 20; i++)
+        {
+            var newObject = new TestObject();
+            inRangeList.Add(newObject);
+            var x = MathHelpers.GetRandom(targetRadius / 2f, rand) * MathHelpers.GetPosNeg(rand) + startX;
+            var y = MathHelpers.GetRandom(targetRadius / 2f, rand) * MathHelpers.GetPosNeg(rand) + startY;
+            var z = MathHelpers.GetRandom(targetRadius / 2f, rand) * MathHelpers.GetPosNeg(rand) + startZ;
+            _tree.Insert(x, y, z, newObject);
+        }
+
+        var outOfRangeList = new List<TestObject>();
+        var additionalRange = 6f;
+        for (int i = 0; i < 20; i++)
+        {
+            var newObject = new TestObject();
+            outOfRangeList.Add(newObject);
+            var x = MathHelpers.GetRandom(additionalRange, rand) + targetRadius;
+            var y = MathHelpers.GetRandom(additionalRange, rand) + targetRadius;
+            var z = MathHelpers.GetRandom(additionalRange, rand) + targetRadius;
+            _tree.Insert(x, y, z, newObject);
+        }
+
+        var objects = _tree.GetRange(startX, startY, startZ, targetRadius);
+        Assert.AreEqual(20, objects.Count(), "Failed to get correct object count around point: x=" + startX + " y=" + startY + " z=" + startZ);
+
+        for (int i = 0; i < inRangeList.Count; i++)
+        {
+            Assert.True(objects.Contains(inRangeList[i]));
+        }
+
+        for (int i = 0; i < outOfRangeList.Count; i++)
+        {
+            Assert.False(objects.Contains(outOfRangeList[i]));
+        }
     }
 
     [Test]

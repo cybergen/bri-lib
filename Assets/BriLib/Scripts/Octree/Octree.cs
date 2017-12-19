@@ -65,6 +65,11 @@ namespace BriLib
                 throw new System.ArgumentOutOfRangeException("Cannot add object already in tree: " + obj);
             }
 
+            if (!_bounds.Intersects(x, y, z))
+            {
+                throw new System.ArgumentOutOfRangeException("Attempted to add point outside of range of bounding box");
+            }
+
             if (_children.Count >= _maxObjectsPerNode)
             {
                 Subdivide();
