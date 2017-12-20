@@ -73,5 +73,11 @@ namespace BriLib
 
             return (xDist.Sq() + yDist.Sq() + zDist.Sq()).Sqrt();
         }
+
+        public override string ToString()
+        {
+            var vectorString = string.Format("[x={0}, y={1}, z={2}]", X, Y, Z);
+            return string.Format("[ThreeDimensionalBoundBox Center={0}, Radius={1}]", vectorString, Radius);
+        }
     }
 }

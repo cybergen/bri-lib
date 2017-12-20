@@ -45,7 +45,7 @@ namespace BriLib
         public Octant GetOctant(float x, float y, float z)
         {
             var isUp = y >= _bounds.Y;
-            var isLeft = x < _bounds.X;
+            var isLeft = x <= _bounds.X;
             var isBack = z >= _bounds.Z;
 
             if (isUp && isLeft && isBack) return Octant.TopLeftBack;
@@ -67,7 +67,9 @@ namespace BriLib
 
             if (!_bounds.Intersects(x, y, z))
             {
-                throw new System.ArgumentOutOfRangeException("Attempted to add point outside of range of bounding box");
+                var vectorString = string.Format("[x={0}, y={1}, z={2}]", x, y, z);
+                var str = string.Format("Attempted to add point {0} outside of range of bounding box {1}", vectorString, _bounds.ToString());
+                throw new System.ArgumentOutOfRangeException(str);
             }
 
             if (_children.Count >= _maxObjectsPerNode)
@@ -235,7 +237,7 @@ namespace BriLib
 
         private void Subdivide()
         {
-            var rad = _bounds.Radius / 2;
+            var rad = _bounds.Radius / 2f;
             var x = _bounds.X;
             var y = _bounds.Y;
             var z = _bounds.Z;
