@@ -17,12 +17,9 @@ namespace BriLib
 
         public bool Intersects(float x, float y, float z)
         {
-            var xIn = x >= X - Radius && x <= X + Radius;
-            xIn |= MathHelpers.FloatCompare(x, X - Radius) || MathHelpers.FloatCompare(x, X + Radius);
-            var yIn = y >= Y - Radius && y <= Y + Radius;
-            yIn |= MathHelpers.FloatCompare(y, Y - Radius) || MathHelpers.FloatCompare(y, Y + Radius);
-            var zIn = z >= Z - Radius && z <= Z + Radius;
-            zIn |= MathHelpers.FloatCompare(z, Z - Radius) || MathHelpers.FloatCompare(z, Z + Radius);
+            var xIn = MathHelpers.GreaterThanEqualFloat(x, X - Radius) && MathHelpers.LessThanEqualFloat(x, X + Radius);
+            var yIn = MathHelpers.GreaterThanEqualFloat(y, Y - Radius) && MathHelpers.LessThanEqualFloat(y, Y + Radius);
+            var zIn = MathHelpers.GreaterThanEqualFloat(z, Z - Radius) && MathHelpers.LessThanEqualFloat(z, Z + Radius);
             return xIn && yIn && zIn;
         }
 
@@ -51,9 +48,9 @@ namespace BriLib
             var myFront = Z - Radius;
             var myBack = Z + Radius;
 
-            var xIsInside = (myLeft >= lowX && myRight <= highX);
-            var yIsInside = (myBottom >= lowY && myTop <= highY);
-            var zIsInside = (myFront >= lowZ && myBack <= highZ);
+            var xIsInside = MathHelpers.GreaterThanEqualFloat(myLeft, lowX) && MathHelpers.LessThanEqualFloat(myRight, highX);
+            var yIsInside = MathHelpers.GreaterThanEqualFloat(myBottom, lowY) && MathHelpers.LessThanEqualFloat(myTop, highY);
+            var zIsInside = MathHelpers.GreaterThanEqualFloat(myFront, lowZ) && MathHelpers.LessThanEqualFloat(myBack, highZ);
 
             return topLeftBack || topLeftFront || bottomLeftBack || bottomLeftFront
                 || topRightBack || topRightFront || bottomRightBack || bottomRightFront

@@ -31,5 +31,15 @@ namespace BriLib
         {
             return AbsFloat(a - b) < 1E-05F;
         }
+
+        public static bool LessThanEqualFloat(float a, float b)
+        {
+            return a < b || FloatCompare(a, b);
+        }
+
+        public static bool GreaterThanEqualFloat(float a, float b)
+        {
+            return a > b || FloatCompare(a, b);
+        }
     }
 }

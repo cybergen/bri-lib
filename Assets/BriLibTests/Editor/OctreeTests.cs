@@ -226,39 +226,99 @@ public class OctreeTests
         var startY = MathHelpers.GetRandom(initialPointRange, rand) * MathHelpers.GetPosNeg(rand);
         var startZ = MathHelpers.GetRandom(initialPointRange, rand) * MathHelpers.GetPosNeg(rand);
 
+        UnityEngine.Debug.Log("Start x: " + startX + ", y: " + startY + ", z: " + startZ);
+
+        var randomAmount = targetRadius / 2f;
         for (int i = 0; i < 20; i++)
         {
             var newObject = new TestObject();
             inRangeList.Add(newObject);
-            var x = MathHelpers.GetRandom(targetRadius / 2f, rand) * MathHelpers.GetPosNeg(rand) + startX;
-            var y = MathHelpers.GetRandom(targetRadius / 2f, rand) * MathHelpers.GetPosNeg(rand) + startY;
-            var z = MathHelpers.GetRandom(targetRadius / 2f, rand) * MathHelpers.GetPosNeg(rand) + startZ;
+            var x = MathHelpers.GetRandom(randomAmount, rand) + startX;
+            var y = MathHelpers.GetRandom(randomAmount, rand) + startY;
+            var z = MathHelpers.GetRandom(randomAmount, rand) + startZ;
+
+            newObject.X = x;
+            newObject.Y = y;
+            newObject.Z = z;
+
+            UnityEngine.Debug.Log("Adding point at x: " + x + ", y: " + y + ", z: " + z);
+
             _tree.Insert(x, y, z, newObject);
         }
 
-        var outOfRangeList = new List<TestObject>();
-        var additionalRange = 6f;
+        // var outOfRangeList = new List<TestObject>();
+        // var additionalRange = 6f;
+        // for (int i = 0; i < 20; i++)
+        // {
+        //     var newObject = new TestObject();
+        //     outOfRangeList.Add(newObject);
+        //     var x = MathHelpers.GetRandom(targetRadius, rand) + additionalRange;
+        //     var y = MathHelpers.GetRandom(targetRadius, rand) + additionalRange;
+        //     var z = MathHelpers.GetRandom(targetRadius, rand) + additionalRange;
+        //     _tree.Insert(x, y, z, newObject);
+        // }
+
+
+
+        var objects = _tree.GetRange(startX, startY, startZ, targetRadius);
+        //Assert.AreEqual(20, objects.Count(), "Failed to get correct object count around point: x=" + startX + " y=" + startY + " z=" + startZ);
+
+        for (int i = 0; i < inRangeList.Count; i++)
+        {
+            var pointString = string.Format("[x={0}, y={1}, z={2}]", inRangeList[i].X, inRangeList[i].Y, inRangeList[i].Z);
+            var startString = string.Format("[x={0}, y={1}, z={2}]", startX, startY, startZ);
+            Assert.True(objects.Contains(inRangeList[i]), "Failed to find point: " + pointString
+                + "\nwith start: " + startString);
+        }
+
+        // for (int i = 0; i < outOfRangeList.Count; i++)
+        // {
+        //     Assert.False(objects.Contains(outOfRangeList[i]));
+        // }
+    }
+
+    [Test]
+    public void ConfirmSubdivideWithCentralPoint()
+    {
+        float badX = 0.3457808222f;
+        float badY = 2.0948731288f;
+        float badZ = -5.123804231f;
+        _tree = new Octree<TestObject>(badX, badY, badZ, 10, 4);
+
+        var firstPoint = new TestObject();
+        _tree.Insert(badX, badY, badZ, firstPoint);
+
+        var targetRadius = 5f;
+        var rand = new System.Random();
+        var inRangeList = new List<TestObject>();
+
+        var randomAmount = targetRadius / 2f;
+        bool caughtException = false;
         for (int i = 0; i < 20; i++)
         {
             var newObject = new TestObject();
-            outOfRangeList.Add(newObject);
-            var x = MathHelpers.GetRandom(additionalRange, rand) + targetRadius;
-            var y = MathHelpers.GetRandom(additionalRange, rand) + targetRadius;
-            var z = MathHelpers.GetRandom(additionalRange, rand) + targetRadius;
-            _tree.Insert(x, y, z, newObject);
+            inRangeList.Add(newObject);            
+            var x = MathHelpers.GetRandom(randomAmount, rand) * MathHelpers.GetPosNeg(rand) + badX;
+            var y = MathHelpers.GetRandom(randomAmount, rand) * MathHelpers.GetPosNeg(rand) + badY;
+            var z = MathHelpers.GetRandom(randomAmount, rand) * MathHelpers.GetPosNeg(rand) + badZ;
+
+            try
+            {
+                _tree.Insert(x, y, z, newObject);
+            }
+            catch (System.ArgumentOutOfRangeException e)
+            {
+                caughtException = true;
+            }
         }
 
-        var objects = _tree.GetRange(startX, startY, startZ, targetRadius);
-        Assert.AreEqual(20, objects.Count(), "Failed to get correct object count around point: x=" + startX + " y=" + startY + " z=" + startZ);
+        var objects = _tree.GetRange(badX, badY, badZ, targetRadius);
+        Assert.False(caughtException);
+        Assert.AreEqual(21, objects.Count());        
 
         for (int i = 0; i < inRangeList.Count; i++)
         {
             Assert.True(objects.Contains(inRangeList[i]));
-        }
-
-        for (int i = 0; i < outOfRangeList.Count; i++)
-        {
-            Assert.False(objects.Contains(outOfRangeList[i]));
         }
     }
 
@@ -367,5 +427,10 @@ public class OctreeTests
         Assert.AreEqual(_nineFourPoint, neighbor);
     }
 
-    private class TestObject { }
+    private class TestObject 
+    { 
+        public float X;
+        public float Y;
+        public float Z;
+    }
 }
