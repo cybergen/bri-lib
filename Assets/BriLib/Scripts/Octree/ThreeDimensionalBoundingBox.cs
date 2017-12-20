@@ -18,8 +18,11 @@ namespace BriLib
         public bool Intersects(float x, float y, float z)
         {
             var xIn = x >= X - Radius && x <= X + Radius;
+            xIn |= MathHelpers.FloatCompare(x, X - Radius) || MathHelpers.FloatCompare(x, X + Radius);
             var yIn = y >= Y - Radius && y <= Y + Radius;
+            yIn |= MathHelpers.FloatCompare(y, Y - Radius) || MathHelpers.FloatCompare(y, Y + Radius);
             var zIn = z >= Z - Radius && z <= Z + Radius;
+            zIn |= MathHelpers.FloatCompare(z, Z - Radius) || MathHelpers.FloatCompare(z, Z + Radius);
             return xIn && yIn && zIn;
         }
 

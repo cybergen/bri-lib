@@ -21,5 +21,15 @@ namespace BriLib
         {
             return rand.Next(2) > 0 ? 1 : -1;
         }
+
+        public static float AbsFloat(float value)
+        {
+            return value < 0 ? value * -1f : value;
+        }
+
+        public static bool FloatCompare(float a, float b)
+        {
+            return AbsFloat(a - b) < 1E-05F;
+        }
     }
 }

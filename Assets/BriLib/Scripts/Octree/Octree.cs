@@ -45,7 +45,7 @@ namespace BriLib
         public Octant GetOctant(float x, float y, float z)
         {
             var isUp = y >= _bounds.Y;
-            var isLeft = x <= _bounds.X;
+            var isLeft = x < _bounds.X;
             var isBack = z >= _bounds.Z;
 
             if (isUp && isLeft && isBack) return Octant.TopLeftBack;
