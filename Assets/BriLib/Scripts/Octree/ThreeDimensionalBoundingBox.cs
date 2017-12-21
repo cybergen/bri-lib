@@ -17,9 +17,9 @@ namespace BriLib
 
         public bool Intersects(float x, float y, float z)
         {
-            var xIn = MathHelpers.GreaterThanEqualFloat(x, X - Radius) && MathHelpers.LessThanEqualFloat(x, X + Radius);
-            var yIn = MathHelpers.GreaterThanEqualFloat(y, Y - Radius) && MathHelpers.LessThanEqualFloat(y, Y + Radius);
-            var zIn = MathHelpers.GreaterThanEqualFloat(z, Z - Radius) && MathHelpers.LessThanEqualFloat(z, Z + Radius);
+            var xIn = MathHelpers.GreaterThanEqual(x, X - Radius) && MathHelpers.LessThanEqual(x, X + Radius);
+            var yIn = MathHelpers.GreaterThanEqual(y, Y - Radius) && MathHelpers.LessThanEqual(y, Y + Radius);
+            var zIn = MathHelpers.GreaterThanEqual(z, Z - Radius) && MathHelpers.LessThanEqual(z, Z + Radius);
             return xIn && yIn && zIn;
         }
 
@@ -32,15 +32,6 @@ namespace BriLib
             var lowZ = otherBox.Z - otherBox.Radius;
             var highZ = otherBox.Z + otherBox.Radius;
 
-            var topLeftBack = Intersects(lowX, highY, highZ);
-            var topLeftFront = Intersects(lowX, highY, lowZ);
-            var bottomLeftBack = Intersects(lowX, lowY, highZ);
-            var bottomLeftFront = Intersects(lowX, lowY, lowZ);
-            var topRightBack = Intersects(highX, highY, highZ);
-            var topRightFront = Intersects(highX, highY, lowZ);
-            var bottomRightBack = Intersects(highX, lowY, highZ);
-            var bottomRightFront = Intersects(highX, lowY, lowZ);
-
             var myLeft = X - Radius;
             var myRight = X + Radius;
             var myBottom = Y - Radius;
@@ -48,13 +39,13 @@ namespace BriLib
             var myFront = Z - Radius;
             var myBack = Z + Radius;
 
-            var xIsInside = MathHelpers.GreaterThanEqualFloat(myLeft, lowX) && MathHelpers.LessThanEqualFloat(myRight, highX);
-            var yIsInside = MathHelpers.GreaterThanEqualFloat(myBottom, lowY) && MathHelpers.LessThanEqualFloat(myTop, highY);
-            var zIsInside = MathHelpers.GreaterThanEqualFloat(myFront, lowZ) && MathHelpers.LessThanEqualFloat(myBack, highZ);
-
-            return topLeftBack || topLeftFront || bottomLeftBack || bottomLeftFront
-                || topRightBack || topRightFront || bottomRightBack || bottomRightFront
-                || (xIsInside && yIsInside && zIsInside);
+            if (myRight < lowX) return false;
+            if (myLeft > highX) return false;
+            if (myTop < lowY) return false;
+            if (myBottom > highY) return false;
+            if (myBack < lowZ) return false;
+            if (myFront > highZ) return false;
+            return true;
         }
 
         public float BoundsDistance(float x, float y, float z)

@@ -20,21 +20,21 @@ namespace BriLib
 
         public bool Intersects(TwoDimensionalBoundingBox box)
         {
-            var boxLeft = box.X + box.Radius;
-            var boxRight = box.X - box.Radius;
-            var boxTop = box.Y - box.Radius;
-            var boxBot = box.Y + box.Radius;
+            var boxLeft = box.X - box.Radius;
+            var boxRight = box.X + box.Radius;
+            var boxTop = box.Y + box.Radius;
+            var boxBot = box.Y - box.Radius;
 
-            var myLeft = X + Radius;
-            var myRight = X - Radius;
-            var myTop = Y - Radius;
-            var myBot = Y + Radius;
+            var myLeft = X - Radius;
+            var myRight = X + Radius;
+            var myTop = Y + Radius;
+            var myBot = Y - Radius;
 
-            var xInside = (boxLeft <= myLeft && boxLeft >= myRight || boxRight <= myLeft && boxRight >= myRight);
-            var usXInside = (myLeft <= boxLeft && myRight >= boxRight);
-            var yInside = (boxBot <= myBot && boxBot >= myTop || boxTop <= myBot && boxTop >= myTop);
-            var usYInside = (myTop >= boxTop && myBot <= boxBot);
-            return (xInside || usXInside) && (yInside || usYInside);
+            if (myRight < boxLeft) return false;
+            if (myLeft > boxRight) return false;
+            if (myTop < boxBot) return false;
+            if (myBot > boxTop) return false;
+            return true;
         }
 
         public float BoundsDistance(float x, float y)

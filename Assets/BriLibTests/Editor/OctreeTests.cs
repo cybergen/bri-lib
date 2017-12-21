@@ -213,68 +213,28 @@ public class OctreeTests
     }
 
     [Test]
-    public void GetTwentyInRangeAroundRandomPointWithOneItemPerCell()
+    public void TriggerNegativePositionBug()
     {
         _tree = new Octree<TestObject>(0, 0, 0, 10, 1);
-
-        var initialPointRange = 1f;
+    
         var targetRadius = 3f;
-        var rand = new System.Random();
-        var inRangeList = new List<TestObject>();
 
-        var startX = MathHelpers.GetRandom(initialPointRange, rand) * MathHelpers.GetPosNeg(rand);
-        var startY = MathHelpers.GetRandom(initialPointRange, rand) * MathHelpers.GetPosNeg(rand);
-        var startZ = MathHelpers.GetRandom(initialPointRange, rand) * MathHelpers.GetPosNeg(rand);
+        var startX = -0.7f;
+        var startY = 0.043f;
+        var startZ = -0.762f;
 
-        UnityEngine.Debug.Log("Start x: " + startX + ", y: " + startY + ", z: " + startZ);
+        var badPoint = new TestObject();
+        _tree.Insert(0.278f, 0.3895f, -0.558f, badPoint);
+        var goodPointOne = new TestObject();
+        _tree.Insert(0.2765f, 0.1045f, 0.5804999f, goodPointOne);
+        var goodPointTwo = new TestObject();
+        _tree.Insert(0.233f, 1.4965f, 0.5249999f, goodPointTwo);
 
-        var randomAmount = targetRadius / 2f;
-        for (int i = 0; i < 20; i++)
-        {
-            var newObject = new TestObject();
-            inRangeList.Add(newObject);
-            var x = MathHelpers.GetRandom(randomAmount, rand) + startX;
-            var y = MathHelpers.GetRandom(randomAmount, rand) + startY;
-            var z = MathHelpers.GetRandom(randomAmount, rand) + startZ;
-
-            newObject.X = x;
-            newObject.Y = y;
-            newObject.Z = z;
-
-            UnityEngine.Debug.Log("Adding point at x: " + x + ", y: " + y + ", z: " + z);
-
-            _tree.Insert(x, y, z, newObject);
-        }
-
-        // var outOfRangeList = new List<TestObject>();
-        // var additionalRange = 6f;
-        // for (int i = 0; i < 20; i++)
-        // {
-        //     var newObject = new TestObject();
-        //     outOfRangeList.Add(newObject);
-        //     var x = MathHelpers.GetRandom(targetRadius, rand) + additionalRange;
-        //     var y = MathHelpers.GetRandom(targetRadius, rand) + additionalRange;
-        //     var z = MathHelpers.GetRandom(targetRadius, rand) + additionalRange;
-        //     _tree.Insert(x, y, z, newObject);
-        // }
-
-
-
-        var objects = _tree.GetRange(startX, startY, startZ, targetRadius);
-        //Assert.AreEqual(20, objects.Count(), "Failed to get correct object count around point: x=" + startX + " y=" + startY + " z=" + startZ);
-
-        for (int i = 0; i < inRangeList.Count; i++)
-        {
-            var pointString = string.Format("[x={0}, y={1}, z={2}]", inRangeList[i].X, inRangeList[i].Y, inRangeList[i].Z);
-            var startString = string.Format("[x={0}, y={1}, z={2}]", startX, startY, startZ);
-            Assert.True(objects.Contains(inRangeList[i]), "Failed to find point: " + pointString
-                + "\nwith start: " + startString);
-        }
-
-        // for (int i = 0; i < outOfRangeList.Count; i++)
-        // {
-        //     Assert.False(objects.Contains(outOfRangeList[i]));
-        // }
+        var objects = _tree.GetRange(startX, startY, startZ, targetRadius).ToList();
+        Assert.True(objects.Contains(badPoint));
+        Assert.True(objects.Contains(goodPointOne));
+        Assert.True(objects.Contains(goodPointTwo));
+        Assert.AreEqual(3, objects.Count());
     }
 
     [Test]
