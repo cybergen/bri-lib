@@ -87,7 +87,6 @@ namespace BriLib
                 var point = new ThreeDimensionalPoint<T>(x, y, z, obj);
                 _children.Add(point);
                 _childMap.Add(obj, point);
-                UnityEngine.Debug.Log("Added child point x: " + x + ", y: " + y + ", z: " + z + " to bounds: " + _bounds);
             }
         }
 
