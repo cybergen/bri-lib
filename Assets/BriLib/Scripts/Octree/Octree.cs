@@ -16,6 +16,8 @@ namespace BriLib
             BottomRightFront = 7,
         }
 
+        public Tuple<float, float, float> Center { get { return new Tuple<float, float, float>(_bounds.X, _bounds.Y, _bounds.Z); } }
+
         private int _maxObjectsPerNode;
         private ThreeDimensionalBoundingBox _bounds;
         private List<ThreeDimensionalPoint<T>> _children;
