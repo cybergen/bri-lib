@@ -32,6 +32,11 @@ namespace BriLib
             if (action != null) { action(obj); }
         }
 
+        public static void Execute<T, K, L, M>(this Action<T, K, L, M> action, T objOne, K objTwo, L objThree, M objFour)
+        {
+            if (action != null) { action(objOne, objTwo, objThree, objFour); }
+        }
+
         public static float Sq(this float value)
         {
             return value * value;

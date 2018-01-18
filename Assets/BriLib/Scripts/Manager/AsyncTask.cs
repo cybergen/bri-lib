@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace BriLib
 {
@@ -10,10 +10,20 @@ namespace BriLib
     private Action _onFailed;
     private bool _disposed;
 
+    public virtual void Start() { }
+
     public void SetCallbacks(Action onFinish, Action onFailed)
     {
       _onFinish = onFinish;
       _onFailed = onFailed;
+    }
+
+    public virtual void Tick(float delta)
+    {
+      if (_disposed)
+      {
+        throw new Exception("AsyncTask already disposed");
+      }
     }
 
     protected void Finish()
@@ -28,14 +38,6 @@ namespace BriLib
       UnityEngine.Debug.Log("Calling OnFail on task: " + this.GetType());
       _onFailed.Execute();
       Cleanup();
-    }
-
-    public virtual void Tick(float delta)
-    {
-      if (_disposed)
-      {
-        throw new Exception("AsyncTask already disposed");
-      }
     }
 
     protected virtual void Cleanup()

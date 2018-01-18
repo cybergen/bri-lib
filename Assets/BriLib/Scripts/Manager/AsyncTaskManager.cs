@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections.Generic;
 
@@ -16,6 +16,7 @@ namespace BriLib
       var task = new T();
       task.SetCallbacks(onFinish, onFailed);
       _tasks.Add(task);
+      task.Start();
       return task;
     }
 

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 
 namespace BriLib
@@ -22,14 +22,14 @@ namespace BriLib
       gameObject.SetActive(false);
     }
 
-    public void Show(Action onFinish = null, Action onCancel = null)
+    public virtual void Show(Action onFinish = null, Action onCancel = null)
     {
       gameObject.SetActive(true);
       easer.SetEase(EaseWrapper.Direction.Forward, onFinish, onCancel);
       Hiding = false;
     }
 
-    public void Hide(Action onFinish = null, Action onCancel = null)
+    public virtual void Hide(Action onFinish = null, Action onCancel = null)
     {
       onFinish += () => gameObject.SetActive(false);
       easer.SetEase(EaseWrapper.Direction.Backward, onFinish, onCancel);
@@ -46,7 +46,7 @@ namespace BriLib
       Hide(null, null);
     }
 
-    private void Update()
+    protected virtual void Update()
     {
       easer.Tick(Time.deltaTime);
     }
