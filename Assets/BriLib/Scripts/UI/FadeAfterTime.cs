@@ -8,7 +8,7 @@ namespace BriLib
         public float TimeBeforeFade;
         private float _liveTime;
 
-        private void Start()
+        private void OnEnable()
         {
             _liveTime = 0f;
         }
