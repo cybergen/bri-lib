@@ -32,6 +32,11 @@ namespace BriLib
             if (action != null) { action(obj); }
         }
 
+        public static void Execute<T, K>(this Action<T, K> action, T objOne, K objTwo)
+        {
+            if (action != null) { action(objOne, objTwo); }
+        }
+
         public static void Execute<T, K, L>(this Action<T, K, L> action, T objOne, K objTwo, L objThree)
         {
             if (action != null) { action(objOne, objTwo, objThree); }
