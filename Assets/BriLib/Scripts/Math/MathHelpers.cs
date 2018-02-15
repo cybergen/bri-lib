@@ -44,6 +44,18 @@ namespace BriLib
         }
 
         /// <summary>
+        /// Return a float value from within a given range
+        /// </summary>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <param name="rand"></param>
+        /// <returns></returns>
+        public static float GetRandomFromRange(float min, float max, System.Random rand)
+        {
+            return GetRandom(1f, rand) * (max - min) + min;
+        }
+
+        /// <summary>
         /// Generate a random positive/negative value
         /// </summary>
         /// <param name="rand"></param>
