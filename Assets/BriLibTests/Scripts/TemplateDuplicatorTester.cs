@@ -31,14 +31,19 @@ namespace BriLib.Tests
       _collection.Remove(_collection[_random.Next(_collection.Count)]);
     }
 
+    public void OnBindClicked()
+    {
+      Duplicator.BindOnCollection(_collection);
+    }
+
+    public void OnUnbindClicked()
+    {
+      Duplicator.UnbindOnCollection();
+    }
+
     private TestData GetRandomData()
     {
       return new TestData { Text = _names[_random.Next(_names.Count)] };
-    }
-
-    private void Awake()
-    {
-      Duplicator.BindOnCollection(_collection);
     }
   }
 }

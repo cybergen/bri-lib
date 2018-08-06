@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using BriLib;
 
 namespace BriLib.Tests
 {

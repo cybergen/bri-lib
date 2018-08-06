@@ -1,24 +1,27 @@
 using System;
 using BriLib;
 
-public class MockQueueable : IQueueable
+namespace BriLib.Tests
 {
+  public class MockQueueable : IQueueable
+  {
     public Action<IQueueable> OnBegan { get; set; }
     public Action<IQueueable> OnEnded { get; set; }
     public Action<IQueueable> OnKilled { get; set; }
 
     public void Begin()
     {
-        OnBegan.Execute(this);
+      OnBegan.Execute(this);
     }
 
     public void Kill()
     {
-        OnKilled.Execute(this);
+      OnKilled.Execute(this);
     }
 
     public void ForceEnd()
     {
-        OnEnded.Execute(this);
+      OnEnded.Execute(this);
     }
+  }
 }

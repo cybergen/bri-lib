@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace BriLib
+namespace BriLib.Tests
 {
     public class PerlinTester : MonoBehaviour
     {
