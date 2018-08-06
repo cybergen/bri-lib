@@ -1,8 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using BriLib;
-using System;
+using BriLib.Delaunay;
 using System.Collections;
 
 public class ShatterTester : TextureWriteTester

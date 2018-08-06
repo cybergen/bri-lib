@@ -41,7 +41,10 @@ using System.Collections.Generic;
  * explicitly creating a cavity.  Added code needed to find a Voronoi cell.
  *
  */
-public class Triangulation {
+namespace BriLib.Delaunay
+{
+  public class Triangulation
+  {
 
     public IEnumerable<Triangle> Triangles { get { return triGraph.nodeSet(); } }
 
@@ -52,24 +55,27 @@ public class Triangulation {
      * All sites must fall within the initial triangle.
      * @param triangle the initial triangle
      */
-    public Triangulation (Triangle triangle) {
-        triGraph = new Graph<Triangle>();
-        triGraph.add(triangle);
-        mostRecent = triangle;
+    public Triangulation(Triangle triangle)
+    {
+      triGraph = new Graph<Triangle>();
+      triGraph.add(triangle);
+      mostRecent = triangle;
     }
 
     public Triangulation()
     {
-        triGraph = new Graph<Triangle>();
+      triGraph = new Graph<Triangle>();
     }
 
     /* The following two methods are required by AbstractSet */
-    public int size () {
-        return triGraph.nodeSet().Count;
+    public int size()
+    {
+      return triGraph.nodeSet().Count;
     }
 
-    public override string ToString () {
-        return "Triangulation with " + size() + " triangles";
+    public override string ToString()
+    {
+      return "Triangulation with " + size() + " triangles";
     }
 
     /**
@@ -77,8 +83,9 @@ public class Triangulation {
      * This method isn't required by AbstractSet, but it improves efficiency.
      * @param triangle the object to check for membership
      */
-    public bool Contains (Object triangle) {
-        return triGraph.nodeSet().Contains((Triangle)triangle);
+    public bool Contains(Object triangle)
+    {
+      return triGraph.nodeSet().Contains((Triangle)triangle);
     }
 
     /**
@@ -88,13 +95,15 @@ public class Triangulation {
      * @return the neighbor opposite site in triangle; null if none
      * @throws ArgumentException if site is not in this triangle
      */
-    public Triangle neighborOpposite (Pnt site, Triangle triangle) {
-        if (!triangle.Contains(site))
-            throw new ArgumentException("Bad vertex; not in triangle");
-        foreach (var neighbor in triGraph.neighbors(triangle)) {
-            if (!neighbor.Contains(site)) return neighbor;
-        }
-        return null;
+    public Triangle neighborOpposite(Pnt site, Triangle triangle)
+    {
+      if (!triangle.Contains(site))
+        throw new ArgumentException("Bad vertex; not in triangle");
+      foreach (var neighbor in triGraph.neighbors(triangle))
+      {
+        if (!neighbor.Contains(site)) return neighbor;
+      }
+      return null;
     }
 
     /**
@@ -102,8 +111,9 @@ public class Triangulation {
      * @param triangle the triangle to check
      * @return the neighbors of triangle
      */
-    public List<Triangle> neighbors(Triangle triangle) {
-        return triGraph.neighbors(triangle);
+    public List<Triangle> neighbors(Triangle triangle)
+    {
+      return triGraph.neighbors(triangle);
     }
 
     /**
@@ -113,20 +123,22 @@ public class Triangulation {
      * @return all triangles surrounding site in order (cw or ccw)
      * @throws ArgumentException if site is not in triangle
      */
-    public List<Triangle> surroundingTriangles (Pnt site, Triangle triangle) {
-        if (!triangle.Contains(site))
-            throw new ArgumentException("Site not in triangle");
-        List<Triangle> list = new List<Triangle>();
-        Triangle start = triangle;
-        Pnt guide = triangle.getVertexButNot(site);        // Affects cw or ccw
-        while (true) {
-            list.AddIfNotContains(triangle);
-            Triangle previous = triangle;
-            triangle = neighborOpposite(guide, triangle); // Next triangle
-            guide = previous.getVertexButNot(site, guide);     // Update guide
-            if (triangle == start) break;
-        }
-        return list;
+    public List<Triangle> surroundingTriangles(Pnt site, Triangle triangle)
+    {
+      if (!triangle.Contains(site))
+        throw new ArgumentException("Site not in triangle");
+      List<Triangle> list = new List<Triangle>();
+      Triangle start = triangle;
+      Pnt guide = triangle.getVertexButNot(site);        // Affects cw or ccw
+      while (true)
+      {
+        list.AddIfNotContains(triangle);
+        Triangle previous = triangle;
+        triangle = neighborOpposite(guide, triangle); // Next triangle
+        guide = previous.getVertexButNot(site, guide);     // Update guide
+        if (triangle == start) break;
+      }
+      return list;
     }
 
     /**
@@ -134,31 +146,35 @@ public class Triangulation {
      * @param point the point to locate
      * @return the triangle that holds point; null if no such triangle
      */
-    public Triangle locate (Pnt point) {
-        Triangle triangle = mostRecent;
-        if (!this.Contains(triangle)) triangle = null;
+    public Triangle locate(Pnt point)
+    {
+      Triangle triangle = mostRecent;
+      if (!this.Contains(triangle)) triangle = null;
 
-        // Try a directed walk (this works fine in 2D, but can fail in 3D)
-        List<Triangle> visited = new List<Triangle>();
-        while (triangle != null) {
-            if (visited.Contains(triangle)) { // This should never happen
-                //System.out.println("Warning: Caught in a locate loop");
-                break;
-            }
-            visited.AddIfNotContains(triangle);
-            // Corner opposite point
-            Pnt corner = point.isOutside(triangle.ToArray());
-            if (corner == null) return triangle;
-            triangle = this.neighborOpposite(corner, triangle);
+      // Try a directed walk (this works fine in 2D, but can fail in 3D)
+      List<Triangle> visited = new List<Triangle>();
+      while (triangle != null)
+      {
+        if (visited.Contains(triangle))
+        { // This should never happen
+          //System.out.println("Warning: Caught in a locate loop");
+          break;
         }
-        // No luck; try brute force
-        //System.out.println("Warning: Checking all triangles for " + point);
-        foreach (var tri in Triangles) {
-            if (point.isOutside(tri.ToArray()) == null) return tri;
-        }
-        // No such triangle
-        //System.out.println("Warning: No triangle holds " + point);
-        return null;
+        visited.AddIfNotContains(triangle);
+        // Corner opposite point
+        Pnt corner = point.isOutside(triangle.ToArray());
+        if (corner == null) return triangle;
+        triangle = this.neighborOpposite(corner, triangle);
+      }
+      // No luck; try brute force
+      //System.out.println("Warning: Checking all triangles for " + point);
+      foreach (var tri in Triangles)
+      {
+        if (point.isOutside(tri.ToArray()) == null) return tri;
+      }
+      // No such triangle
+      //System.out.println("Warning: No triangle holds " + point);
+      return null;
     }
 
     /**
@@ -167,19 +183,20 @@ public class Triangulation {
      * @param site the new Pnt
      * @throws ArgumentException if site does not lie in any triangle
      */
-    public void delaunayPlace (Pnt site) {
-        // Uses straightforward scheme rather than best asymptotic time
+    public void delaunayPlace(Pnt site)
+    {
+      // Uses straightforward scheme rather than best asymptotic time
 
-        // Locate containing triangle
-        Triangle triangle = locate(site);
-        // Give up if no containing triangle or if site is already in DT
-        if (triangle == null)
-            throw new ArgumentException("No containing triangle");
-        if (triangle.Contains(site)) return;
+      // Locate containing triangle
+      Triangle triangle = locate(site);
+      // Give up if no containing triangle or if site is already in DT
+      if (triangle == null)
+        throw new ArgumentException("No containing triangle");
+      if (triangle.Contains(site)) return;
 
-        // Determine the cavity and update the triangulation
-        List<Triangle> cavity = getCavity(site, triangle);
-        mostRecent = update(site, cavity);
+      // Determine the cavity and update the triangulation
+      List<Triangle> cavity = getCavity(site, triangle);
+      mostRecent = update(site, cavity);
     }
 
     /**
@@ -188,25 +205,28 @@ public class Triangulation {
      * @param triangle the triangle containing site
      * @return set of all triangles that have site in their circumcircle
      */
-    private List<Triangle> getCavity (Pnt site, Triangle triangle) {
-        List<Triangle> encroached = new List<Triangle>();
-        Queue<Triangle> toBeChecked = new Queue<Triangle>();
-        List<Triangle> marked = new List<Triangle>();
-        toBeChecked.Enqueue(triangle);
-        marked.AddIfNotContains(triangle);
-        while (toBeChecked.Count != 0) {
-            triangle = toBeChecked.Dequeue();
-            if (site.vsCircumcircle(triangle.ToArray()) == 1)
-                continue; // Site outside triangle => triangle not in cavity
-            encroached.AddIfNotContains(triangle);
-            // Check the neighbors
-            foreach (var neighbor in triGraph.neighbors(triangle)){
-                if (marked.Contains(neighbor)) continue;
-                marked.AddIfNotContains(neighbor);
-                toBeChecked.Enqueue(neighbor);
-            }
+    private List<Triangle> getCavity(Pnt site, Triangle triangle)
+    {
+      List<Triangle> encroached = new List<Triangle>();
+      Queue<Triangle> toBeChecked = new Queue<Triangle>();
+      List<Triangle> marked = new List<Triangle>();
+      toBeChecked.Enqueue(triangle);
+      marked.AddIfNotContains(triangle);
+      while (toBeChecked.Count != 0)
+      {
+        triangle = toBeChecked.Dequeue();
+        if (site.vsCircumcircle(triangle.ToArray()) == 1)
+          continue; // Site outside triangle => triangle not in cavity
+        encroached.AddIfNotContains(triangle);
+        // Check the neighbors
+        foreach (var neighbor in triGraph.neighbors(triangle))
+        {
+          if (marked.Contains(neighbor)) continue;
+          marked.AddIfNotContains(neighbor);
+          toBeChecked.Enqueue(neighbor);
         }
-        return encroached;
+      }
+      return encroached;
     }
 
     /**
@@ -216,65 +236,69 @@ public class Triangulation {
      * @param cavity the triangles with site in their circumcircle
      * @return one of the new triangles
      */
-    private Triangle update (Pnt site, List<Triangle> cavity) {
-        List<List<Pnt>> boundary = new List<List<Pnt>>();
-        List<Triangle> theTriangles = new List<Triangle>();
+    private Triangle update(Pnt site, List<Triangle> cavity)
+    {
+      List<List<Pnt>> boundary = new List<List<Pnt>>();
+      List<Triangle> theTriangles = new List<Triangle>();
 
-        // Find boundary facets and adjacent triangles
-        foreach (var triangle in cavity) {
-            var neighborTriangles = neighbors(triangle);
-            theTriangles.AddUniques(neighborTriangles);
-            foreach (var vertex in triangle) {
-                List<Pnt> facet = triangle.facetOpposite(vertex);
+      // Find boundary facets and adjacent triangles
+      foreach (var triangle in cavity)
+      {
+        var neighborTriangles = neighbors(triangle);
+        theTriangles.AddUniques(neighborTriangles);
+        foreach (var vertex in triangle)
+        {
+          List<Pnt> facet = triangle.facetOpposite(vertex);
 
-                int removeIndex = -1;
-                for (int i = 0; i < boundary.Count; i++)
-                {
-                    if (boundary[i].ListsEqual(facet)) removeIndex = i;
-                }
+          int removeIndex = -1;
+          for (int i = 0; i < boundary.Count; i++)
+          {
+            if (boundary[i].ListsEqual(facet)) removeIndex = i;
+          }
 
-                if (removeIndex != -1) boundary.RemoveAt(removeIndex);
-                else boundary.Add(facet);
-            }
+          if (removeIndex != -1) boundary.RemoveAt(removeIndex);
+          else boundary.Add(facet);
         }
-        theTriangles.RemoveAll(cavity);        // Adj triangles only
+      }
+      theTriangles.RemoveAll(cavity);        // Adj triangles only
 
-        // Remove the cavity triangles from the triangulation
-        foreach (var triangle in cavity) triGraph.remove(triangle);
+      // Remove the cavity triangles from the triangulation
+      foreach (var triangle in cavity) triGraph.remove(triangle);
 
-        // Build each new triangle and add it to the triangulation
-        List<Triangle> newTriangles = new List<Triangle>();
-        foreach (var vertices in boundary) {
-            vertices.AddIfNotContains(site);
-            Triangle tri = new Triangle(vertices);
-            triGraph.add(tri);
-            newTriangles.AddIfNotContains(tri);
-        }
+      // Build each new triangle and add it to the triangulation
+      List<Triangle> newTriangles = new List<Triangle>();
+      foreach (var vertices in boundary)
+      {
+        vertices.AddIfNotContains(site);
+        Triangle tri = new Triangle(vertices);
+        triGraph.add(tri);
+        newTriangles.AddIfNotContains(tri);
+      }
 
-        // Update the graph links for each new triangle
-        theTriangles.AddAll(newTriangles);    // Adj triangle + new triangles
-        foreach (var triangle in newTriangles)
-            foreach (var other in theTriangles)
-                if (triangle.isNeighbor(other))
-                    triGraph.add(triangle, other);
+      // Update the graph links for each new triangle
+      theTriangles.AddAll(newTriangles);    // Adj triangle + new triangles
+      foreach (var triangle in newTriangles)
+        foreach (var other in theTriangles)
+          if (triangle.isNeighbor(other))
+            triGraph.add(triangle, other);
 
-        // Return one of the new triangles
-        var enumerator = newTriangles.GetEnumerator();
-        enumerator.MoveNext();
-        return enumerator.Current;
+      // Return one of the new triangles
+      var enumerator = newTriangles.GetEnumerator();
+      enumerator.MoveNext();
+      return enumerator.Current;
     }
 
     public void AddExistingTriangles(List<Triangle> triangles)
     {
-        foreach (var triangle in triangles) triGraph.add(triangle);
-        foreach (var triangle in triangles)
+      foreach (var triangle in triangles) triGraph.add(triangle);
+      foreach (var triangle in triangles)
+      {
+        foreach (var other in triangles)
         {
-            foreach (var other in triangles)
-            {
-                if (triangle.isNeighbor(other)) triGraph.add(triangle, other);
-            }
-            mostRecent = triangle;
+          if (triangle.isNeighbor(other)) triGraph.add(triangle, other);
         }
+        mostRecent = triangle;
+      }
     }
 
     /**
@@ -293,4 +317,5 @@ public class Triangulation {
     //    Triangle.moreInfo = true;
     //    System.out.println("Triangles: " + dt.triGraph.nodeSet());
     //}
+  }
 }

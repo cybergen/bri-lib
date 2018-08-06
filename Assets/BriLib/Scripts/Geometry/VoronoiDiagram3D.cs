@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BriLib
+namespace BriLib.Delaunay
 {
     public class VoronoiDiagram3D
     {

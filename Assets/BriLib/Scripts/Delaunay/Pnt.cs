@@ -33,7 +33,11 @@ using System;
  *
  * Modified Novemeber 2007.  Minor clean up.
  */
-public class Pnt {
+
+namespace BriLib.Delaunay
+{
+  public class Pnt
+  {
 
     private double[] coordinates;          // The point's coordinates
 
@@ -41,40 +45,44 @@ public class Pnt {
      * Constructor.
      * @param coords the coordinates
      */
-    public Pnt (params double[] coords) {
-        // Copying is done here to ensure that Pnt's coords cannot be altered.
-        // This is necessary because the double... notation actually creates a
-        // constructor with double[] as its argument.
-        coordinates = new double[coords.Length];
-        coords.CopyTo(coordinates, 0);
+    public Pnt(params double[] coords)
+    {
+      // Copying is done here to ensure that Pnt's coords cannot be altered.
+      // This is necessary because the double... notation actually creates a
+      // constructor with double[] as its argument.
+      coordinates = new double[coords.Length];
+      coords.CopyTo(coordinates, 0);
     }
-    
-    public override string ToString () {
-        if (coordinates.Length == 0) return "Pnt[]";
-        string result = "Pnt[" + coordinates[0];
-        for (int i = 1; i < coordinates.Length; i++)
-            result = result + "," + coordinates[i];
-        return result + "]";
+
+    public override string ToString()
+    {
+      if (coordinates.Length == 0) return "Pnt[]";
+      string result = "Pnt[" + coordinates[0];
+      for (int i = 1; i < coordinates.Length; i++)
+        result = result + "," + coordinates[i];
+      return result + "]";
     }
-    
-    public override bool Equals(object other) {
-        if (!(other is Pnt)) return false;
-        Pnt p = (Pnt) other;
-        if (Dimension != p.Dimension) return false;
-        for (int i = 0; i < coordinates.Length; i++)
-            if (coordinates[i] != p.coordinates[i]) return false;
-        return true;
+
+    public override bool Equals(object other)
+    {
+      if (!(other is Pnt)) return false;
+      Pnt p = (Pnt)other;
+      if (Dimension != p.Dimension) return false;
+      for (int i = 0; i < coordinates.Length; i++)
+        if (coordinates[i] != p.coordinates[i]) return false;
+      return true;
     }
-    
-    public override int GetHashCode () {
-        int hash = 0;
-        for (var enumerator = coordinates.GetEnumerator(); enumerator.MoveNext();)
-        {
-            long bits = enumerator.Current.GetHashCode();
-            //long bits = Double.doubleToLongBits(c);
-            hash = (31*hash) ^ (int)(bits ^ (bits >> 32));
-        }
-        return hash;
+
+    public override int GetHashCode()
+    {
+      int hash = 0;
+      for (var enumerator = coordinates.GetEnumerator(); enumerator.MoveNext();)
+      {
+        long bits = enumerator.Current.GetHashCode();
+        //long bits = Double.doubleToLongBits(c);
+        hash = (31 * hash) ^ (int)(bits ^ (bits >> 32));
+      }
+      return hash;
     }
 
     /* Pnts as vectors */
@@ -85,18 +93,18 @@ public class Pnt {
      */
     public double this[int index]
     {
-        get { return coordinates[index]; }
+      get { return coordinates[index]; }
     }
 
     public UnityEngine.Vector3 Vectorfy()
     {
-        return new UnityEngine.Vector3((float)coordinates[0], (float)coordinates[1], (float)coordinates[2]);
+      return new UnityEngine.Vector3((float)coordinates[0], (float)coordinates[1], (float)coordinates[2]);
     }
 
     /**
      * @return this Pnt's dimension.
      */
-    public int Dimension {  get { return coordinates.Length; } }
+    public int Dimension { get { return coordinates.Length; } }
 
     /**
      * Check that dimensions match.
@@ -104,11 +112,12 @@ public class Pnt {
      * @return the dimension of the Pnts
      * @throws ArgumentException if dimension fail to match
      */
-    public int DimCheck (Pnt p) {
-        int len = this.coordinates.Length;
-        if (len != p.coordinates.Length)
-            throw new ArgumentException("Dimension mismatch");
-        return len;
+    public int DimCheck(Pnt p)
+    {
+      int len = this.coordinates.Length;
+      if (len != p.coordinates.Length)
+        throw new ArgumentException("Dimension mismatch");
+      return len;
     }
 
     /**
@@ -116,11 +125,12 @@ public class Pnt {
      * @param coords the new coordinates (added on the right end)
      * @return a new Pnt with the additional coordinates
      */
-    public Pnt extend (params double[] coords) {
-        double[] result = new double[coordinates.Length + coords.Length];
-        coordinates.CopyTo(result, 0);
-        coords.CopyTo(result, coordinates.Length);
-        return new Pnt(result);
+    public Pnt extend(params double[] coords)
+    {
+      double[] result = new double[coordinates.Length + coords.Length];
+      coordinates.CopyTo(result, 0);
+      coords.CopyTo(result, coordinates.Length);
+      return new Pnt(result);
     }
 
     /**
@@ -128,20 +138,22 @@ public class Pnt {
      * @param p the other Pnt
      * @return dot product of this Pnt and p
      */
-    public double dot (Pnt p) {
-        int len = DimCheck(p);
-        double sum = 0;
-        for (int i = 0; i < len; i++)
-            sum += this.coordinates[i] * p.coordinates[i];
-        return sum;
+    public double dot(Pnt p)
+    {
+      int len = DimCheck(p);
+      double sum = 0;
+      for (int i = 0; i < len; i++)
+        sum += this.coordinates[i] * p.coordinates[i];
+      return sum;
     }
 
     /**
      * Magnitude (as a vector).
      * @return the Euclidean length of this vector
      */
-    public double magnitude () {
-        return Math.Sqrt(this.dot(this));
+    public double magnitude()
+    {
+      return Math.Sqrt(this.dot(this));
     }
 
     /**
@@ -149,12 +161,13 @@ public class Pnt {
      * @param p the other Pnt
      * @return a new Pnt = this - p
      */
-    public Pnt subtract (Pnt p) {
-        int len = DimCheck(p);
-        double[] coords = new double[len];
-        for (int i = 0; i < len; i++)
-            coords[i] = this.coordinates[i] - p.coordinates[i];
-        return new Pnt(coords);
+    public Pnt subtract(Pnt p)
+    {
+      int len = DimCheck(p);
+      double[] coords = new double[len];
+      for (int i = 0; i < len; i++)
+        coords[i] = this.coordinates[i] - p.coordinates[i];
+      return new Pnt(coords);
     }
 
     /**
@@ -162,12 +175,13 @@ public class Pnt {
      * @param p the other Pnt
      * @return a new Pnt = this + p
      */
-    public Pnt add (Pnt p) {
-        int len = DimCheck(p);
-        double[] coords = new double[len];
-        for (int i = 0; i < len; i++)
-            coords[i] = this.coordinates[i] + p.coordinates[i];
-        return new Pnt(coords);
+    public Pnt add(Pnt p)
+    {
+      int len = DimCheck(p);
+      double[] coords = new double[len];
+      for (int i = 0; i < len; i++)
+        coords[i] = this.coordinates[i] + p.coordinates[i];
+      return new Pnt(coords);
     }
 
     /**
@@ -175,8 +189,9 @@ public class Pnt {
      * @param p the other Pnt
      * @return the angle (in radians) between the two Pnts
      */
-    public double angle (Pnt p) {
-        return Math.Acos(this.dot(p) / (this.magnitude() * p.magnitude()));
+    public double angle(Pnt p)
+    {
+      return Math.Acos(this.dot(p) / (this.magnitude() * p.magnitude()));
     }
 
     /**
@@ -187,12 +202,13 @@ public class Pnt {
      * @param point the other point
      * @return the coefficients of the perpendicular bisector
      */
-    public Pnt bisector (Pnt point) {
-        DimCheck(point);
-        Pnt diff = this.subtract(point);
-        Pnt sum = this.add(point);
-        double dot = diff.dot(sum);
-        return diff.extend(-dot / 2);
+    public Pnt bisector(Pnt point)
+    {
+      DimCheck(point);
+      Pnt diff = this.subtract(point);
+      Pnt sum = this.add(point);
+      double dot = diff.dot(sum);
+      return diff.extend(-dot / 2);
     }
 
     /* Pnts as matrices */
@@ -202,13 +218,14 @@ public class Pnt {
      * @param matrix the matrix (an array of Pnts)
      * @return a String represenation of the matrix
      */
-    public static String toString (Pnt[] matrix) {
-        var str = "{\n";
-        for (int y = 0; y < matrix.Length; y++)
-        {
-            str += " " + matrix[y] + "\n";
-        }
-        return str + "}";
+    public static String toString(Pnt[] matrix)
+    {
+      var str = "{\n";
+      for (int y = 0; y < matrix.Length; y++)
+      {
+        str += " " + matrix[y] + "\n";
+      }
+      return str + "}";
     }
 
     /**
@@ -219,15 +236,17 @@ public class Pnt {
      * @return the determinnant of the input matrix
      * @throws ArgumentException if dimensions are wrong
      */
-    public static double determinant (Pnt[] matrix) {
-        if (matrix.Length != matrix[0].Dimension)
-            throw new ArgumentException("Matrix is not square");
-        bool[] columns = new bool[matrix.Length];
-        for (int i = 0; i < matrix.Length; i++) columns[i] = true;
-        try {return determinant(matrix, 0, columns);}
-        catch (IndexOutOfRangeException e) {
-            throw new ArgumentException("Matrix is wrong shape");
-        }
+    public static double determinant(Pnt[] matrix)
+    {
+      if (matrix.Length != matrix[0].Dimension)
+        throw new ArgumentException("Matrix is not square");
+      bool[] columns = new bool[matrix.Length];
+      for (int i = 0; i < matrix.Length; i++) columns[i] = true;
+      try { return determinant(matrix, 0, columns); }
+      catch (IndexOutOfRangeException e)
+      {
+        throw new ArgumentException("Matrix is wrong shape");
+      }
     }
 
     /**
@@ -239,19 +258,21 @@ public class Pnt {
      * @return the determinant of the specified submatrix
      * @throws IndexOutOfRangeException if dimensions are wrong
      */
-    private static double determinant(Pnt[] matrix, int row, bool[] columns){
-        if (row == matrix.Length) return 1;
-        double sum = 0;
-        int sign = 1;
-        for (int col = 0; col < columns.Length; col++) {
-            if (!columns[col]) continue;
-            columns[col] = false;
-            sum += sign * matrix[row].coordinates[col] *
-                   determinant(matrix, row+1, columns);
-            columns[col] = true;
-            sign = -sign;
-        }
-        return sum;
+    private static double determinant(Pnt[] matrix, int row, bool[] columns)
+    {
+      if (row == matrix.Length) return 1;
+      double sum = 0;
+      int sign = 1;
+      for (int col = 0; col < columns.Length; col++)
+      {
+        if (!columns[col]) continue;
+        columns[col] = false;
+        sum += sign * matrix[row].coordinates[col] *
+               determinant(matrix, row + 1, columns);
+        columns[col] = true;
+        sign = -sign;
+      }
+      return sum;
     }
 
     /**
@@ -263,25 +284,30 @@ public class Pnt {
      * @return a Pnt perpendicular to each row Pnt
      * @throws ArgumentException if matrix is wrong shape
      */
-    public static Pnt cross (Pnt[] matrix) {
-        int len = matrix.Length + 1;
-        if (len != matrix[0].Dimension)
-            throw new ArgumentException("Dimension mismatch");
-        bool[] columns = new bool[len];
-        for (int i = 0; i < len; i++) columns[i] = true;
-        double[] result = new double[len];
-        int sign = 1;
-        try {
-            for (int i = 0; i < len; i++) {
-                columns[i] = false;
-                result[i] = sign * determinant(matrix, 0, columns);
-                columns[i] = true;
-                sign = -sign;
-            }
-        } catch (IndexOutOfRangeException e) {
-            throw new ArgumentException("Matrix is wrong shape");
+    public static Pnt cross(Pnt[] matrix)
+    {
+      int len = matrix.Length + 1;
+      if (len != matrix[0].Dimension)
+        throw new ArgumentException("Dimension mismatch");
+      bool[] columns = new bool[len];
+      for (int i = 0; i < len; i++) columns[i] = true;
+      double[] result = new double[len];
+      int sign = 1;
+      try
+      {
+        for (int i = 0; i < len; i++)
+        {
+          columns[i] = false;
+          result[i] = sign * determinant(matrix, 0, columns);
+          columns[i] = true;
+          sign = -sign;
         }
-        return new Pnt(result);
+      }
+      catch (IndexOutOfRangeException e)
+      {
+        throw new ArgumentException("Matrix is wrong shape");
+      }
+      return new Pnt(result);
     }
 
     /* Pnts as simplices */
@@ -291,13 +317,14 @@ public class Pnt {
      * @param simplex the simplex (as an array of Pnts)
      * @return the signed content of the simplex
      */
-    public static double content (Pnt[] simplex) {
-        Pnt[] matrix = new Pnt[simplex.Length];
-        for (int i = 0; i < matrix.Length; i++)
-            matrix[i] = simplex[i].extend(1);
-        int fact = 1;
-        for (int i = 1; i < matrix.Length; i++) fact = fact*i;
-        return determinant(matrix) / fact;
+    public static double content(Pnt[] simplex)
+    {
+      Pnt[] matrix = new Pnt[simplex.Length];
+      for (int i = 0; i < matrix.Length; i++)
+        matrix[i] = simplex[i].extend(1);
+      int fact = 1;
+      for (int i = 1; i < matrix.Length; i++) fact = fact * i;
+      return determinant(matrix) / fact;
     }
 
     /**
@@ -316,55 +343,60 @@ public class Pnt {
      * @return an array of signs showing relation between this Pnt and simplex
      * @throws ArgumentExcpetion if the simplex is degenerate
      */
-    public int[] relation (Pnt[] simplex) {
-        /* In 2D, we compute the cross of this matrix:
-         *    1   1   1   1
-         *    p0  a0  b0  c0
-         *    p1  a1  b1  c1
-         * where (a, b, c) is the simplex and p is this Pnt. The result is a
-         * vector in which the first coordinate is the signed area (all signed
-         * areas are off by the same constant factor) of the simplex and the
-         * remaining coordinates are the *negated* signed areas for the
-         * simplices in which p is substituted for each of the vertices.
-         * Analogous results occur in higher dimensions.
-         */
-        int dim = simplex.Length - 1;
-        if (this.Dimension != dim)
-            throw new ArgumentException("Dimension mismatch");
+    public int[] relation(Pnt[] simplex)
+    {
+      /* In 2D, we compute the cross of this matrix:
+       *    1   1   1   1
+       *    p0  a0  b0  c0
+       *    p1  a1  b1  c1
+       * where (a, b, c) is the simplex and p is this Pnt. The result is a
+       * vector in which the first coordinate is the signed area (all signed
+       * areas are off by the same constant factor) of the simplex and the
+       * remaining coordinates are the *negated* signed areas for the
+       * simplices in which p is substituted for each of the vertices.
+       * Analogous results occur in higher dimensions.
+       */
+      int dim = simplex.Length - 1;
+      if (this.Dimension != dim)
+        throw new ArgumentException("Dimension mismatch");
 
-        /* Create and load the matrix */
-        Pnt[] matrix = new Pnt[dim+1];
-        /* First row */
-        double[] coords = new double[dim+2];
-        for (int j = 0; j < coords.Length; j++) coords[j] = 1;
-        matrix[0] = new Pnt(coords);
-        /* Other rows */
-        for (int i = 0; i < dim; i++) {
-            coords[0] = this.coordinates[i];
-            for (int j = 0; j < simplex.Length; j++)
-                coords[j+1] = simplex[j].coordinates[i];
-            matrix[i+1] = new Pnt(coords);
-        }
+      /* Create and load the matrix */
+      Pnt[] matrix = new Pnt[dim + 1];
+      /* First row */
+      double[] coords = new double[dim + 2];
+      for (int j = 0; j < coords.Length; j++) coords[j] = 1;
+      matrix[0] = new Pnt(coords);
+      /* Other rows */
+      for (int i = 0; i < dim; i++)
+      {
+        coords[0] = this.coordinates[i];
+        for (int j = 0; j < simplex.Length; j++)
+          coords[j + 1] = simplex[j].coordinates[i];
+        matrix[i + 1] = new Pnt(coords);
+      }
 
-        /* Compute and analyze the vector of areas/volumes/contents */
-        Pnt vector = cross(matrix);
-        double content = vector.coordinates[0];
-        int[] result = new int[dim+1];
-        for (int i = 0; i < result.Length; i++) {
-            double value = vector.coordinates[i+1];
-            if (Math.Abs(value) <= 1.0e-6 * Math.Abs(content)) result[i] = 0;
-            else if (value < 0) result[i] = -1;
-            else result[i] = 1;
-        }
-        if (content < 0) {
-            for (int i = 0; i < result.Length; i++)
-                result[i] = -result[i];
-        }
-        if (content == 0) {
-            for (int i = 0; i < result.Length; i++)
-                result[i] = Math.Abs(result[i]);
-        }
-        return result;
+      /* Compute and analyze the vector of areas/volumes/contents */
+      Pnt vector = cross(matrix);
+      double content = vector.coordinates[0];
+      int[] result = new int[dim + 1];
+      for (int i = 0; i < result.Length; i++)
+      {
+        double value = vector.coordinates[i + 1];
+        if (Math.Abs(value) <= 1.0e-6 * Math.Abs(content)) result[i] = 0;
+        else if (value < 0) result[i] = -1;
+        else result[i] = 1;
+      }
+      if (content < 0)
+      {
+        for (int i = 0; i < result.Length; i++)
+          result[i] = -result[i];
+      }
+      if (content == 0)
+      {
+        for (int i = 0; i < result.Length; i++)
+          result[i] = Math.Abs(result[i]);
+      }
+      return result;
     }
 
     /**
@@ -372,12 +404,14 @@ public class Pnt {
      * @param simplex the simplex (an array of Pnts)
      * @return simplex Pnt that "witnesses" outsideness (or null if not outside)
      */
-    public Pnt isOutside (Pnt[] simplex) {
-        int[] result = this.relation(simplex);
-        for (int i = 0; i < result.Length; i++) {
-            if (result[i] > 0) return simplex[i];
-        }
-        return null;
+    public Pnt isOutside(Pnt[] simplex)
+    {
+      int[] result = this.relation(simplex);
+      for (int i = 0; i < result.Length; i++)
+      {
+        if (result[i] > 0) return simplex[i];
+      }
+      return null;
     }
 
     /**
@@ -385,14 +419,16 @@ public class Pnt {
      * @param simplex the simplex (an array of Pnts)
      * @return the simplex Pnt that "witnesses" on-ness (or null if not on)
      */
-    public Pnt isOn (Pnt[] simplex) {
-        int[] result = this.relation(simplex);
-        Pnt witness = null;
-        for (int i = 0; i < result.Length; i++) {
-            if (result[i] == 0) witness = simplex[i];
-            else if (result[i] > 0) return null;
-        }
-        return witness;
+    public Pnt isOn(Pnt[] simplex)
+    {
+      int[] result = this.relation(simplex);
+      Pnt witness = null;
+      for (int i = 0; i < result.Length; i++)
+      {
+        if (result[i] == 0) witness = simplex[i];
+        else if (result[i] > 0) return null;
+      }
+      return witness;
     }
 
     /**
@@ -400,10 +436,11 @@ public class Pnt {
      * @param simplex the simplex (an arary of Pnts)
      * @return true iff this Pnt is inside simplex.
      */
-    public bool isInside (Pnt[] simplex) {
-        int[] result = this.relation(simplex);
-        for (int i = 0; i < result.Length; i++) if (result[i] >= 0) return false;
-        return true;
+    public bool isInside(Pnt[] simplex)
+    {
+      int[] result = this.relation(simplex);
+      for (int i = 0; i < result.Length; i++) if (result[i] >= 0) return false;
+      return true;
     }
 
     /**
@@ -411,15 +448,16 @@ public class Pnt {
      * @param simplex the simplex (as an array of Pnts)
      * @return -1, 0, or +1 for inside, on, or outside of circumcircle
      */
-    public int vsCircumcircle (Pnt[] simplex) {
-        Pnt[] matrix = new Pnt[simplex.Length + 1];
-        for (int i = 0; i < simplex.Length; i++)
-            matrix[i] = simplex[i].extend(1, simplex[i].dot(simplex[i]));
-        matrix[simplex.Length] = this.extend(1, this.dot(this));
-        double d = determinant(matrix);
-        int result = (d < 0)? -1 : ((d > 0)? +1 : 0);
-        if (content(simplex) < 0) result = - result;
-        return result;
+    public int vsCircumcircle(Pnt[] simplex)
+    {
+      Pnt[] matrix = new Pnt[simplex.Length + 1];
+      for (int i = 0; i < simplex.Length; i++)
+        matrix[i] = simplex[i].extend(1, simplex[i].dot(simplex[i]));
+      matrix[simplex.Length] = this.extend(1, this.dot(this));
+      double d = determinant(matrix);
+      int result = (d < 0) ? -1 : ((d > 0) ? +1 : 0);
+      if (content(simplex) < 0) result = -result;
+      return result;
     }
 
     /**
@@ -427,18 +465,19 @@ public class Pnt {
      * @param simplex the simplex (as an array of Pnts)
      * @return the circumcenter (a Pnt) of simplex
      */
-    public static Pnt circumcenter (Pnt[] simplex) {
-        int dim = simplex[0].Dimension;
-        if (simplex.Length - 1 != dim)
-            throw new ArgumentException("Dimension mismatch");
-        Pnt[] matrix = new Pnt[dim];
-        for (int i = 0; i < dim; i++)
-            matrix[i] = simplex[i].bisector(simplex[i+1]);
-        Pnt hCenter = cross(matrix);      // Center in homogeneous coordinates
-        double last = hCenter.coordinates[dim];
-        double[] result = new double[dim];
-        for (int i = 0; i < dim; i++) result[i] = hCenter.coordinates[i] / last;
-        return new Pnt(result);
+    public static Pnt circumcenter(Pnt[] simplex)
+    {
+      int dim = simplex[0].Dimension;
+      if (simplex.Length - 1 != dim)
+        throw new ArgumentException("Dimension mismatch");
+      Pnt[] matrix = new Pnt[dim];
+      for (int i = 0; i < dim; i++)
+        matrix[i] = simplex[i].bisector(simplex[i + 1]);
+      Pnt hCenter = cross(matrix);      // Center in homogeneous coordinates
+      double last = hCenter.coordinates[dim];
+      double[] result = new double[dim];
+      for (int i = 0; i < dim; i++) result[i] = hCenter.coordinates[i] / last;
+      return new Pnt(result);
     }
 
     /**
@@ -471,4 +510,5 @@ public class Pnt {
     //    System.out.println("Circumcenter of " + toString(vs) + " is " +
     //            circumcenter(vs));
     //}
+  }
 }

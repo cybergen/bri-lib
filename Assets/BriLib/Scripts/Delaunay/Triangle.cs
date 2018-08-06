@@ -37,7 +37,11 @@ using System.Collections.Generic;
  * Created December 2007. Replaced general simplices with geometric triangle.
  *
  */
-public class Triangle : List<Pnt> {
+
+namespace BriLib.Delaunay
+{
+  public class Triangle : List<Pnt>
+  {
 
     private int idNumber;                   // The id number
     private Pnt circumcenter = null;        // The triangle's circumcenter
@@ -50,26 +54,27 @@ public class Triangle : List<Pnt> {
      * @param vertices the vertices of the Triangle.
      * @throws ArgumentException if there are not three distinct vertices
      */
-    public Triangle (params Pnt[] vertices) : this(vertices.ToList()) { }
+    public Triangle(params Pnt[] vertices) : this(vertices.ToList()) { }
 
     /**
      * @param collection a Collection holding the Simplex vertices
      * @throws ArgumentException if there are not three distinct vertices
      */
-    public Triangle (IEnumerable<Pnt> collection) : base(collection)
+    public Triangle(IEnumerable<Pnt> collection) : base(collection)
     {
-        idNumber = idGenerator++;
-        if (Count != 3)
-            throw new ArgumentException("Triangle must have 3 vertices");
+      idNumber = idGenerator++;
+      if (Count != 3)
+        throw new ArgumentException("Triangle must have 3 vertices");
     }
-    
-    public override string ToString () {
-        var s = "[Triangle" + idNumber;
-        foreach (var entry in this)
-        {
-            s += " " + entry + ",";
-        }
-        return s + "]";
+
+    public override string ToString()
+    {
+      var s = "[Triangle" + idNumber;
+      foreach (var entry in this)
+      {
+        s += " " + entry + ",";
+      }
+      return s + "]";
     }
 
     /**
@@ -78,10 +83,11 @@ public class Triangle : List<Pnt> {
      * @return a vertex of this triangle, but not one of the bad vertices
      * @throws NoSuchElementException if no vertex found
      */
-    public Pnt getVertexButNot (params Pnt[] badVertices) {
-        var bad = badVertices.ToList();
-        for (int i = 0; i < Count; i++) if (!bad.Contains(this[i])) return this[i];
-        throw new MissingMemberException("No vertex found");
+    public Pnt getVertexButNot(params Pnt[] badVertices)
+    {
+      var bad = badVertices.ToList();
+      for (int i = 0; i < Count; i++) if (!bad.Contains(this[i])) return this[i];
+      throw new MissingMemberException("No vertex found");
     }
 
     /**
@@ -90,10 +96,11 @@ public class Triangle : List<Pnt> {
      * @param triangle the other Triangle
      * @return true iff this Triangle is a neighbor of triangle
      */
-    public bool isNeighbor (Triangle triangle) {
-        int count = 0;
-        for (int i = 0; i < Count; i++) if (!triangle.Contains(this[i])) count++;
-        return count == 1;
+    public bool isNeighbor(Triangle triangle)
+    {
+      int count = 0;
+      for (int i = 0; i < Count; i++) if (!triangle.Contains(this[i])) count++;
+      return count == 1;
     }
 
     /**
@@ -102,37 +109,42 @@ public class Triangle : List<Pnt> {
      * @return the facet opposite vertex
      * @throws ArgumentException if the vertex is not in triangle
      */
-    public List<Pnt> facetOpposite (Pnt vertex) {
-        List<Pnt> facet = new List<Pnt>(this);
-        if (!facet.Remove(vertex))
-            throw new ArgumentException("Vertex not in triangle");
-        return facet;
+    public List<Pnt> facetOpposite(Pnt vertex)
+    {
+      List<Pnt> facet = new List<Pnt>(this);
+      if (!facet.Remove(vertex))
+        throw new ArgumentException("Vertex not in triangle");
+      return facet;
     }
 
     /**
      * @return the triangle's circumcenter
      */
-    public Pnt getCircumcenter () {
-        if (circumcenter == null)
-            circumcenter = Pnt.circumcenter(ToArray());
-        return circumcenter;
+    public Pnt getCircumcenter()
+    {
+      if (circumcenter == null)
+        circumcenter = Pnt.circumcenter(ToArray());
+      return circumcenter;
     }
 
     /* The following two methods ensure that all triangles are different. */
 
-    public override int GetHashCode() {
-        return (int)(idNumber^((uint)idNumber>>32));
+    public override int GetHashCode()
+    {
+      return (int)(idNumber ^ ((uint)idNumber >> 32));
     }
-    
-    public override bool Equals(object o) {
-        if (this == o) return true;
-        var t = o as Triangle;
-        if (t == null) return false;
-        if (t.Count != Count) return false;
-        for (int i = 0; i < Count; i++)
-        {
-            if (!t.Contains(this[i])) return false;
-        }
-        return true;
+
+    public override bool Equals(object o)
+    {
+      if (this == o) return true;
+      var t = o as Triangle;
+      if (t == null) return false;
+      if (t.Count != Count) return false;
+      for (int i = 0; i < Count; i++)
+      {
+        if (!t.Contains(this[i])) return false;
+      }
+      return true;
     }
+  }
 }

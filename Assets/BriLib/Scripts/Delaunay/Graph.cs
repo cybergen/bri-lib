@@ -30,7 +30,11 @@ using System.Linq;
  * Created November, December 2007.  For use in Delaunay/Voronoi code.
  *
  */
-public class Graph<N> {
+
+namespace BriLib.Delaunay
+{
+  public class Graph<N>
+  {
 
     private Dictionary<N, List<N>> theNeighbors =    // Node -> adjacent nodes
         new Dictionary<N, List<N>>();
@@ -40,10 +44,11 @@ public class Graph<N> {
      * Add a node.  If node is already in graph then no change.
      * @param node the node to add
      */
-    public void add (N node) {
-        if (theNeighbors.ContainsKey(node)) return;
-        theNeighbors.Add(node, new List<N>());
-     }
+    public void add(N node)
+    {
+      if (theNeighbors.ContainsKey(node)) return;
+      theNeighbors.Add(node, new List<N>());
+    }
 
     /**
      * Add a link. If the link is already in graph then no change.
@@ -51,12 +56,13 @@ public class Graph<N> {
      * @param nodeB the other end of the link
      * @throws NullPointerException if either endpoint is not in graph
      */
-    public void add (N nodeA, N nodeB) {
-        if (!theNeighbors.ContainsKey(nodeA)) add(nodeA);
-        if (!theNeighbors.ContainsKey(nodeB)) add(nodeB);
+    public void add(N nodeA, N nodeB)
+    {
+      if (!theNeighbors.ContainsKey(nodeA)) add(nodeA);
+      if (!theNeighbors.ContainsKey(nodeB)) add(nodeB);
 
-        theNeighbors[nodeA].AddIfNotContains(nodeB);
-        theNeighbors[nodeB].AddIfNotContains(nodeA);
+      theNeighbors[nodeA].AddIfNotContains(nodeB);
+      theNeighbors[nodeB].AddIfNotContains(nodeA);
     }
 
     /**
@@ -64,15 +70,16 @@ public class Graph<N> {
      * happens.
      * @param node the node to remove.
      */
-    public void remove (N node) {
-        if (!theNeighbors.ContainsKey(node)) return;
-        for (var enumerator = theNeighbors.GetEnumerator(); enumerator.MoveNext();)
-        {
-            var neighbor = enumerator.Current.Key;
-            theNeighbors[neighbor].Remove(node);
-        }                                               // Remove "to" links
-        theNeighbors[node].Clear();                 // Remove "from" links
-        theNeighbors.Remove(node);                      // Remove the node
+    public void remove(N node)
+    {
+      if (!theNeighbors.ContainsKey(node)) return;
+      for (var enumerator = theNeighbors.GetEnumerator(); enumerator.MoveNext();)
+      {
+        var neighbor = enumerator.Current.Key;
+        theNeighbors[neighbor].Remove(node);
+      }                                               // Remove "to" links
+      theNeighbors[node].Clear();                 // Remove "from" links
+      theNeighbors.Remove(node);                      // Remove the node
     }
 
     /**
@@ -81,9 +88,10 @@ public class Graph<N> {
      * @param nodeB the other end of the link
      * @throws NullPointerException if either endpoint is not in graph
      */
-    public void remove (N nodeA, N nodeB) {
-        theNeighbors[nodeA].Remove(nodeB);
-        theNeighbors[nodeB].Remove(nodeA);
+    public void remove(N nodeA, N nodeB)
+    {
+      theNeighbors[nodeA].Remove(nodeB);
+      theNeighbors[nodeB].Remove(nodeA);
     }
 
     /**
@@ -92,8 +100,9 @@ public class Graph<N> {
      * @return the neighbors of node
      * @throws NullPointerException if node does not appear in graph
      */
-    public List<N> neighbors (N node) {
-        return theNeighbors[node];
+    public List<N> neighbors(N node)
+    {
+      return theNeighbors[node];
     }
 
     /**
@@ -102,8 +111,10 @@ public class Graph<N> {
      * the set.
      * @return a Set view of the graph's node set
      */
-    public List<N> nodeSet () {
-        return theNodeSet;
+    public List<N> nodeSet()
+    {
+      return theNodeSet;
     }
 
+  }
 }
