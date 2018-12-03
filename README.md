@@ -1,5 +1,24 @@
-# bri-lib
-A library of useful C# concepts including Observables, Promises, Queueables, etc. Mostly unit tested.
+# bri-lib-core
+A library of useful C# concepts for Unity development, including:
+* Camera screenshot capture tooling
+* Observable properties
+* Observable collections
+* Template duplication/bind on collections
+* Easing curves
+* Geometry helpers like saving meshes as asset at runtime
+* Voronoi diagrams
+* Delaunay triangulations
+* Logging
+* Queueing stuff for defering interactions on main thread
+* Math help
+* Convenient static extensions
+* Pub-sub message system
+* Space partitioning data structures Quadtree and Octree
+* Some UI helpers
+* More!
+
+# Tests
+The tests have been moved to this repo - https://github.com/cybergen/bri-lib-tests
 
 # License
 
