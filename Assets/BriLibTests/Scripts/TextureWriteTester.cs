@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using BriLib;
@@ -120,8 +121,8 @@ namespace BriLib.Tests
         {
           GL.Begin(GL.TRIANGLES);
           LinRenderMat.SetPass(0);
-          GL.Color(tri.ItemTwo);
-          foreach (var entry in tri.ItemOne)
+          GL.Color(tri.Item2);
+          foreach (var entry in tri.Item1)
           {
             GL.Vertex3(entry.x, entry.y, entry.z);
           }
@@ -133,8 +134,8 @@ namespace BriLib.Tests
       {
         foreach (var line in lineList)
         {
-          var start = line.ItemOne;
-          var end = line.ItemTwo;
+          var start = line.Item1;
+          var end = line.Item2;
 
           GL.Begin(GL.QUADS);
           LinRenderMat.SetPass(0);
@@ -174,11 +175,11 @@ namespace BriLib.Tests
         {
           GL.Begin(GL.QUADS);
           LinRenderMat.SetPass(0);
-          GL.Color(point.ItemTwo);
-          GL.Vertex3(point.ItemOne.x - PointSize / 2, point.ItemOne.y, point.ItemOne.z - PointSize / 2);
-          GL.Vertex3(point.ItemOne.x + PointSize / 2, point.ItemOne.y, point.ItemOne.z - PointSize / 2);
-          GL.Vertex3(point.ItemOne.x + PointSize / 2, point.ItemOne.y, point.ItemOne.z + PointSize / 2);
-          GL.Vertex3(point.ItemOne.x - PointSize / 2, point.ItemOne.y, point.ItemOne.z + PointSize / 2);
+          GL.Color(point.Item2);
+          GL.Vertex3(point.Item1.x - PointSize / 2, point.Item1.y, point.Item1.z - PointSize / 2);
+          GL.Vertex3(point.Item1.x + PointSize / 2, point.Item1.y, point.Item1.z - PointSize / 2);
+          GL.Vertex3(point.Item1.x + PointSize / 2, point.Item1.y, point.Item1.z + PointSize / 2);
+          GL.Vertex3(point.Item1.x - PointSize / 2, point.Item1.y, point.Item1.z + PointSize / 2);
           GL.End();
         }
       }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace BriLib
@@ -200,7 +201,7 @@ namespace BriLib
                 {
                     for (int i = 0; i < subtreeList.Count; i++)
                     {
-                        if (octantEntry.ItemTwo < subtreeList[i].ItemTwo)
+                        if (octantEntry.Item2 < subtreeList[i].Item2)
                         {
                             subtreeList.Insert(i, octantEntry);
                             break;
@@ -218,10 +219,10 @@ namespace BriLib
             for (int i = 0; i < subtreeList.Count; i++)
             {
                 //If we have already found something closer than current octant, exit early
-                if (distanceToBest < subtreeList[i].ItemTwo) break;
+                if (distanceToBest < subtreeList[i].Item2) break;
 
                 //Check if octant has a candidate for neighbor
-                var candidate = _subtrees[subtreeList[i].ItemOne].GetNearestObject(x, y, z);
+                var candidate = _subtrees[subtreeList[i].Item1].GetNearestObject(x, y, z);
                 if (candidate == null) continue;
 
                 //If candidate distance is shorter than current best, replace current best

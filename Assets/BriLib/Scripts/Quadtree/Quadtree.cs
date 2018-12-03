@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace BriLib
@@ -213,7 +214,7 @@ namespace BriLib
                 {
                     for (int i = 0; i < subtreeList.Count; i++)
                     {
-                        if (quadrantEntry.ItemTwo < subtreeList[i].ItemTwo)
+                        if (quadrantEntry.Item2 < subtreeList[i].Item2)
                         {
                             subtreeList.Insert(i, quadrantEntry);
                             break;
@@ -231,10 +232,10 @@ namespace BriLib
             for (int i = 0; i < subtreeList.Count; i++)
             {
                 //If we have already found something closer than current quadrant, exit early
-                if (distanceToBest < subtreeList[i].ItemTwo) break;
+                if (distanceToBest < subtreeList[i].Item2) break;
 
                 //Check if quadrant has a candidate for neighbor
-                var candidate = _subtrees[subtreeList[i].ItemOne].GetNearestObject(x, y);
+                var candidate = _subtrees[subtreeList[i].Item1].GetNearestObject(x, y);
                 if (candidate == null) continue;
 
                 //If candidate distance is shorter than current best, replace current best

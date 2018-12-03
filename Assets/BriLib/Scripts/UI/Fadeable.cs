@@ -11,6 +11,7 @@ namespace BriLib
     public float EaseDuration = 0.4f;
     public Easing.Method EaseType = Easing.Method.ExpoOut;
     public bool Hiding { get; private set; }
+    public bool Visible { get { return CG.alpha > 0f; } }
 
     private EaseWrapper _easer;
     private Action<float> _onUpdate;

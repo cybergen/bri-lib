@@ -118,7 +118,7 @@ namespace BriLib.Tests
         var color = GetRandomColor();
         foreach (var tri in cell.Triangles)
         {
-          var vectors = new[] { tri.ItemOne, tri.ItemTwo, tri.ItemThree };
+          var vectors = new[] { tri.Item1, tri.Item2, tri.Item3 };
           DrawTriangle(vectors, color);
         }
       }
