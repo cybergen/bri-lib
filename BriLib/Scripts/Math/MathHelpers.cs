@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace BriLib
 {
     public static class MathHelpers
@@ -106,6 +108,17 @@ namespace BriLib
         public static bool GreaterThanEqual(float a, float b)
         {
             return a > b || FloatCompare(a, b);
+        }
+
+        /// <summary>
+        /// Select one random entry from a list
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="rand"></param>
+        /// <returns></returns>
+        public static T SelectFromRange<T>(List<T> list, System.Random rand)
+        {
+      return list[rand.Next(list.Count)];
         }
     }
 }
