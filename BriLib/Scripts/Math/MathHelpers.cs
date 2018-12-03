@@ -118,7 +118,7 @@ namespace BriLib
         /// <returns></returns>
         public static T SelectFromRange<T>(List<T> list, System.Random rand)
         {
-      return list[rand.Next(list.Count)];
+            return list[rand.Next(list.Count)];
         }
     }
 }
