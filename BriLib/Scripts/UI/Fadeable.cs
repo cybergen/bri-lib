@@ -3,7 +3,7 @@ using System;
 
 namespace BriLib
 {
-  public class Fadeable : MonoBehaviour
+  public class Fadeable : MonoBehaviour, IShowable
   {
     public CanvasGroup CG;
     public float StartValue = 0f;
@@ -17,6 +17,11 @@ namespace BriLib
     private Action<float> _onUpdate;
 
     protected virtual void Awake()
+    {
+      OnAwake();
+    }
+
+    public virtual void OnAwake()
     {
       _easer = new EaseWrapper(EaseDuration, StartValue, EndValue, EaseType, (a) => CG.alpha = a);
       CG.alpha = 0f;
