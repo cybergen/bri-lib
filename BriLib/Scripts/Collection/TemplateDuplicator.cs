@@ -24,10 +24,13 @@ namespace BriLib
       _collection.OnAddedNonGeneric += OnAdded;
       _collection.OnRemovedNonGeneric += OnRemoved;
       _collection.OnReplacedNonGeneric += OnReplaced;
+      _bound = true;
     }
 
     public void UnbindOnCollection()
     {
+      if (!_bound) return;
+
       _collection.OnAddedNonGeneric -= OnAdded;
       _collection.OnRemovedNonGeneric -= OnRemoved;
       _collection.OnReplacedNonGeneric -= OnReplaced;
