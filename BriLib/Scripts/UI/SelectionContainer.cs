@@ -9,6 +9,7 @@ namespace BriLib
 
     public void Initialize(Type selectableType)
     {
+      _selectableType = selectableType;
       MessageManager.Instance.Bus.Subscribe<SelectionMessage>(OnSelectionMessage);
     }
 
@@ -21,7 +22,7 @@ namespace BriLib
     {
       var selectableType = obj.NewSelection.GetType();
       if (selectableType != _selectableType || _current == obj.NewSelection) return;
-      _current.Selected.Value = false;
+      if (_current != null) _current.Selected.Value = false;
       obj.NewSelection.Selected.Value = true;
       _current = obj.NewSelection;
     }
