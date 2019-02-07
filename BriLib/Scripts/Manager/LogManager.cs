@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace BriLib
 {
-  public class LogManager : Singleton<LogManager>
+  public class LogManager : GOSingleton<LogManager>
   {
     public enum LogLevel
     {
@@ -21,21 +21,24 @@ namespace BriLib
 
     public void Log(string msg, LogLevel level)
     {
-      if (level >= _currentLevel)
-      {        
-        switch (level)
+      MainThreadQueue.Instance.QueueAction(() =>
+      {
+        if (level >= _currentLevel)
         {
-          case LogLevel.Info:
-            Debug.Log(msg);
-            break;
-          case LogLevel.Warning:
-            Debug.LogWarning(msg);
-            break;
-          case LogLevel.Error:
-            Debug.LogError(msg);
-            break;
+          switch (level)
+          {
+            case LogLevel.Info:
+              Debug.Log(msg);
+              break;
+            case LogLevel.Warning:
+              Debug.LogWarning(msg);
+              break;
+            case LogLevel.Error:
+              Debug.LogError(msg);
+              break;
+          }
         }
-      }
+      });
     }
 
     public static void Info(string msg)
