@@ -71,5 +71,11 @@ namespace BriLib
         {
             return (currValue - fromStart) / (toStart - fromStart) * (toEnd - fromEnd) + fromEnd;
         }
+
+        public static K GetIfNotNull<T, K>(this Dictionary<T, K> dict, T key) where K : class
+        {
+            if (dict.ContainsKey(key)) return dict[key];
+            return null;
+        }
     }
 }
