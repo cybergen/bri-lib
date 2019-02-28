@@ -35,9 +35,11 @@ namespace BriLib
 
     protected void Fail()
     {
+      if (_disposed) return;
       UnityEngine.Debug.Log("Calling OnFail on task: " + this.GetType());
-      _onFailed.Execute();
+      var onFailed = _onFailed;
       Cleanup();
+      onFailed.Execute();
     }
 
     protected virtual void Cleanup()
