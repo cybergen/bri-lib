@@ -26,6 +26,19 @@ namespace BriLib
             _observed.OnCleared += OnObserverCleared;
         }
 
+        public void ReSort()
+        {
+            var list = new List<T>();
+            for (int i = Count - 1; i >= 0; i--)
+            {
+                list.Add(this[i]);
+                RemoveAt(i);
+            }
+            list.ForEach((entry) => {
+                Insert(GetIndexForObject(entry), entry);
+            });
+        }
+
         public override void Dispose()
         {
             base.Dispose();
