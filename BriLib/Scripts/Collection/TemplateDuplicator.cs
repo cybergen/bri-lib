@@ -38,6 +38,11 @@ namespace BriLib
       _bound = false;
     }
 
+    public IView GetViewForObject(object obj)
+    {
+      return _viewMap[obj];
+    }
+
     private void SpawnEntries()
     {
       for (int i = 0; i < _collection.Count; i++)

@@ -10,6 +10,7 @@ namespace BriLib
         Action<int, object> OnRemovedNonGeneric { get; set; }
         Action<int, object, object> OnReplacedNonGeneric { get; set; }
         Action OnCleared { get; set; }
+        Action OnChanged { get; set; }
 
         IObservableCollection Map(Func<object, object> mapper);
         IObservableCollection FilterNonGeneric(Func<object, bool> filter);

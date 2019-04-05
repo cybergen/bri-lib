@@ -9,6 +9,7 @@ namespace BriLib
         public Action<int, T> OnRemoved { get; set; }
         public Action<int, T, T> OnReplaced { get; set; }
         public Action OnCleared { get; set; }
+        public Action OnChanged { get; set; }
 
         public Action<int, object> OnAddedNonGeneric { get; set; }
         public Action<int, object> OnRemovedNonGeneric { get; set; }
@@ -77,6 +78,7 @@ namespace BriLib
             OnRemoved = null;
             OnCleared = null;
             OnReplaced = null;
+            OnChanged = null;
             Clear();
         }
 
@@ -84,7 +86,8 @@ namespace BriLib
         {
             base.InsertItem(index, item);
             if (OnAdded != null) { OnAdded(index, item); }
-            if (OnAddedNonGeneric != null) { OnAddedNonGeneric(index, item); } 
+            if (OnAddedNonGeneric != null) { OnAddedNonGeneric(index, item); }
+            if (OnChanged != null) { OnChanged(); }
         }
 
         protected override void RemoveItem(int index)
@@ -93,6 +96,7 @@ namespace BriLib
             base.RemoveItem(index);
             if (OnRemoved != null) { OnRemoved(index, removedItem); }
             if (OnRemovedNonGeneric != null) { OnRemovedNonGeneric(index, removedItem); }
+            if (OnChanged != null) { OnChanged(); }
         }
 
         protected override void SetItem(int index, T item)
@@ -101,12 +105,14 @@ namespace BriLib
             base.SetItem(index, item);
             if (OnReplaced != null) { OnReplaced(index, oldItem, item); }
             if (OnReplacedNonGeneric != null) { OnReplacedNonGeneric(index, oldItem, item); }
+            if (OnChanged != null) { OnChanged(); }
         }
 
         protected override void ClearItems()
         {
             base.ClearItems();
             OnCleared.Execute();
+            if (OnChanged != null) { OnChanged(); }
         }
     }
 }

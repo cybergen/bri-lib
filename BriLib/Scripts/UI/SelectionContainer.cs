@@ -4,6 +4,8 @@ namespace BriLib
 {
   public class SelectionContainer
   {
+    public ObservableProperty<ISelectable> Current = new ObservableProperty<ISelectable>();
+
     private Type _selectableType;
     private ISelectable _current;
 
@@ -25,6 +27,7 @@ namespace BriLib
       if (_current != null) _current.Selected.Value = false;
       obj.NewSelection.Selected.Value = true;
       _current = obj.NewSelection;
+      Current.Value = _current;
     }
   }
 }
