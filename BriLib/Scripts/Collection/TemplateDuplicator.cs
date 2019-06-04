@@ -5,8 +5,10 @@ namespace BriLib
 {
   public class TemplateDuplicator : MonoBehaviour
   {
+#pragma warning disable CS0649
     [SerializeField] private GameObject _listEntryTemplate;
     [SerializeField] private Transform _listParent;
+#pragma warning restore CS0649
     private Dictionary<object, IView> _viewMap = new Dictionary<object, IView>();
     private IObservableCollection _collection;
     private bool _bound;

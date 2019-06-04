@@ -245,7 +245,7 @@ namespace BriLib.Delaunay
       try { return determinant(matrix, 0, columns); }
       catch (IndexOutOfRangeException e)
       {
-        throw new ArgumentException("Matrix is wrong shape");
+        throw new ArgumentException("Matrix is wrong shape: " + e);
       }
     }
 
@@ -305,7 +305,7 @@ namespace BriLib.Delaunay
       }
       catch (IndexOutOfRangeException e)
       {
-        throw new ArgumentException("Matrix is wrong shape");
+        throw new ArgumentException("Matrix is wrong shape: " + e);
       }
       return new Pnt(result);
     }
