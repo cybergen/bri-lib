@@ -4,22 +4,37 @@ namespace BriLib
 {
   /// <summary>
   /// A form of singleton where we expect some prefab or game object to exist in world. If the game object does not yet exist,
-  /// Instance returns null (does not attempt to create the singleton for us). If the game object DOES exist, we bail out,
+  /// we automatically make it. If the game object DOES exist on create, we bail out,
   /// as we should not attempt to create more than one of a singleton
   /// </summary>
   /// <typeparam name="T"></typeparam>
   public abstract class GOSingleton<T> : MonoBehaviour, ISingleton where T : Component, ISingleton
   {
-    public static T Instance { get; private set; }
+    public static T Instance
+    {
+      get
+      {
+        if (_instance == null)
+        {
+          var obj = new GameObject(typeof(T).GetType().ToString());
+          obj.AddComponent<T>();
+          obj.name = typeof(T).ToString();
+          _instance = obj.GetComponent<T>();
+        }
+        return _instance;
+      }
+    }
+
+    private static T _instance;
 
     private void Awake()
     {
-      if (Instance != null)
+      if (_instance != null)
       {
         throw new DuplicateInstanceException("Attempted to initialize already initialized singleton " + typeof(T));
       }
-      Instance = gameObject.GetComponent<T>();
-      Instance.OnCreate();
+      _instance = gameObject.GetComponent<T>();
+      _instance.OnCreate();
     }
 
     private void Start()
@@ -36,7 +51,7 @@ namespace BriLib
 
     public virtual void End()
     {
-      Instance = null;
+      _instance = null;
       Destroy(gameObject);
     }
   }

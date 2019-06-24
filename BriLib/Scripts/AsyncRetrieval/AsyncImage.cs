@@ -56,7 +56,7 @@ namespace BriLib
       //Trigger download
       AsyncImageCache.Instance.GetResult(Url).ContinueWith(dlTask =>
       {
-        Debug.Log("Finished dl now resizing");
+        LogManager.Info("Finished dl now resizing");
         if (dlTask.IsFaulted || dlTask.IsCanceled || dlTask.Result == null)
         {
           MainThreadQueue.Instance.QueueAction(() =>

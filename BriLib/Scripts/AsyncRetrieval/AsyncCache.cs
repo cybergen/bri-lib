@@ -16,6 +16,7 @@ namespace BriLib
 
     public async Task<K> GetResult(string url)
     {
+      LogManager.Info("Getting result for async cahce: " + typeof(K).ToString());
       if (string.IsNullOrEmpty(url)) return null;
       AsyncToken<K> token = null;
 
@@ -26,8 +27,10 @@ namespace BriLib
       await GetRequestReady();
       _requestsActive++;
 
+      LogManager.Info("awaiting donwload");
       var request = new WWW(url);
       while (!request.isDone) await Task.Delay(50);
+      LogManager.Info("request finished");
 
       if (!string.IsNullOrEmpty(request.error))
       {
