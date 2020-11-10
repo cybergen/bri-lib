@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace BriLib
 {
-  public class AsyncCache<K> : GOSingleton<AsyncCache<K>> where K : class
+  public class AsyncCache<K> where K : class
   {
     public int MaxRequests = 3;
 
@@ -13,6 +13,11 @@ namespace BriLib
 
     private Dictionary<string, AsyncToken<K>> _storedTokens = new Dictionary<string, AsyncToken<K>>();
     private int _requestsActive;
+
+    public AsyncCache(Func<WWW, K> resultFunction)
+    {
+      _getResult = resultFunction;
+    }
 
     public async Task<K> GetResult(string url)
     {

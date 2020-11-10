@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace BriLib
 {
-  public class AsyncTaskManager : GOSingleton<AsyncTaskManager>
+  public class AsyncTaskManager : Singleton<AsyncTaskManager>
   {
     private List<AsyncTask> _tasks = new List<AsyncTask>();
     private List<AsyncTask> _removeList = new List<AsyncTask>();

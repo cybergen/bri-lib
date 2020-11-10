@@ -1,20 +1,19 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace BriLib
 {
-  public class AsyncImageCache : AsyncCache<Texture>
+  public class AsyncImageCache : Singleton<AsyncImageCache>
   {
-    public override void OnCreate()
-    {
-      base.OnCreate();
-      LogManager.Info("On create for image cache");
-      _getResult = GetResult;
-    }
-
-    private Texture GetResult(WWW www)
+    private AsyncCache<Texture> _cache = new AsyncCache<Texture>((www) =>
     {
       LogManager.Info("Got texture off of www obj");
       return www.texture;
+    });
+
+    public Task<Texture> GetResult(string url)
+    {
+      return _cache.GetResult(url);
     }
   }
 }

@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace BriLib
 {
-  public class PreferencesManager : GOSingleton<PreferencesManager>
-  {  
+  public class PreferencesManager : Singleton<PreferencesManager>
+  {
     public bool GetBool(string key)
     {
       return PlayerPrefs.GetInt(key, 0) == 1;
@@ -25,7 +25,7 @@ namespace BriLib
       PlayerPrefs.SetString(key, value);
       PlayerPrefs.Save();
     }
-    
+
     public void DeleteAll()
     {
       LogManager.Info("Deleting preferences data");

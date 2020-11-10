@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace BriLib
 {
-  public class LogManager : GOSingleton<LogManager>
+  public class LogManager : Singleton<LogManager>
   {
     public enum LogLevel
     {

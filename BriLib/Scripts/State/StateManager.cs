@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BriLib
 {
-  public class StateManager : GOSingleton<StateManager>
+  public class StateManager : Singleton<StateManager>
   {
     private Dictionary<string, StateMachine> _machineMap = new Dictionary<string, StateMachine>();
     private Queue<StateMachine> _uninitializedStateMachines = new Queue<StateMachine>();

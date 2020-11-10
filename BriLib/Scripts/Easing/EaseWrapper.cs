@@ -24,10 +24,10 @@ namespace BriLib
     private bool _easing;
 
     public EaseWrapper(
-      float duration, 
-      float startValue, 
-      float endValue, 
-      Easing.Method easeType, 
+      float duration,
+      float startValue,
+      float endValue,
+      Easing.Method easeType,
       Action<float> onUpdate)
     {
       _duration = duration;

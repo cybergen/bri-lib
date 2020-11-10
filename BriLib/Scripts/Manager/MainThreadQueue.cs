@@ -7,7 +7,7 @@ namespace BriLib
   /// Simple queue for adding actions to the main thread (for use by things that might resolve/trigger actions off of main
   /// thread)
   /// </summary>
-  public class MainThreadQueue : GOSingleton<MainThreadQueue>
+  public class MainThreadQueue : Singleton<MainThreadQueue>
   {
     private List<Action> _queuedActions = new List<Action>();
 

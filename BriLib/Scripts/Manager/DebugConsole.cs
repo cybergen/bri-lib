@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace BriLib
 {
-  public class DebugConsole : GOSingleton<DebugConsole>
+  public class DebugConsole : Singleton<DebugConsole>
   {
     public InputField Input;
     public GameObject HideButton;
@@ -16,7 +16,7 @@ namespace BriLib
     public int TargetScrollSize = 600;
     public int MaxLineCount = 75;
 
-    private Dictionary<string, Func<List<string>, string>> _commandMap 
+    private Dictionary<string, Func<List<string>, string>> _commandMap
       = new Dictionary<string, Func<List<string>, string>>();
     private Dictionary<string, string> _helpInfoMap = new Dictionary<string, string>();
 
