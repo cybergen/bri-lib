@@ -3,7 +3,7 @@ using System;
 
 namespace BriLib
 {
-  public class Fadeable : MonoBehaviour, IShowable
+  public class Fadeable : MonoBehaviour
   {
     public CanvasGroup CG;
     public float StartValue = 0f;
@@ -14,7 +14,6 @@ namespace BriLib
     public bool Visible { get { return CG.alpha > 0f; } }
 
     private EaseWrapper _easer;
-    private Action<float> _onUpdate;
 
     protected virtual void Awake()
     {
@@ -26,19 +25,20 @@ namespace BriLib
       _easer = new EaseWrapper(EaseDuration, StartValue, EndValue, EaseType, (a) => CG.alpha = a);
       CG.alpha = 0f;
       gameObject.SetActive(false);
+      Hiding = true;
     }
 
     public virtual void Show(Action onFinish = null, Action onCancel = null)
     {
       gameObject.SetActive(true);
-      _easer.SetEase(EaseWrapper.Direction.Forward, onFinish, onCancel);
+      _easer.Ease(EaseWrapper.Direction.Forward, onFinish, onCancel);
       Hiding = false;
     }
 
     public virtual void Hide(Action onFinish = null, Action onCancel = null)
     {
       onFinish += () => gameObject.SetActive(false);
-      _easer.SetEase(EaseWrapper.Direction.Backward, onFinish, onCancel);
+      _easer.Ease(EaseWrapper.Direction.Backward, onFinish, onCancel);
       Hiding = true;
     }
 
@@ -52,9 +52,10 @@ namespace BriLib
       Hide(null, null);
     }
 
-    protected virtual void Update()
+    public void Flip()
     {
-      _easer.Tick(Time.deltaTime);
+      if (Hiding) Show();
+      else Hide();
     }
   }
 }

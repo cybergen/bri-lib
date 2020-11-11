@@ -18,13 +18,23 @@ namespace BriLib
     private static T CreateSingleton()
     {
       var existingObj = (T)FindObjectOfType(typeof(T));
-      if (existingObj != null) return existingObj;
+      if (existingObj != null)
+      {
+        existingObj.OnCreate();
+        existingObj.Begin();
+        return existingObj;
+      }
 
       var typeString = typeof(T).ToString();
       var obj = new GameObject(typeString);
       obj.AddComponent<T>();
       obj.name = typeof(T).ToString();
-      return obj.GetComponent<T>();
+
+      var instance = obj.GetComponent<T>();
+      instance.OnCreate();
+      instance.Begin();
+
+      return instance;
     }
 
     private void Awake()
@@ -43,7 +53,6 @@ namespace BriLib
     {
       //Ping our instance at least once to ensure that it has initialized
       var temp = Instance;
-      Begin();
     }
 
     public virtual void OnCreate()

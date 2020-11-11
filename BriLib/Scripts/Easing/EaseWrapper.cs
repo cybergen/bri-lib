@@ -37,14 +37,15 @@ namespace BriLib
       _onUpdate = onUpdate;
     }
 
-    public void SetEase(Direction direction, Action onFinish, Action onCancel)
+    public void Ease(Direction direction, Action onFinish, Action onCancel)
     {
       if (_easing) _onCancel.Execute();
 
       _currentDirection = direction;
       _easing = true;
-      _onFinish = onFinish;
-      _onCancel = onCancel;
+      _onFinish = () => { UpdateManager.Instance.RemoveUpdater(Tick); onFinish.Execute(); };
+      _onCancel = () => { UpdateManager.Instance.RemoveUpdater(Tick); onCancel.Execute(); };
+      UpdateManager.Instance.AddUpdater(Tick);
     }
 
     public void Tick(float delta)
