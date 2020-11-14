@@ -91,13 +91,13 @@ namespace BriLib
       var type = typeof(T);
       if (!_panelMap.ContainsKey(type))
       {
-        Debug.LogError("Failed to retrieve panel with type " + type + " that was not in UI heirarchy of parent " + name);
+        LogManager.Error("Failed to retrieve panel with type " + type + " that was not in UI heirarchy of parent " + name);
         return null;
       }
       var panel = _panelMap[type];
       if (!(panel is Panel<K>))
       {
-        Debug.LogError("Data did not take expected data type " + typeof(K));
+        LogManager.Error("Data did not take expected data type " + typeof(K));
         return null;
       }
       return _panelMap[type] as Panel<K>;
@@ -113,7 +113,7 @@ namespace BriLib
       var type = typeof(T);
       if (!_panelMap.ContainsKey(typeof(T)))
       {
-        Debug.LogError("Failed to retrieve panel with type " + type + " that was not in UI heirarchy of parent " + name);
+        LogManager.Error("Failed to retrieve panel with type " + type + " that was not in UI heirarchy of parent " + name);
         return null;
       }
       return _panelMap[type] as T;
@@ -132,7 +132,7 @@ namespace BriLib
         var type = childPanels[i].GetType();
         if (_panelMap.ContainsKey(type))
         {
-          Debug.LogError("Tried to add more than one panel with type " + type);
+          LogManager.Error("Tried to add more than one panel with type " + type);
           continue;
         }
         _panelMap.Add(type, childPanels[i]);

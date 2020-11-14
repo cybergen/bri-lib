@@ -77,7 +77,7 @@ namespace BriLib
     {
       if (listenerFunction == null)
       {
-        Debug.LogError("Cannot insert null function into listener list");
+        LogManager.Error("Cannot insert null function into listener list");
         return;
       }
       if (!_inputStacks.ContainsKey(code)) _inputStacks.Add(code, new List<Func<bool>>());
@@ -93,7 +93,7 @@ namespace BriLib
     {
       if (!_inputStacks.ContainsKey(code))
       {
-        Debug.LogError("No entries in list for keycode: " + code);
+        LogManager.Error("No entries in list for keycode: " + code);
         return;
       }
       _inputStacks[code].Remove(listenerFunction);

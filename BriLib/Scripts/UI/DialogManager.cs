@@ -53,7 +53,7 @@ namespace BriLib
       }
       else
       {
-        Debug.LogError("DialogManager.HideDialog(): Template is null or does not exist.");
+        LogManager.Error("DialogManager.HideDialog(): Template is null or does not exist.");
       }
     }
   }

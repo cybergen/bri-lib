@@ -44,7 +44,7 @@ namespace BriLib
 
       if (buttons.Count != ButtonsFromLeftToRight.Count)
       {
-        Debug.LogError("Attempted to supply mismatched amount of button data " + buttons.Count
+        LogManager.Error("Attempted to supply mismatched amount of button data " + buttons.Count
           + " to button count " + ButtonsFromLeftToRight.Count);
         return;
       }

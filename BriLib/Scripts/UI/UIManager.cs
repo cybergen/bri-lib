@@ -49,19 +49,19 @@ namespace BriLib
     {
       base.Begin();
 
-      RectTransform rt = GetComponent<RectTransform>();
-      CanvasScaler = rt.localScale.x;
-      ScreenWidth = rt.sizeDelta.x;
+      //RectTransform rt = GetComponent<RectTransform>();
+      //CanvasScaler = rt.localScale.x;
+      //ScreenWidth = rt.sizeDelta.x;
 
-      var targetHeaderSize = _header.Rect.rect.height + Screen.safeArea.y;
-      _header.Rect.sizeDelta = new Vector2(_header.Rect.sizeDelta.x, targetHeaderSize);
+      //var targetHeaderSize = _header.Rect.rect.height + Screen.safeArea.y;
+      //_header.Rect.sizeDelta = new Vector2(_header.Rect.sizeDelta.x, targetHeaderSize);
 
-      var targetFooterSize = _footer.Rect.rect.height + Screen.safeArea.y;
-      _footer.Rect.sizeDelta = new Vector2(_footer.Rect.sizeDelta.x, targetFooterSize);
+      //var targetFooterSize = _footer.Rect.rect.height + Screen.safeArea.y;
+      //_footer.Rect.sizeDelta = new Vector2(_footer.Rect.sizeDelta.x, targetFooterSize);
 
-      // resize main panel area according to height of header/footer
-      _body.Rect.offsetMin = new Vector2(_body.Rect.offsetMin.x, targetFooterSize);
-      _body.Rect.offsetMax = new Vector2(_body.Rect.offsetMax.x, -targetHeaderSize);
+      //// resize main panel area according to height of header/footer
+      //_body.Rect.offsetMin = new Vector2(_body.Rect.offsetMin.x, targetFooterSize);
+      //_body.Rect.offsetMax = new Vector2(_body.Rect.offsetMax.x, -targetHeaderSize);
     }
   }
 }

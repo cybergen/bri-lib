@@ -46,7 +46,7 @@ namespace BriLib {
           System.IO.Directory.CreateDirectory(Directory());
         }
         System.IO.File.WriteAllBytes(filename, bytes);
-        Debug.Log(string.Format("Took screenshot to: {0}", filename));
+        LogManager.Info(string.Format("Took screenshot to: {0}", filename));
       }
     }
   }
