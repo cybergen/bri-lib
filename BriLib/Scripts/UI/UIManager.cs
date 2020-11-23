@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace BriLib
 {
@@ -19,6 +20,9 @@ namespace BriLib
     [SerializeField] private Region _overlay;
     [SerializeField] private RectTransform _regionContainer;
     [SerializeField] private GameObject _interactionBlocker;
+
+    private Vector2 _currentScreenSize;
+    private Rect _safeArea;
 
     /// <summary>
     /// Controls an interaction blocker that will intercept touch events
@@ -48,7 +52,15 @@ namespace BriLib
     {
       base.Begin();
 
-      //https://github.com/Goropocha/UniSafeAreaAdjuster/blob/master/UniSafeAreaAdjuster/Assets/UniSafeAreaAdjuster/SafeAreaAdjuster.cs
+      _currentScreenSize = new Vector2(Screen.width, Screen.height);
+      _safeArea = Screen.safeArea;
+
+      SetSafeArea();
+    }
+
+    private void SetSafeArea()
+    {
+      //https://forum.unity.com/threads/canvashelper-resizes-a-recttransform-to-iphone-xs-safe-area.521107/
       var safeArea = Screen.safeArea;
       var screenSize = new Vector2(Screen.width, Screen.height);
       var anchorMin = safeArea.position;
@@ -58,8 +70,23 @@ namespace BriLib
       anchorMax.x /= screenSize.x;
       anchorMax.y /= screenSize.y;
 
+      LogManager.Info("SAFE AREA: " + safeArea);
+      LogManager.Info("ORIGINAL SCREEN SIZE: " + screenSize);
+
       _regionContainer.anchorMin = anchorMin;
       _regionContainer.anchorMax = anchorMax;
+    }
+
+    private void Update()
+    {
+      var newSize = new Vector2(Screen.width, Screen.height);
+      if (_currentScreenSize != newSize)
+      {
+        LogManager.Info("DEVICE ORIENTATION CHANGED, RECALCULATING SCREEN SIZE");
+        _currentScreenSize = newSize;
+        _safeArea = Screen.safeArea;
+        SetSafeArea();
+      }
     }
   }
 }
