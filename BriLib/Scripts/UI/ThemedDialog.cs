@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BriLib
+namespace BriLib.UI
 {
   /// <summary>
   /// A dialog that, when shown with DialogButtonData list, will

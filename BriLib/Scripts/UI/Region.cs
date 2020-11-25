@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BriLib
+namespace BriLib.UI
 {
   /// <summary>
   /// An area on the screen into which panels can be added. At launch, Region

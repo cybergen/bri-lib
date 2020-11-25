@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using UnityEngine;
 
-namespace BriLib
+namespace BriLib.UI
 {
   /// <summary>
   /// Some task-driven methods for animating UI with minimal additional boilerplate

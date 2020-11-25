@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using System;
 
-namespace BriLib
+namespace BriLib.UI
 {
   /// <summary>
   /// Limited manager for maintaining a themed dialog that is reusable. WIP - should be extended

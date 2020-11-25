@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace BriLib
+namespace BriLib.UI
 {
   /// <summary>
   /// Base class for UI Panels, where T is a data type that the panel expects to receive from

@@ -1,7 +1,6 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace BriLib
+namespace BriLib.UI
 {
   /// <summary>
   /// Primary entry point for all UI. Used to show and hide panels placed at different

@@ -1,4 +1,4 @@
-namespace BriLib
+namespace BriLib.UI
 {
   public class SelectionMessage : Message
   {

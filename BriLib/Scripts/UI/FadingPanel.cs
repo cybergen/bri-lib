@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BriLib
+namespace BriLib.UI
 {
   /// <summary>
   /// Extendible generic fading panel

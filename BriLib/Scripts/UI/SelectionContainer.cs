@@ -1,6 +1,6 @@
 using System;
 
-namespace BriLib
+namespace BriLib.UI
 {
   public class SelectionContainer
   {
