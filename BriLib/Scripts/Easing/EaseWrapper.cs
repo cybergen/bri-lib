@@ -23,6 +23,15 @@ namespace BriLib
     private Action _onCancel;
     private bool _easing;
 
+    public static EaseWrapper CreateWrapperAndStart(float duration, float start, float end, Action<float> onUpdate,
+      Easing.Method easingMethod = Easing.Method.ExpoOut, Direction direction = Direction.Forward,
+      Action onFinish = null, Action onCancel = null)
+    {
+      var wrapper = new EaseWrapper(duration, start, end, easingMethod, onUpdate);
+      wrapper.Ease(direction, onFinish, onCancel);
+      return wrapper;
+    }
+
     public EaseWrapper(
       float duration,
       float startValue,
@@ -58,8 +67,13 @@ namespace BriLib
         if (_currentTime >= _duration)
         {
           _currentTime = _duration;
+          _onUpdate.Execute(Easing.Ease(_startValue, _endValue, 0f, _duration, _currentTime, _easeType));
           _easing = false;
           _onFinish.Execute();
+        }
+        else
+        {
+          _onUpdate.Execute(Easing.Ease(_startValue, _endValue, 0f, _duration, _currentTime, _easeType));
         }
       }
       else
@@ -68,12 +82,22 @@ namespace BriLib
         if (_currentTime <= 0)
         {
           _currentTime = 0f;
+          _onUpdate.Execute(Easing.Ease(_startValue, _endValue, 0f, _duration, _currentTime, _easeType));
           _easing = false;
           _onFinish.Execute();
         }
+        else
+        {
+          _onUpdate.Execute(Easing.Ease(_startValue, _endValue, 0f, _duration, _currentTime, _easeType));
+        }
       }
 
-      _onUpdate.Execute(Easing.Ease(_startValue, _endValue, 0f, _duration, _currentTime, _easeType));
+    }
+
+    public void RevertToStart()
+    {
+      _currentTime = 0f;
+      _onUpdate.Execute(0f);
     }
   }
 }
