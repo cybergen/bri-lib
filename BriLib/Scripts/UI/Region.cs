@@ -28,8 +28,8 @@ namespace BriLib.UI
     public void ShowPanel<T, K>(K data) where T : Panel<K>
     {
       var _newPanel = GetPanel<T, K>();
-
-      if (_activePanel != null && _newPanel != _activePanel)
+      
+      if (_activePanel != null && !ReferenceEquals(_newPanel, _activePanel))
       {
         UIManager.SetInteractable(false);
         _activePanel.Hide(() =>

@@ -77,5 +77,11 @@ namespace BriLib
       if (dict.ContainsKey(key)) return dict[key];
       return null;
     }
+
+    public static bool IsValid(this UnityEngine.Vector3 vector)
+    {
+        return !float.IsNaN(vector.x) && !float.IsNaN(vector.y) && !float.IsNaN(vector.z) &&
+          !float.IsInfinity(vector.x) && !float.IsInfinity(vector.y) && !float.IsInfinity(vector.z);
+    }
   }
 }

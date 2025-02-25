@@ -8,17 +8,19 @@ namespace BriLib
   public class AsyncCache<K> where K : class
   {
     public int MaxRequests = 3;
-
+    [Obsolete]
     protected Func<WWW, K> _getResult;
 
     private Dictionary<string, AsyncToken<K>> _storedTokens = new Dictionary<string, AsyncToken<K>>();
     private int _requestsActive;
 
+    [Obsolete]
     public AsyncCache(Func<WWW, K> resultFunction)
     {
       _getResult = resultFunction;
     }
 
+    [Obsolete]
     public async Task<K> GetResult(string url)
     {
       LogManager.Info("Getting result for async cahce: " + typeof(K).ToString());

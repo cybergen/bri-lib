@@ -27,6 +27,7 @@ namespace BriLib
       _image = gameObject.GetComponent<RawImage>();
     }
 
+    [System.Obsolete]
     private void Update()
     {
       if (Url == _oldUrl || string.IsNullOrEmpty(Url)) return;
